@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import com.forrestguice.topoindex.MainActivity;
 import com.forrestguice.topoindex.R;
 
 public class TopoIndexDatabaseService extends Service
@@ -93,6 +94,7 @@ public class TopoIndexDatabaseService extends Service
 
     public static final int NOTIFICATION_PROGRESS = 10;
     public static final int NOTIFICATION_COMPLETE = 20;
+    public static final int NOTIFICATION_FAILED = 30;
 
     private static TopoIndexDatabaseInitTask databaseTask = null;
     private static TopoIndexDatabaseInitTask.InitTaskListener databaseTaskListener;
@@ -105,11 +107,15 @@ public class TopoIndexDatabaseService extends Service
 
         databaseTask = new TopoIndexDatabaseInitTask(context);
 
-        databaseTaskListener = (listener != null) ? listener : new TopoIndexDatabaseInitTask.InitTaskListener()
+        databaseTaskListener = new TopoIndexDatabaseInitTask.InitTaskListener()
         {
             @Override
             public void onStarted()
             {
+                if (listener != null) {
+                    listener.onStarted();
+                }
+
                 String message = "Initializing database";  // TODO
 
                 signalOnStatusChanged(STATUS_BUSY);
@@ -118,7 +124,7 @@ public class TopoIndexDatabaseService extends Service
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
                 notificationBuilder.setContentTitle(context.getString(R.string.app_name))
                         .setContentText(message)
-                        //.setSmallIcon(R.drawable.ic_action_update)        // TODO
+                        .setSmallIcon(R.mipmap.ic_launcher)        // TODO
                         .setPriority(NotificationCompat.PRIORITY_LOW)
                         .setProgress(0, 0, true);
                 startService(new Intent( context, TopoIndexDatabaseService.class));  // bind the service to itself (to keep things running if the activity unbinds)
@@ -126,23 +132,33 @@ public class TopoIndexDatabaseService extends Service
 
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                 notificationManager.cancel(NOTIFICATION_COMPLETE);
+                notificationManager.cancel(NOTIFICATION_FAILED);
             }
 
             @Override
-            public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress) { /* EMPTY */ }
+            public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress)
+            {
+                if (listener != null) {
+                    listener.onProgress(progress);
+                }
+            }
 
             @Override
             public void onFinished(TopoIndexDatabaseInitTask.InitTaskResult result)
             {
+                if (listener != null) {
+                    listener.onFinished(result);
+                }
+
                 if (result.getResult())
                 {
-                    //Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                    String message = "Initialized database";
+                    String message = "Initialized database";   // TODO
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
                     notificationBuilder.setContentTitle(context.getString(R.string.app_name))
                             .setContentText(message)
-                            //.setSmallIcon(R.drawable.ic_action_calendar)       // TODO
+                            .setSmallIcon(R.mipmap.ic_launcher)       // TODO
                             .setPriority(NotificationCompat.PRIORITY_LOW)
                             .setContentIntent(getNotificationIntent()).setAutoCancel(true)
                             .setProgress(0, 0, false);
@@ -153,17 +169,17 @@ public class TopoIndexDatabaseService extends Service
                     stopSelf();
 
                 } else {
-                    String message = "Failed to initialize database";
+                    String message = "Failed to initialize database";    // TODO
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
                     notificationBuilder.setContentTitle(context.getString(R.string.app_name))
                             .setContentText(message)
-                            //.setSmallIcon(R.drawable.ic_action_calendar)       // TODO
+                            .setSmallIcon(R.mipmap.ic_launcher)       // TODO
                             .setPriority(NotificationCompat.PRIORITY_LOW)
                             .setContentIntent(getNotificationIntent()).setAutoCancel(true)
                             .setProgress(0, 0, false);
 
-                    notificationManager.notify(NOTIFICATION_COMPLETE, notificationBuilder.build());
+                    notificationManager.notify(NOTIFICATION_FAILED, notificationBuilder.build());
                     signalOnStatusChanged(STATUS_READY);
                     stopForeground(true);
                     stopSelf();
@@ -172,9 +188,7 @@ public class TopoIndexDatabaseService extends Service
 
             private PendingIntent getNotificationIntent()
             {
-                Intent intent = new Intent(Intent.ACTION_VIEW);    // TODO
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Intent intent = new Intent(context, MainActivity.class);
                 return PendingIntent.getActivity(context, 0, intent, 0);
             }
         };
