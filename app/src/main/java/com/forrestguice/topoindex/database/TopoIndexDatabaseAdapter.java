@@ -49,7 +49,7 @@ public class TopoIndexDatabaseAdapter
     public static final String DEF_MAP_STATE = KEY_MAP_STATE + " text not null";
 
     public static final String KEY_MAP_DATE = "mapdate";
-    public static final String DEF_MAP_DATE = KEY_MAP_STATE + " text not null";
+    public static final String DEF_MAP_DATE = KEY_MAP_DATE + " text not null";
 
     public static final String KEY_MAP_LATITUDE_NORTH = "nlat";
     public static final String DEF_MAP_LATITUDE_NORTH = KEY_MAP_LATITUDE_NORTH + " text not null";
@@ -121,7 +121,7 @@ public class TopoIndexDatabaseAdapter
         database = null;
     }
 
-    public Cursor getAllQuads(int n, boolean fullEntry)
+    public Cursor getAllMaps(int n, boolean fullEntry)
     {
         String[] QUERY = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
         Cursor cursor =  (n > 0) ? database.query( TABLE_MAPS, QUERY, null, null, null, null, "_id DESC", n+"" )
@@ -133,7 +133,7 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
-    public Cursor getQuad(long row) throws SQLException
+    public Cursor getMap(long row) throws SQLException
     {
         @SuppressWarnings("UnnecessaryLocalVariable")
         String[] QUERY = QUERY_MAPS_FULLENTRY;
