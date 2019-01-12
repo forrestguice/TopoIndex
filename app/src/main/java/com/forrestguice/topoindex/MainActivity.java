@@ -1,8 +1,30 @@
+/**
+    Copyright (C) 2019 Forrest Guice
+    This file is part of TopoIndex.
+
+    TopoIndex is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    TopoIndex is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with TopoIndex.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package com.forrestguice.topoindex;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -17,21 +39,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
+import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     public static final String TAG = "TopoIndexActivity";
 
-    private FloatingActionButton fab;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initViews(this);
+    }
+
+    private void initViews(Context context)
+    {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,35 +76,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Menus / Navigation
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
-    public void onBackPressed() {
+    public void onBackPressed()
+    {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.START))
+        {
             drawer.closeDrawer(GravityCompat.START);
+
         } else {
             super.onBackPressed();
         }
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings)
+        {
+            // TODO
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -106,46 +137,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // initDatabase
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     private void initDatabase()
     {
         Uri indexUri = null;  // TODO
         initDatabase(this, indexUri);
     }
 
-    private TopoIndexDatabaseInitTask initTask;
     private boolean initDatabase(Context context, Uri uri)
     {
-        if (initTask != null && !initTask.isCancelled())
+        if (databaseService.getStatus() != TopoIndexDatabaseService.STATUS_READY)
         {
-            switch(initTask.getStatus())
-            {
-                case PENDING:
-                case RUNNING:
-                    Log.w(TAG, "initDatabase: DatabaseInitTask is already running (or pending); ignoring call...");
-                    return false;
-
-                case FINISHED:
-                default:
-                    initTask = null;
-                    break;
-            }
+            Log.w(TAG, "initDatabase: DatabaseInitTask is already running (or pending); ignoring call...");
+            return false;
         }
-
-        initTask = new TopoIndexDatabaseInitTask(context);
-        initTask.setTaskListener(initTaskListener);
-        initTask.execute(uri);
-        return true;
+        return databaseService.runDatabaseInitTask(context, null, uri, initTaskListener);
     }
 
-    private Snackbar initSnackbar;
+    private Snackbar progressSnackbar;
     private TopoIndexDatabaseInitTask.InitTaskListener initTaskListener = new TopoIndexDatabaseInitTask.InitTaskListener()
     {
         @Override
         public void onStarted()
         {
-            initSnackbar = Snackbar.make(fab, "Initializing the database . . .", Snackbar.LENGTH_LONG);
-            initSnackbar.setAction("Cancel", null);
-            initSnackbar.show();
+            progressSnackbar = Snackbar.make(findViewById(R.id.fab), "Initializing the database . . .", Snackbar.LENGTH_LONG);
+            progressSnackbar.setAction("Cancel", null);
+            progressSnackbar.show();
         }
 
         @Override
@@ -157,8 +177,62 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onFinished(TopoIndexDatabaseInitTask.InitTaskResult result)
         {
-            initSnackbar.setText("Database Initialization " + (result.getResult() ? "succeeded" : "failed"));
-            initSnackbar.setAction(null, null);
+            progressSnackbar.setText("Database Initialization " + (result.getResult() ? "succeeded" : "failed"));
+            progressSnackbar.setAction(null, null);
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // DatabaseService
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private static TopoIndexDatabaseService databaseService;
+    boolean boundToService = false;
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        bindService(new Intent(this, TopoIndexDatabaseService.class),
+                databaseServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        databaseService.removeServiceListener(serviceListener);
+        unbindService(databaseServiceConnection);
+        boundToService = false;
+    }
+
+    private ServiceConnection databaseServiceConnection = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service)
+        {
+            TopoIndexDatabaseService.TopoIndexDatabaseServiceBinder binder = (TopoIndexDatabaseService.TopoIndexDatabaseServiceBinder) service;
+            databaseService = binder.getService();
+            boundToService = true;
+            databaseService.addServiceListener(serviceListener);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            boundToService = false;
+        }
+    };
+
+    private TopoIndexDatabaseService.TopoIndexDatabaseServiceListener serviceListener = new TopoIndexDatabaseService.TopoIndexDatabaseServiceListener() {
+        @Override
+        public void onStatusChanged(int status)
+        {
+            // TODO
+        }
+
+        @Override
+        public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress progress)
+        {
+            // TODO
         }
     };
 }

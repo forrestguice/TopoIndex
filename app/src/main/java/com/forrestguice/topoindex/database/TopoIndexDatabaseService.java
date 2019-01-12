@@ -59,7 +59,7 @@ public class TopoIndexDatabaseService extends Service
     private final TopoIndexDatabaseServiceBinder taskBinder = new TopoIndexDatabaseServiceBinder();
     public class TopoIndexDatabaseServiceBinder extends Binder
     {
-        TopoIndexDatabaseService getService() {
+        public TopoIndexDatabaseService getService() {
             return TopoIndexDatabaseService.this;
         }
     }
