@@ -1,8 +1,11 @@
 package com.forrestguice.topoindex;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,8 +16,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+{
+    public static final String TAG = "TopoIndexActivity";
+
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,12 +31,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                initDatabase();
             }
         });
 
@@ -98,4 +105,60 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void initDatabase()
+    {
+        Uri indexUri = null;  // TODO
+        initDatabase(this, indexUri);
+    }
+
+    private TopoIndexDatabaseInitTask initTask;
+    private boolean initDatabase(Context context, Uri uri)
+    {
+        if (initTask != null && !initTask.isCancelled())
+        {
+            switch(initTask.getStatus())
+            {
+                case PENDING:
+                case RUNNING:
+                    Log.w(TAG, "initDatabase: DatabaseInitTask is already running (or pending); ignoring call...");
+                    return false;
+
+                case FINISHED:
+                default:
+                    initTask = null;
+                    break;
+            }
+        }
+
+        initTask = new TopoIndexDatabaseInitTask(context);
+        initTask.setTaskListener(initTaskListener);
+        initTask.execute(uri);
+        return true;
+    }
+
+    private Snackbar initSnackbar;
+    private TopoIndexDatabaseInitTask.InitTaskListener initTaskListener = new TopoIndexDatabaseInitTask.InitTaskListener()
+    {
+        @Override
+        public void onStarted()
+        {
+            initSnackbar = Snackbar.make(fab, "Initializing the database . . .", Snackbar.LENGTH_LONG);
+            initSnackbar.setAction("Cancel", null);
+            initSnackbar.show();
+        }
+
+        @Override
+        public void onProgress(TopoIndexDatabaseInitTask.InitTaskProgress... progress)
+        {
+            // TODO
+        }
+
+        @Override
+        public void onFinished(TopoIndexDatabaseInitTask.InitTaskResult result)
+        {
+            initSnackbar.setText("Database Initialization " + (result.getResult() ? "succeeded" : "failed"));
+            initSnackbar.setAction(null, null);
+        }
+    };
 }
