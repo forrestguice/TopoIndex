@@ -22,11 +22,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -40,10 +43,9 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -87,18 +89,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initListAdapter(Context context)
     {
-        MapItem[] values = new MapItem[] {new MapItem("one"), new MapItem("two"), new MapItem("three")};   // TODO: values loaded from database cursor
-        ArrayAdapter<MapItem> adapter = new ArrayAdapter<MapItem>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);   // TODO: list item layout
+        if (database == null) {
+            database = new TopoIndexDatabaseAdapter(MainActivity.this);
+        }
 
-        if (mapListView != null) {
-            mapListView.setAdapter(adapter);
+        ListAdapterTask task = new ListAdapterTask();
+        task.execute();
+    }
+
+    private TopoIndexDatabaseAdapter database;
+    private class ListAdapterTask extends AsyncTask<Void, Void, Cursor>
+    {
+        @Override
+        protected void onPreExecute()
+        {
+            database.open();
+        }
+
+        @Override
+        protected Cursor doInBackground(Void... voids)
+        {
+            return database.getAllMaps(0, false);
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor)
+        {
+            SimpleCursorAdapter adapter = new SimpleCursorAdapter(MainActivity.this,
+                    android.R.layout.simple_list_item_1, cursor, new String[] { "name" }, new int[] { android.R.id.text1 });
+
+            if (mapListView != null) {
+                mapListView.setAdapter(adapter);
+            }
         }
     }
 
     /**
      * MapItem
      */
-    public static class MapItem
+    /**public static class MapItem
     {
         private String name;
         public MapItem(String name)
@@ -110,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             return name;
         }
-    }
+    }*/
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Menus / Navigation
