@@ -98,7 +98,7 @@ public class TopoIndexDatabaseService extends Service
 
     private static TopoIndexDatabaseInitTask databaseTask = null;
     private static TopoIndexDatabaseInitTask.InitTaskListener databaseTaskListener;
-    public boolean runDatabaseInitTask(final Context context, Intent intent, Uri uri, @Nullable final TopoIndexDatabaseInitTask.InitTaskListener listener)
+    public boolean runDatabaseInitTask(final Context context, @Nullable Intent intent, Uri uri, @Nullable final TopoIndexDatabaseInitTask.InitTaskListener listener)
     {
         if (getStatus() != STATUS_READY) {
             Log.w(TAG, "runCalendarTask: A task is already running! ignoring...");

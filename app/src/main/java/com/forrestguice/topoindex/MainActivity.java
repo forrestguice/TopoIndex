@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -208,8 +209,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initDatabase()
     {
-        Uri indexUri = null;  // TODO
-        initDatabase(this, indexUri);
+        initDatabase(this, null);
     }
 
     private boolean initDatabase(Context context, Uri uri)
