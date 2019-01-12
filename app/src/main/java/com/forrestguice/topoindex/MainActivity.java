@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public void onProgress(TopoIndexDatabaseInitTask.InitTaskProgress... progress)
+        public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress)
         {
             // TODO
         }

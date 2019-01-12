@@ -24,7 +24,7 @@ import android.os.AsyncTask;
 
 import java.lang.ref.WeakReference;
 
-public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseInitTask.InitTaskProgress, TopoIndexDatabaseInitTask.InitTaskResult>
+public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseInitTask.DatabaseTaskProgress, TopoIndexDatabaseInitTask.InitTaskResult>
 {
     private WeakReference<Context> contextRef;
     private TopoIndexDatabaseAdapter database;
@@ -51,7 +51,7 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     }
 
     @Override
-    protected void onProgressUpdate( InitTaskProgress... progress )
+    protected void onProgressUpdate( DatabaseTaskProgress... progress )
     {
         super.onProgressUpdate(progress);
         if (taskListener != null) {
@@ -97,9 +97,9 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     /**
      * InitTaskProgress
      */
-    public static class InitTaskProgress
+    public static class DatabaseTaskProgress
     {
-        public InitTaskProgress( String msg, int itemNum, int numItems )
+        public DatabaseTaskProgress( String msg, int itemNum, int numItems )
         {
             this.message = msg;
             this.count[0] = itemNum;
@@ -126,7 +126,7 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     public static abstract class InitTaskListener
     {
         public abstract void onStarted();
-        public abstract void onProgress( InitTaskProgress... progress );
+        public abstract void onProgress( DatabaseTaskProgress... progress );
         public abstract void onFinished( InitTaskResult result );
     }
 
