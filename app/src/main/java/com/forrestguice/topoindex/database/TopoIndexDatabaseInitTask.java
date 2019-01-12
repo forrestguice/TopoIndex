@@ -18,14 +18,28 @@
 
 package com.forrestguice.topoindex.database;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseInitTask.DatabaseTaskProgress, TopoIndexDatabaseInitTask.InitTaskResult>
 {
+    public static final String TAG = "TopoIndexTask";
+
     private WeakReference<Context> contextRef;
     private TopoIndexDatabaseAdapter database;
 
@@ -47,7 +61,80 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     @Override
     protected InitTaskResult doInBackground(Uri... uris)
     {
-        return new InitTaskResult(false, 0);
+        if (uris.length > 0)
+        {
+            Uri uri = uris[0];
+            Context context = contextRef.get();
+            if (context != null)
+            {
+                String assetName = "topomaps_all.zip";
+                String filename = "topomaps_all.csv";
+                ContentResolver resolver = context.getContentResolver();
+                InputStream input;
+                ZipInputStream zipInput;
+                try {
+                    if (uri == null) {
+                        Log.d(TAG, "DatabaseInitTask: Assets: " + assetName);
+                        AssetManager assets = context.getAssets();
+                        input = assets.open(assetName);
+
+                    } else {
+                        Log.d(TAG, "DatabaseInitTask: URI: " + uri);
+                        input = resolver.openInputStream(uri);
+                    }
+
+                    zipInput = new ZipInputStream(input);
+
+                    ZipEntry zipFile;
+                    boolean foundFile = false;
+                    do {
+                        zipFile = zipInput.getNextEntry();
+                        if (zipFile != null && zipFile.getName().equals(filename)) {
+                            foundFile = true;
+
+                        } else if (zipFile != null) {
+                            zipInput.closeEntry();
+                        }
+                    } while (zipFile != null && !foundFile);
+
+                    if (foundFile)
+                    {
+                        Log.d(TAG, "DatabaseInitTask: zip contains file: " + filename);
+
+                        BufferedInputStream bufferedInput = new BufferedInputStream(zipInput);
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(bufferedInput));
+
+                        String line = reader.readLine();
+                        Log.d(TAG, "DEBUG: First Line: " + line);
+                        // TODO
+
+                        zipInput.closeEntry();
+                        zipInput.close();
+                        return new InitTaskResult(true, 0);
+
+                    } else {
+                        zipInput.closeEntry();
+                        zipInput.close();
+                        Log.e(TAG, "DatabaseInitTask: Zip is missing file: " + filename);
+                        return new InitTaskResult(false, 0);
+                    }
+
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "DatabaseInitTask: FileNotFound! " + e);
+
+                } catch (IOException e) {
+                    Log.e(TAG, "DatabaseInitTask: IOException! " + e);
+                }
+                return new InitTaskResult(false, 0);
+
+            } else {
+                Log.e(TAG, "DatabaseInitTask: null context!");
+                return new InitTaskResult(false, 0);
+            }
+        } else {
+            Log.e(TAG, "DatabaseInitTask: missing uri!");
+            return new InitTaskResult(false, 0);
+        }
     }
 
     @Override
