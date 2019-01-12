@@ -37,13 +37,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     public static final String TAG = "TopoIndexActivity";
+
+    private ListView mapListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -57,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mapListView = (ListView) findViewById(R.id.list_maps);
+        initListAdapter(context);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -74,6 +83,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void initListAdapter(Context context)
+    {
+        MapItem[] values = new MapItem[] {new MapItem("one"), new MapItem("two"), new MapItem("three")};   // TODO: values loaded from database cursor
+        ArrayAdapter<MapItem> adapter = new ArrayAdapter<MapItem>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);   // TODO: list item layout
+
+        if (mapListView != null) {
+            mapListView.setAdapter(adapter);
+        }
+    }
+
+    /**
+     * MapItem
+     */
+    public static class MapItem
+    {
+        private String name;
+        public MapItem(String name)
+        {
+            this.name = name;
+        }
+
+        public String toString()
+        {
+            return name;
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
