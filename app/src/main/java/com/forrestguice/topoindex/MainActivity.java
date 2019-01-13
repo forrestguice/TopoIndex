@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected Cursor doInBackground(Void... voids)
         {
-            return database.getAllMaps(0, false);
+            return database.getMaps_USGS_HTMC(0, false);
         }
 
         @Override

@@ -19,10 +19,13 @@
 package com.forrestguice.topoindex.database;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.util.Pools;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -33,6 +36,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -104,10 +108,77 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
                         BufferedInputStream bufferedInput = new BufferedInputStream(zipInput);
                         BufferedReader reader = new BufferedReader(new InputStreamReader(bufferedInput));
 
-                        String line = reader.readLine();
-                        Log.d(TAG, "DEBUG: First Line: " + line);
-                        // TODO
+                        String columnsLine = reader.readLine();
+                        String[] columns = columnsLine.split(",");
+                        Log.d(TAG, "DatabaseInitTask: columns: " + columnsLine);
+
+                        database.open();
+
+                        ArrayList<ContentValues> htmcValues = new ArrayList<>();
+                        ArrayList<ContentValues> ustopoValues = new ArrayList<>();
+                        int batchValuesNum = 1000;
+
+                        int i = 1;         // count lines
                         int c = 0;             // count items
+                        int n = 350000;  // rough estimate total items
+                        String line;
+                        String series;
+                        String[] entry;
+                        DatabaseTaskProgress progressObj = new DatabaseTaskProgress("", 0, n);
+
+                        while ((line = reader.readLine()) != null)
+                        {
+                            entry = line.split(",");
+                            if (entry.length == columns.length)
+                            {
+                                series = entry[0];
+                                if (series.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC))
+                                {
+                                    ContentValues values = new ContentValues();
+                                    TopoIndexDatabaseAdapter.toContentValues(values, entry);
+                                    htmcValues.add(values);
+
+                                    if (htmcValues.size() >= batchValuesNum) {
+                                        database.addMaps_USGS_HTMC(htmcValues.toArray(new ContentValues[0]));
+                                        htmcValues.clear();
+                                        progressObj.count[0] = c;
+                                        publishProgress(progressObj);
+                                    }
+                                    c++;
+
+                                } else if (series.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO)) {
+                                    ContentValues values = new ContentValues();
+                                    TopoIndexDatabaseAdapter.toContentValues(values, entry);
+                                    ustopoValues.add(values);
+
+                                    if (ustopoValues.size() >= batchValuesNum) {
+                                        database.addMaps_USGS_USTopo( ustopoValues.toArray(new ContentValues[0]) );
+                                        ustopoValues.clear();
+                                        progressObj.count[0] = c;
+                                        publishProgress(progressObj);
+                                    }
+                                    c++;
+
+                                } else {
+                                    Log.w(TAG, "DatabaseInitTask: unrecognized series: " + entry[0] + " .. " + line + " .. ignoring this line...");
+                                }
+                            } else {
+                                Log.w(TAG, "DatabaseInitTask: line " + i + " has the wrong number of columns; " + entry.length + " (expects " + columns.length + ") .. ignoring this line...");
+                            }
+                            i++;
+                        }
+
+                        if (htmcValues.size() >= 0) {
+                            database.addMaps_USGS_HTMC(htmcValues.toArray(new ContentValues[0]));
+                            htmcValues.clear();
+                        }
+
+                        if (ustopoValues.size() >= 0) {
+                            database.addMaps_USGS_USTopo( ustopoValues.toArray(new ContentValues[0]) );
+                            ustopoValues.clear();
+                        }
+
+                        database.close();
 
                         zipInput.closeEntry();
                         zipInput.close();
