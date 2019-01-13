@@ -2,8 +2,19 @@
     <string name="app_name">TopoIndex</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title">@string/app_name</string>
+    <string name="nav_header_subtitle">TODO</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- General settings -->
+    <string name="pref_header_general">General</string>
+
+    <!-- Database settings -->
+    <string name="pref_header_database">Database</string>
+    <string name="pref_title_database_sync">Construct Database</string>
+    <string name="pref_title_database_date">Data Version</string>
+    <string name="pref_title_database_lastsync">Last Sync</string>
+
 </resources>

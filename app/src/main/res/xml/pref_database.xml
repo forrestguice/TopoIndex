@@ -1,0 +1,16 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference android:key="database_date"
+        android:title="@string/pref_title_database_date"
+        android:persistent="false" />
+
+    <Preference android:key="database_lastsync"
+        android:title="@string/pref_title_database_lastsync"
+        android:persistent="false" />
+
+    <Preference android:key="database_sync"
+        android:title="@string/pref_title_database_sync" android:persistent="false">
+        <!-- <intent android:action="android.settings.SYNC_SETTINGS" /> -->
+    </Preference>
+
+</PreferenceScreen>
