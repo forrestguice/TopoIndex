@@ -19,23 +19,34 @@
 package com.forrestguice.topoindex;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+
+import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
+import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 
 import java.util.List;
 
 public class SettingsActivity extends AppCompatPreferenceActivity
 {
+    public static final String TAG = "TopoIndexSettings";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -111,7 +122,63 @@ public class SettingsActivity extends AppCompatPreferenceActivity
      * DatabasePreferenceFragment
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class DatabasePreferenceFragment extends PreferenceFragment {
+    public static class DatabasePreferenceFragment extends PreferenceFragment
+    {
+        private static TopoIndexDatabaseService databaseService;
+        boolean boundToService = false;
+
+        private ServiceConnection databaseServiceConnection = new ServiceConnection()
+        {
+            @Override
+            public void onServiceConnected(ComponentName className, IBinder service)
+            {
+                TopoIndexDatabaseService.TopoIndexDatabaseServiceBinder binder = (TopoIndexDatabaseService.TopoIndexDatabaseServiceBinder) service;
+                databaseService = binder.getService();
+                boundToService = true;
+                databaseService.addServiceListener(serviceListener);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName arg0) {
+                boundToService = false;
+            }
+        };
+
+        private TopoIndexDatabaseService.TopoIndexDatabaseServiceListener serviceListener = new TopoIndexDatabaseService.TopoIndexDatabaseServiceListener() {
+            @Override
+            public void onStatusChanged(int status)
+            {
+                // TODO
+            }
+
+            @Override
+            public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress progress)
+            {
+                // TODO
+            }
+        };
+
+        @Override
+        public void onStart()
+        {
+            super.onStart();
+            Activity activity = getActivity();
+            activity.bindService(new Intent(activity, TopoIndexDatabaseService.class),
+                    databaseServiceConnection, Context.BIND_AUTO_CREATE);
+
+            Log.d(TAG, "Bound to database service...");
+        }
+
+        @Override
+        public void onStop()
+        {
+            super.onStop();
+            databaseService.removeServiceListener(serviceListener);
+            getActivity().unbindService(databaseServiceConnection);
+            boundToService = false;
+            Log.d(TAG, "Unbound from database service...");
+        }
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -127,7 +194,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             // TODO: lastsync date from prefs
 
             Preference action_sync = findPreference("database_sync");
-            // TODO: trigger sync operation
+            if (action_sync != null) {
+                action_sync.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+                {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference)
+                    {
+                        if (databaseService != null) {
+                            databaseService.runDatabaseInitTask(getActivity(), null, null, null);
+                        }
+                        return false;
+                    }
+                });
+            }
         }
 
         @Override
