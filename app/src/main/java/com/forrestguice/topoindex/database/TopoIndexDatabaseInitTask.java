@@ -107,10 +107,11 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
                         String line = reader.readLine();
                         Log.d(TAG, "DEBUG: First Line: " + line);
                         // TODO
+                        int c = 0;             // count items
 
                         zipInput.closeEntry();
                         zipInput.close();
-                        return new InitTaskResult(true, 0);
+                        return new InitTaskResult(true, c);
 
                     } else {
                         zipInput.closeEntry();
@@ -193,12 +194,12 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
             this.count[1] = numItems;
         }
 
-        private String message;
+        protected String message;
         public String getMessage() {
             return message;
         }
 
-        private int[] count = new int[] {0, 0};
+        protected int[] count = new int[] {0, 0};
         public int itemNumber() {
             return count[0];
         }

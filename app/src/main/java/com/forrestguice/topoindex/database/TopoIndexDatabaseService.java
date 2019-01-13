@@ -18,6 +18,7 @@
 
 package com.forrestguice.topoindex.database;
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -121,23 +122,30 @@ public class TopoIndexDatabaseService extends Service
                 signalOnStatusChanged(STATUS_BUSY);
                 signalOnProgress(new TopoIndexDatabaseInitTask.DatabaseTaskProgress(message, 0, 0));  // TODO
 
-                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
-                notificationBuilder.setContentTitle(context.getString(R.string.app_name))
+                progressNotification = new NotificationCompat.Builder(context);
+                progressNotification.setContentTitle(context.getString(R.string.app_name))
                         .setContentText(message)
                         .setSmallIcon(R.mipmap.ic_launcher)        // TODO
                         .setPriority(NotificationCompat.PRIORITY_LOW)
                         .setProgress(0, 0, true);
                 startService(new Intent( context, TopoIndexDatabaseService.class));  // bind the service to itself (to keep things running if the activity unbinds)
-                startForeground(NOTIFICATION_PROGRESS, notificationBuilder.build());
+                startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
 
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                 notificationManager.cancel(NOTIFICATION_COMPLETE);
                 notificationManager.cancel(NOTIFICATION_FAILED);
             }
 
+            private NotificationCompat.Builder progressNotification;
+
             @Override
             public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress)
             {
+                if (progressNotification != null) {
+                    progressNotification.setProgress(progress[0].numItems(), progress[0].itemNumber(), false);
+                    startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
+                }
+
                 if (listener != null) {
                     listener.onProgress(progress);
                 }
@@ -152,7 +160,7 @@ public class TopoIndexDatabaseService extends Service
 
                 if (result.getResult())
                 {
-                    String message = "Initialized database";   // TODO
+                    String message = "Database initialized (" + result.numItems() + " items)";   // TODO
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);

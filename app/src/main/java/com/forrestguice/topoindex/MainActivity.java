@@ -236,7 +236,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress)
         {
-            // TODO
+            if (progressSnackbar != null && progress.length > 0) {
+                progressSnackbar.setText(progress[0].getMessage());
+            }
         }
 
         @Override
