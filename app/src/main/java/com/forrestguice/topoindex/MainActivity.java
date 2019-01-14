@@ -23,14 +23,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -40,7 +43,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
@@ -97,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private TopoIndexDatabaseAdapter database;
+    private TopoIndexDatabaseCursorAdapter adapter;
     private class ListAdapterTask extends AsyncTask<Void, Void, Cursor>
     {
         @Override
@@ -114,9 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected void onPostExecute(Cursor cursor)
         {
-            SimpleCursorAdapter adapter = new SimpleCursorAdapter(MainActivity.this,
-                    android.R.layout.simple_list_item_1, cursor, new String[] { "name" }, new int[] { android.R.id.text1 });
-
+            adapter = new TopoIndexDatabaseCursorAdapter(MainActivity.this, cursor);
             if (mapListView != null) {
                 mapListView.setAdapter(adapter);
             }
@@ -179,11 +183,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+    public boolean onNavigationItemSelected(MenuItem item)
+    {
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        /**if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
 
@@ -194,8 +198,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
-
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -301,4 +304,55 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // TODO
         }
     };
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public class TopoIndexDatabaseCursorAdapter extends CursorAdapter
+    {
+        private LayoutInflater layoutInflater = null;
+
+        public TopoIndexDatabaseCursorAdapter(Context context, Cursor c)
+        {
+            super(context, c);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup viewGroup)
+        {
+            if (layoutInflater == null) {
+                layoutInflater = LayoutInflater.from(context);
+            }
+            return layoutInflater.inflate(R.layout.map_list_item0, viewGroup, false);
+        }
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor)
+        {
+            TextView itemName = (TextView)view.findViewById(android.R.id.text1);
+            itemName.setText(cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_NAME)));
+
+            TextView itemScale = (TextView)view.findViewById(R.id.mapItem_scale);
+            setText(itemScale, TopoIndexDatabaseAdapter.KEY_MAP_SCALE, cursor);
+
+            TextView itemState = (TextView)view.findViewById(R.id.mapItem_state);
+            setText(itemState, TopoIndexDatabaseAdapter.KEY_MAP_STATE, cursor);
+
+            TextView itemDate = (TextView)view.findViewById(R.id.mapItem_date);
+            setText(itemDate, TopoIndexDatabaseAdapter.KEY_MAP_DATE, cursor);
+
+            TextView itemSeries = (TextView)view.findViewById(R.id.mapItem_series);
+            setText(itemSeries, TopoIndexDatabaseAdapter.KEY_MAP_SERIES, cursor);
+        }
+
+        private void setText(TextView item, String columnName, Cursor cursor)
+        {
+            if (item != null) {
+                int index = cursor.getColumnIndex(columnName);
+                if (index != -1) {
+                    item.setText(cursor.getString(index));
+                }
+            }
+        }
+    }
 }
