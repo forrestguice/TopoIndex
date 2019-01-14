@@ -74,8 +74,11 @@ public class TopoIndexDatabaseAdapter
     public static final String KEY_MAP_PROJECTION = "projection";
     public static final String DEF_MAP_PROJECTION = KEY_MAP_PROJECTION + " text not null";
 
+    public static final String KEY_MAP_URL = "url";
+    public static final String DEF_MAP_URL = KEY_MAP_URL + " text";
+
     private static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE};
-    private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST};
+    private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL};
 
     /**
      * USGS HTMC (Historical Topo Collection)
@@ -94,7 +97,8 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LATITUDE_NORTH + ", "
             + DEF_MAP_LONGITUDE_WEST + ", "
             + DEF_MAP_LATITUDE_SOUTH + ", "
-            + DEF_MAP_LONGITUDE_EAST;
+            + DEF_MAP_LONGITUDE_EAST + ", "
+            + DEF_MAP_URL;
     private static final String TABLE_MAPS_USGS_HTMC_CREATE = "create table " + TABLE_MAPS_USGS_HTMC + " (" + TABLE_MAPS_USGS_HTMC_CREATE_COLS + ");";
 
     /**
@@ -114,7 +118,8 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LATITUDE_NORTH + ", "
             + DEF_MAP_LONGITUDE_WEST + ", "
             + DEF_MAP_LATITUDE_SOUTH + ", "
-            + DEF_MAP_LONGITUDE_EAST;
+            + DEF_MAP_LONGITUDE_EAST + ", "
+            + DEF_MAP_URL;
     private static final String TABLE_MAPS_USGS_USTOPO_CREATE = "create table " + TABLE_MAPS_USGS_USTOPO + " (" + TABLE_MAPS_USGS_USTOPO_CREATE_COLS + ");";
 
     /**
@@ -134,7 +139,8 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LATITUDE_NORTH + ", "
             + DEF_MAP_LONGITUDE_WEST + ", "
             + DEF_MAP_LATITUDE_SOUTH + ", "
-            + DEF_MAP_LONGITUDE_EAST;
+            + DEF_MAP_LONGITUDE_EAST + ", "
+            + DEF_MAP_URL;
     private static final String TABLE_MAPS_CREATE = "create table " + TABLE_MAPS + " (" + TABLE_MAPS_CREATE_COLS + ");";
 
     /**
@@ -238,6 +244,8 @@ public class TopoIndexDatabaseAdapter
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST, fields[46].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH, fields[47].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST, fields[48].replaceAll("\"",""));
+
+        values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, fields[50].replaceAll("\"",""));
     }
 
     /**
