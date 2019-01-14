@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -182,13 +183,13 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
 
                         zipInput.closeEntry();
                         zipInput.close();
-                        return new InitTaskResult(true, c);
+                        return new InitTaskResult(true, c, Calendar.getInstance().getTimeInMillis());
 
                     } else {
                         zipInput.closeEntry();
                         zipInput.close();
                         Log.e(TAG, "DatabaseInitTask: Zip is missing file: " + filename);
-                        return new InitTaskResult(false, 0);
+                        return new InitTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
                     }
 
                 } catch (FileNotFoundException e) {
@@ -197,15 +198,15 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
                 } catch (IOException e) {
                     Log.e(TAG, "DatabaseInitTask: IOException! " + e);
                 }
-                return new InitTaskResult(false, 0);
+                return new InitTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
 
             } else {
                 Log.e(TAG, "DatabaseInitTask: null context!");
-                return new InitTaskResult(false, 0);
+                return new InitTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
             }
         } else {
             Log.e(TAG, "DatabaseInitTask: missing uri!");
-            return new InitTaskResult(false, 0);
+            return new InitTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
         }
     }
 
@@ -235,10 +236,11 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
      */
     public static class InitTaskResult
     {
-        public InitTaskResult(boolean result, int count)
+        public InitTaskResult(boolean result, int count, long date)
         {
             this.result = result;
             this.count = count;
+            this.date = date;
         }
 
         private boolean result;
@@ -250,6 +252,12 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
         private int count;
         public int numItems() {
             return count;
+        }
+
+        private long date;
+        public long getDate()
+        {
+            return date;
         }
     }
 

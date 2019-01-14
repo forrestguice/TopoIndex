@@ -13,8 +13,8 @@
 
     <!-- Database settings -->
     <string name="pref_header_database">Database</string>
-    <string name="pref_title_database_sync">Construct Database</string>
+    <string name="pref_title_database_update">Update Database</string>
     <string name="pref_title_database_date">Data Version</string>
-    <string name="pref_title_database_lastsync">Last Sync</string>
+    <string name="pref_title_database_lastupdate">Last Update</string>
 
 </resources>

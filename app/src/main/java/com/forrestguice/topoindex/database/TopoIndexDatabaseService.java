@@ -36,6 +36,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import com.forrestguice.topoindex.MainActivity;
 import com.forrestguice.topoindex.R;
@@ -154,6 +155,11 @@ public class TopoIndexDatabaseService extends Service
             @Override
             public void onFinished(TopoIndexDatabaseInitTask.InitTaskResult result)
             {
+                if (result.getResult()) {
+                    TopoIndexDatabaseSettings.setDatabaseLastUpdate(context, Calendar.getInstance().getTimeInMillis());
+                    TopoIndexDatabaseSettings.setDatabaseDate(context, result.getDate());
+                }
+
                 if (listener != null) {
                     listener.onFinished(result);
                 }
@@ -208,7 +214,6 @@ public class TopoIndexDatabaseService extends Service
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private int status = STATUS_READY;
     public int getStatus()
     {
         if (databaseTask != null)
@@ -217,15 +222,14 @@ public class TopoIndexDatabaseService extends Service
             {
                 case PENDING:
                 case RUNNING:
-                    status = STATUS_BUSY;
+                    return STATUS_BUSY;
 
                 case FINISHED:
                 default:
-                    status = STATUS_READY;
+                    return STATUS_READY;
             }
-        } else status = STATUS_READY;
-
-        return status;
+        }
+        return STATUS_READY;
     }
 
     private TopoIndexDatabaseInitTask.DatabaseTaskProgress lastProgress;

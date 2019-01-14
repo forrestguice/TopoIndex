@@ -40,7 +40,10 @@ import android.support.v4.app.NavUtils;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
+import com.forrestguice.topoindex.database.TopoIndexDatabaseSettings;
 
+import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 public class SettingsActivity extends AppCompatPreferenceActivity
@@ -136,6 +139,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 databaseService = binder.getService();
                 boundToService = true;
                 databaseService.addServiceListener(serviceListener);
+                serviceListener.onStatusChanged(databaseService.getStatus());
             }
 
             @Override
@@ -148,7 +152,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             @Override
             public void onStatusChanged(int status)
             {
-                // TODO
+                if (action_sync != null) {
+                    action_sync.setEnabled(status == TopoIndexDatabaseService.STATUS_READY);
+                }
+                updateDateFields();
             }
 
             @Override
@@ -165,8 +172,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             Activity activity = getActivity();
             activity.bindService(new Intent(activity, TopoIndexDatabaseService.class),
                     databaseServiceConnection, Context.BIND_AUTO_CREATE);
-
-            Log.d(TAG, "Bound to database service...");
         }
 
         @Override
@@ -179,6 +184,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             Log.d(TAG, "Unbound from database service...");
         }
 
+        private Preference action_sync, info_date, info_lastupdate;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -187,14 +194,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity
 
             //bindPreferenceSummaryToValue(findPreference("sync_frequency"));  // TODO
 
-            Preference info_date = findPreference("database_date");
-            // TODO: date from where?
+            info_date = findPreference(TopoIndexDatabaseSettings.KEY_DATABASE_DATE);
+            info_lastupdate = findPreference(TopoIndexDatabaseSettings.KEY_DATABASE_LASTUPDATE);
+            updateDateFields();
 
-            Preference info_lastsync = findPreference("database_lastsync");
-            // TODO: lastsync date from prefs
-
-            Preference action_sync = findPreference("database_sync");
-            if (action_sync != null) {
+            action_sync = findPreference(TopoIndexDatabaseSettings.KEY_DATABASE_UPDATENOW);
+            if (action_sync != null)
+            {
                 action_sync.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
                 {
                     @Override
@@ -207,6 +213,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                     }
                 });
             }
+        }
+
+        private void updateDateFields()
+        {
+            DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getActivity().getApplicationContext());
+
+            long databaseDateMillis = TopoIndexDatabaseSettings.getDatabaseDate(getActivity());
+            Calendar databaseDate = Calendar.getInstance();
+            databaseDate.setTimeInMillis(databaseDateMillis);
+            info_date.setSummary( databaseDateMillis == -1 ? "none" : dateFormat.format(databaseDate.getTime()) );   // TODO: i18n
+
+            long updateDateMillis = TopoIndexDatabaseSettings.getDatabaseLastUpdate(getActivity());
+            Calendar updateDate = Calendar.getInstance();
+            updateDate.setTimeInMillis(updateDateMillis);
+            info_lastupdate.setSummary( updateDateMillis == -1 ? "never" : dateFormat.format(updateDate.getTime()) );  // TODO: i18n
         }
 
         @Override
