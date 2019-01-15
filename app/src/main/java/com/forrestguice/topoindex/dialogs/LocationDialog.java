@@ -37,6 +37,8 @@ import android.widget.TextView;
 import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.R;
 
+import java.text.NumberFormat;
+
 public class LocationDialog extends DialogFragment
 {
     public static final String TAG = "TopoIndexLocation";
@@ -50,6 +52,8 @@ public class LocationDialog extends DialogFragment
     private TextView label_longitude;
     private EditText edit_longitude;
     private String longitude;
+
+    private NumberFormat formatter = AppSettings.Location.getFormatter();
 
     @NonNull
     @Override
@@ -192,7 +196,7 @@ public class LocationDialog extends DialogFragment
     }
     public void setLatitude(double latitude)
     {
-        this.latitude = Double.toString(latitude);  // TODO: format
+        this.latitude = formatter.format(latitude);
         if (edit_latitude != null) {
             edit_latitude.setText(this.latitude);
         }
@@ -208,7 +212,7 @@ public class LocationDialog extends DialogFragment
     }
     public void setLongitude(double longitude)
     {
-        this.longitude = Double.toString(longitude);  // TODO: format
+        this.longitude = formatter.format(longitude);
         if (edit_longitude != null) {
             edit_longitude.setText(this.longitude);
         }

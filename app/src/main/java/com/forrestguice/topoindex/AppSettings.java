@@ -22,6 +22,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 public class AppSettings
 {
     public static final String TAG = "TopoIndexSettings";
@@ -71,6 +74,7 @@ public class AppSettings
     public static final class Location
     {
         protected double latitude, longitude;
+        private static NumberFormat formatter = null;
 
         public Location(double latitude, double longitude)
         {
@@ -83,10 +87,35 @@ public class AppSettings
             return latitude;
         }
 
+        public String getLatitudeDisplay()
+        {
+            if (formatter == null) {
+                formatter = getFormatter();
+            }
+            return formatter.format(latitude);
+        }
+
         public double getLongitude()
         {
             return longitude;
         }
+
+        public String getLongitudeDisplay()
+        {
+            if (formatter == null) {
+                formatter = getFormatter();
+            }
+            return formatter.format(longitude);
+        }
+
+        public static NumberFormat getFormatter()
+        {
+            NumberFormat retValue = DecimalFormat.getNumberInstance();
+            retValue.setMinimumFractionDigits(0);
+            retValue.setMaximumFractionDigits(4);
+            return retValue;
+        }
+
     }
 
 }
