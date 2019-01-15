@@ -38,7 +38,7 @@
     <string name="action_location_auto">Current Location</string>
 
     <string name="title_activity_settings">@string/action_settings</string>
-    <string name="location_dialog_title">@string/action_location</string>
+
     <string name="permissions_dialog_title">Permissions</string>
 
     <!-- General settings -->
@@ -51,5 +51,17 @@
     <string name="pref_title_database_lastupdate">Last Update</string>
 
 
+    <!-- Location Dialog -->
+    <string name="location_dialog_title">@string/action_location</string>
+
+    <string name="hint_latitude">0</string>
+    <string name="hint_longitude">0</string>
+
+    <string name="label_auto">Auto</string>
+    <string name="label_latitude">Latitude</string>
+    <string name="label_longitude">Longitude</string>
+
+    <!-- Help -->
+    <string name="help_location">TODO .. location from the Passive provider</string>  <!-- TODO -->
 
 </resources>

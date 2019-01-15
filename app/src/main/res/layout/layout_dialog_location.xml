@@ -16,9 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with TopoIndex.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:orientation="vertical"
@@ -28,32 +29,46 @@
         <!-- Automatic Mode -->
         <LinearLayout
             android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="?attr/dialogPreferredPadding" android:layout_marginLeft="?attr/dialogPreferredPadding"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/location_mode_label"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Automatic" />
+                android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+                android:text="@string/label_auto" />
 
             <Switch
                 android:id="@+id/location_mode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp" android:layout_marginRight="8dp" />
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/location_mode_help"
+                android:layout_width="24dp" android:layout_height="24dp"
+                app:tint="@drawable/btn_image_dark"
+                app:srcCompat="@drawable/ic_menu_help_light" />
 
         </LinearLayout>
 
         <!-- Latitude -->
         <LinearLayout
             android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="?attr/dialogPreferredPadding" android:layout_marginLeft="?attr/dialogPreferredPadding"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/location_latitude_label"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Latitude" />
+                android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+                android:text="@string/label_latitude" />
 
             <EditText
                 android:id="@+id/location_latitude"
+                android:hint="@string/hint_latitude"
+                android:inputType="none" android:minEms="5"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
         </LinearLayout>
@@ -61,15 +76,19 @@
         <!-- Longitude -->
         <LinearLayout
             android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginStart="?attr/dialogPreferredPadding" android:layout_marginLeft="?attr/dialogPreferredPadding"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/location_longitude_label"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Longitude" />
+                android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+                android:text="@string/label_longitude" />
 
             <EditText
                 android:id="@+id/location_longitude"
+                android:hint="@string/hint_longitude"
+                android:inputType="none" android:minEms="5"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
         </LinearLayout>

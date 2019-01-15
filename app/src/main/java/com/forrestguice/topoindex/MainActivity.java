@@ -291,8 +291,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener()
             {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i)
-                {
+                public void onClick(DialogInterface dialogInterface, int i) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION);
                 }
             });

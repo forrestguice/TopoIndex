@@ -27,10 +27,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -126,7 +128,25 @@ public class LocationDialog extends DialogFragment
         switch_automatic = (Switch)dialogContent.findViewById(R.id.location_mode);
         switch_automatic.setOnCheckedChangeListener(onModeChanged);
         switch_automatic.setChecked(automatic);
+
+        ImageButton helpButton = (ImageButton)dialogContent.findViewById(R.id.location_mode_help);
+        helpButton.setOnClickListener(onHelpClicked);
     }
+
+    private View.OnClickListener onHelpClicked = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View view)
+        {
+            Context context = getContext();
+            if (context != null)
+            {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                dialog.setMessage(getString(R.string.help_location));
+                dialog.show();
+            }
+        }
+    };
 
     private CompoundButton.OnCheckedChangeListener onModeChanged = new CompoundButton.OnCheckedChangeListener()
     {

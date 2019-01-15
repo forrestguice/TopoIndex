@@ -5,7 +5,8 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="btn_text_dark">@color/colorPrimary</color>
-    <color name="btn_tint_pressed_dark">@color/colorAccent</color>
+    <color name="btn_tint_dark">@color/colorAccent</color>
+    <color name="btn_tint_pressed_dark">@color/colorPrimary</color>
     <color name="hr_dark">#33ffffff</color>
 
 </resources>
