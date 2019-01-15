@@ -23,13 +23,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -37,6 +34,7 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.R;
 
 public class LocationDialog extends DialogFragment
@@ -47,9 +45,11 @@ public class LocationDialog extends DialogFragment
 
     private TextView label_latitude;
     private EditText edit_latitude;
+    private String latitude;
 
     private TextView label_longitude;
     private EditText edit_longitude;
+    private String longitude;
 
     @NonNull
     @Override
@@ -97,7 +97,14 @@ public class LocationDialog extends DialogFragment
                 });
             }
         });
+
         initViews(getActivity(), dialogContent);
+        if (savedInstanceState != null)
+        {
+            edit_latitude.setText(savedInstanceState.getString(AppSettings.KEY_LOCATION_LAT));
+            edit_longitude.setText(savedInstanceState.getString(AppSettings.KEY_LOCATION_LON));
+        }
+
         return dialog;
     }
 
@@ -105,9 +112,11 @@ public class LocationDialog extends DialogFragment
     {
         label_latitude = (TextView)dialogContent.findViewById(R.id.location_latitude_label);
         edit_latitude = (EditText)dialogContent.findViewById(R.id.location_latitude);
+        edit_latitude.setText(latitude);
 
         label_longitude = (TextView)dialogContent.findViewById(R.id.location_longitude_label);
         edit_longitude = (EditText)dialogContent.findViewById(R.id.location_longitude);
+        edit_longitude.setText(longitude);
 
         switch_automatic = (Switch)dialogContent.findViewById(R.id.location_mode);
         switch_automatic.setOnCheckedChangeListener(onModeChanged);
@@ -125,6 +134,14 @@ public class LocationDialog extends DialogFragment
             edit_longitude.setEnabled(!automatic);
         }
     };
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        outState.putString(AppSettings.KEY_LOCATION_LAT, edit_latitude.getText().toString());
+        outState.putString(AppSettings.KEY_LOCATION_LON, edit_longitude.getText().toString());
+    }
 
     public boolean automaticMode()
     {
@@ -170,8 +187,9 @@ public class LocationDialog extends DialogFragment
     }
     public void setLatitude(double latitude)
     {
+        this.latitude = Double.toString(latitude);  // TODO: format
         if (edit_latitude != null) {
-            edit_latitude.setText(Double.toString(latitude));  // TODO: format
+            edit_latitude.setText(this.latitude);
         }
     }
 
@@ -185,8 +203,9 @@ public class LocationDialog extends DialogFragment
     }
     public void setLongitude(double longitude)
     {
+        this.longitude = Double.toString(longitude);  // TODO: format
         if (edit_longitude != null) {
-            edit_longitude.setText(Double.toString(longitude));  // TODO: format
+            edit_longitude.setText(this.longitude);
         }
     }
 

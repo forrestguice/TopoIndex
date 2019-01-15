@@ -238,6 +238,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void showLocationDialog()
     {
         LocationDialog locationDialog = new LocationDialog();
+
+        AppSettings.Location location = AppSettings.getLocation(this);
+        locationDialog.setLatitude(location.getLatitude());
+        locationDialog.setLongitude(location.getLongitude());
+
         locationDialog.setDialogListener(onLocationDialogDismissed);
         locationDialog.show(getSupportFragmentManager(), TAG_DIALOG_LOCATION);
     }
@@ -256,7 +261,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void onOk(LocationDialog dialog)
         {
             Log.d(TAG, "OnLocationDialogDismissed: " + dialog.getLatitude() + ", " + dialog.getLongitude() + " [automatic? " + (dialog.automaticMode() ? "true" : "false") + "]");
-            // TODO
+            if (dialog.automaticMode()) {
+                // TODO: auto
+
+            } else {
+                AppSettings.setLocation(MainActivity.this, dialog.getLatitude(), dialog.getLongitude());
+            }
+            updateViews();
         }
     };
 
