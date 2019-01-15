@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_ABOUT = "about";
 
+    private Toolbar toolbar;
     private ListView listView;
     private ProgressBar progressBar;
 
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews(this);
+        updateViews();
     }
 
     @Override
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initViews(Context context)
     {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         listView = (ListView) findViewById(R.id.list_maps);
@@ -148,6 +150,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 listView.setAdapter(adapter);
             }
         }
+    }
+
+    private void updateViews()
+    {
+        AppSettings.Location location = AppSettings.getLocation(MainActivity.this);
+        String locationString = location.getLatitude() + ", " + location.getLongitude();  // TODO: format
+        toolbar.setSubtitle(locationString);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
