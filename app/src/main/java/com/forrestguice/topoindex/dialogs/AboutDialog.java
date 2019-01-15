@@ -155,9 +155,8 @@ public class AboutDialog extends DialogFragment
 
         TextView legalView4 = (TextView) dialogContent.findViewById(R.id.txt_about_legal4);
         String permissionsExplained = context.getString(R.string.privacy_permission_storage);
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            permissionsExplained += "<br/><br/>" + context.getString(R.string.privacy_permission_storage);
-        }
+        permissionsExplained += "<br/><br/>" + context.getString(R.string.privacy_permission_location);
+        permissionsExplained += "<br/><br/>" + context.getString(R.string.privacy_permission_storage);
         String privacy = context.getString(R.string.privacy_policy, permissionsExplained);
         legalView4.setText(fromHtml(privacy));
 

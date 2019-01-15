@@ -103,6 +103,7 @@ public class LocationDialog extends DialogFragment
         {
             edit_latitude.setText(savedInstanceState.getString(AppSettings.KEY_LOCATION_LAT));
             edit_longitude.setText(savedInstanceState.getString(AppSettings.KEY_LOCATION_LON));
+            switch_automatic.setChecked(savedInstanceState.getBoolean(AppSettings.KEY_LOCATION_AUTO));
         }
 
         return dialog;
@@ -120,6 +121,7 @@ public class LocationDialog extends DialogFragment
 
         switch_automatic = (Switch)dialogContent.findViewById(R.id.location_mode);
         switch_automatic.setOnCheckedChangeListener(onModeChanged);
+        switch_automatic.setChecked(automatic);
     }
 
     private CompoundButton.OnCheckedChangeListener onModeChanged = new CompoundButton.OnCheckedChangeListener()
@@ -141,14 +143,17 @@ public class LocationDialog extends DialogFragment
         super.onSaveInstanceState(outState);
         outState.putString(AppSettings.KEY_LOCATION_LAT, edit_latitude.getText().toString());
         outState.putString(AppSettings.KEY_LOCATION_LON, edit_longitude.getText().toString());
+        outState.putBoolean(AppSettings.KEY_LOCATION_AUTO, switch_automatic.isChecked());
     }
 
+    private boolean automatic = false;
     public boolean automaticMode()
     {
         return switch_automatic.isChecked();
     }
     public void setAutomaticMode( boolean automaticMode )
     {
+        automatic = automaticMode;
         if (switch_automatic != null) {
             switch_automatic.setChecked(automaticMode);
         }

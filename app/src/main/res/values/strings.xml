@@ -22,6 +22,7 @@
     <string name="privacy_url"><xliff:g id="url"><![CDATA[
         <a href="https://github.com/forrestguice/TopoIndex/wiki/Privacy">github.com/forrestguice/TopoIndex/wiki/Privacy</a>
     ]]></xliff:g></string>
+    <string name="privacy_permission_location"><![CDATA[TopoIndex uses the <b>location</b> permission to determine your current longitude and latitude.]]></string>
     <string name="privacy_permission_storage"><![CDATA[TopoIndex uses <b>external storage</b> permissions to .. TODO.]]></string>  <!-- TODO -->
 
     <!-- Navigation -->

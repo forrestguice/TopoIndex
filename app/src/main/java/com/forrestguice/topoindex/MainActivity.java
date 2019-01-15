@@ -18,18 +18,23 @@
 
 package com.forrestguice.topoindex;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
@@ -54,8 +59,9 @@ import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.dialogs.AboutDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
-{
+import java.util.Calendar;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final String TAG = "TopoIndexActivity";
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_ABOUT = "about";
@@ -65,24 +71,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ProgressBar progressBar;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews(this);
+        initLocation(this);
         updateViews();
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         FragmentManager fragments = getSupportFragmentManager();
         restoreLocationDialog(fragments);
     }
 
-    private void initViews(Context context)
-    {
+    private void initViews(Context context) {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -92,8 +96,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 initListAdapter(MainActivity.this, null);
             }
         });
@@ -108,8 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void initListAdapter(Context context, String table)
-    {
+    private void initListAdapter(Context context, String table) {
         if (database == null) {
             database = new TopoIndexDatabaseAdapter(MainActivity.this);
         }
@@ -235,6 +237,61 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Location
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    public static final long LOCATION_UPDATE_INTERVAL = 5 * 1000;  // 5s
+    public static final long LOCATION_UPDATE_MAXAGE = 60 * 1000;  // 1m
+
+    private void initLocation(Context context)
+    {
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager != null)
+        {
+            boolean autoLocation = AppSettings.getAutoLocation(context);
+            if (autoLocation)
+            {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
+
+            } else {
+                locationManager.removeUpdates(locationListener);
+            }
+        }
+    }
+
+    private float lastLocationAccuracy;
+    private long lastLocationUpdate = 0;
+    private LocationListener locationListener = new LocationListener()
+    {
+        public void onLocationChanged(Location location)
+        {
+            Calendar now = Calendar.getInstance();
+            long d;
+            if ((d = now.getTimeInMillis() - lastLocationUpdate) > LOCATION_UPDATE_INTERVAL)
+            {
+                lastLocationUpdate = Calendar.getInstance().getTimeInMillis();
+                if (location.getAccuracy() < lastLocationAccuracy || d > LOCATION_UPDATE_MAXAGE)
+                {
+                    lastLocationAccuracy = location.getAccuracy();
+                    AppSettings.setLocation(MainActivity.this, location.getLatitude(), location.getLongitude());
+                    updateViews();
+                }
+            }
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+        public void onProviderEnabled(String provider) {}
+        public void onProviderDisabled(String provider) {}
+    };
+
     private void showLocationDialog()
     {
         LocationDialog locationDialog = new LocationDialog();
@@ -242,6 +299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AppSettings.Location location = AppSettings.getLocation(this);
         locationDialog.setLatitude(location.getLatitude());
         locationDialog.setLongitude(location.getLongitude());
+        locationDialog.setAutomaticMode(AppSettings.getAutoLocation(this));
 
         locationDialog.setDialogListener(onLocationDialogDismissed);
         locationDialog.show(getSupportFragmentManager(), TAG_DIALOG_LOCATION);
@@ -261,12 +319,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void onOk(LocationDialog dialog)
         {
             Log.d(TAG, "OnLocationDialogDismissed: " + dialog.getLatitude() + ", " + dialog.getLongitude() + " [automatic? " + (dialog.automaticMode() ? "true" : "false") + "]");
-            if (dialog.automaticMode()) {
-                // TODO: auto
-
-            } else {
-                AppSettings.setLocation(MainActivity.this, dialog.getLatitude(), dialog.getLongitude());
-            }
+            AppSettings.setAutoLocation(MainActivity.this, dialog.automaticMode());
+            AppSettings.setLocation(MainActivity.this, dialog.getLatitude(), dialog.getLongitude());
+            initLocation(MainActivity.this);
             updateViews();
         }
     };

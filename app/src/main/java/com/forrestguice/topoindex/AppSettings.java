@@ -26,11 +26,26 @@ public class AppSettings
 {
     public static final String TAG = "TopoIndexSettings";
 
+    public static final String KEY_LOCATION_AUTO = "locationAuto";
+    public static final boolean DEF_LOCATION_AUTO = true;
+
     public static final String KEY_LOCATION_LAT = "latitude";
     public static final float DEF_LOCATION_LAT = 0;
 
     public static final String KEY_LOCATION_LON = "longitude";
     public static final float DEF_LOCATION_LON = 0;
+
+    public static boolean getAutoLocation(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(KEY_LOCATION_AUTO, DEF_LOCATION_AUTO);
+    }
+    public static void setAutoLocation(Context context, boolean value)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putBoolean(KEY_LOCATION_AUTO, value);
+        prefs.apply();
+    }
 
     public static Location getLocation(Context context)
     {
