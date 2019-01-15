@@ -396,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private Snackbar progressSnackbar;
-    private TopoIndexDatabaseInitTask.InitTaskListener initTaskListener = new TopoIndexDatabaseInitTask.InitTaskListener()
+    private TopoIndexDatabaseInitTask.DatabaseTaskListener initTaskListener = new TopoIndexDatabaseInitTask.DatabaseTaskListener()
     {
         @Override
         public void onStarted()
@@ -415,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public void onFinished(TopoIndexDatabaseInitTask.InitTaskResult result)
+        public void onFinished(TopoIndexDatabaseInitTask.DatabaseTaskResult result)
         {
             progressSnackbar.setText("Database Initialization " + (result.getResult() ? "succeeded" : "failed"));
             progressSnackbar.setAction(null, null);

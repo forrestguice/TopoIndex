@@ -99,17 +99,17 @@ public class TopoIndexDatabaseService extends Service
     public static final int NOTIFICATION_FAILED = 30;
 
     private static TopoIndexDatabaseInitTask databaseTask = null;
-    private static TopoIndexDatabaseInitTask.InitTaskListener databaseTaskListener;
-    public boolean runDatabaseInitTask(final Context context, @Nullable Intent intent, Uri uri, @Nullable final TopoIndexDatabaseInitTask.InitTaskListener listener)
+    private static TopoIndexDatabaseInitTask.DatabaseTaskListener databaseTaskListener;
+    public boolean runDatabaseInitTask(final Context context, @Nullable Intent intent, Uri uri, @Nullable final TopoIndexDatabaseInitTask.DatabaseTaskListener listener)
     {
         if (getStatus() != STATUS_READY) {
-            Log.w(TAG, "runCalendarTask: A task is already running! ignoring...");
+            Log.w(TAG, "runDatabaseInitTask: A task is already running! ignoring...");
             return false;
         }
 
         databaseTask = new TopoIndexDatabaseInitTask(context);
 
-        databaseTaskListener = new TopoIndexDatabaseInitTask.InitTaskListener()
+        databaseTaskListener = new TopoIndexDatabaseInitTask.DatabaseTaskListener()
         {
             @Override
             public void onStarted()
@@ -152,7 +152,7 @@ public class TopoIndexDatabaseService extends Service
             }
 
             @Override
-            public void onFinished(TopoIndexDatabaseInitTask.InitTaskResult result)
+            public void onFinished(TopoIndexDatabaseInitTask.DatabaseTaskResult result)
             {
                 if (result.getResult()) {
                     TopoIndexDatabaseSettings.setDatabaseLastUpdate(context, Calendar.getInstance().getTimeInMillis());

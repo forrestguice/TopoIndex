@@ -41,7 +41,7 @@ import java.util.Calendar;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseInitTask.DatabaseTaskProgress, TopoIndexDatabaseInitTask.InitTaskResult>
+public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseInitTask.DatabaseTaskProgress, TopoIndexDatabaseInitTask.DatabaseTaskResult>
 {
     public static final String TAG = "TopoIndexTask";
 
@@ -64,7 +64,7 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     }
 
     @Override
-    protected InitTaskResult doInBackground(Uri... uris)
+    protected DatabaseTaskResult doInBackground(Uri... uris)
     {
         if (uris.length > 0)
         {
@@ -183,13 +183,13 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
 
                         zipInput.closeEntry();
                         zipInput.close();
-                        return new InitTaskResult(true, c, Calendar.getInstance().getTimeInMillis());
+                        return new DatabaseTaskResult(true, c, Calendar.getInstance().getTimeInMillis());
 
                     } else {
                         zipInput.closeEntry();
                         zipInput.close();
                         Log.e(TAG, "DatabaseInitTask: Zip is missing file: " + filename);
-                        return new InitTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
+                        return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
                     }
 
                 } catch (FileNotFoundException e) {
@@ -198,15 +198,15 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
                 } catch (IOException e) {
                     Log.e(TAG, "DatabaseInitTask: IOException! " + e);
                 }
-                return new InitTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
+                return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
 
             } else {
                 Log.e(TAG, "DatabaseInitTask: null context!");
-                return new InitTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
+                return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
             }
         } else {
             Log.e(TAG, "DatabaseInitTask: missing uri!");
-            return new InitTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
+            return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
         }
     }
 
@@ -220,7 +220,7 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     }
 
     @Override
-    protected void onPostExecute( InitTaskResult result )
+    protected void onPostExecute( DatabaseTaskResult result )
     {
         super.onPostExecute(result);
         if (taskListener != null) {
@@ -232,11 +232,11 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * InitTaskResult
+     * DatabaseTaskResult
      */
-    public static class InitTaskResult
+    public static class DatabaseTaskResult
     {
-        public InitTaskResult(boolean result, int count, long date)
+        public DatabaseTaskResult(boolean result, int count, long date)
         {
             this.result = result;
             this.count = count;
@@ -262,7 +262,7 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     }
 
     /**
-     * InitTaskProgress
+     * DatabaseTaskProgress
      */
     public static class DatabaseTaskProgress
     {
@@ -288,17 +288,17 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
     }
 
     /**
-     * InitTaskListener
+     * DatabaseTaskListener
      */
-    public static abstract class InitTaskListener
+    public static abstract class DatabaseTaskListener
     {
         public abstract void onStarted();
         public abstract void onProgress( DatabaseTaskProgress... progress );
-        public abstract void onFinished( InitTaskResult result );
+        public abstract void onFinished( DatabaseTaskResult result );
     }
 
-    private InitTaskListener taskListener = null;
-    public void setTaskListener( InitTaskListener listener )
+    private DatabaseTaskListener taskListener = null;
+    public void setTaskListener( DatabaseTaskListener listener )
     {
         this.taskListener = listener;
     }
