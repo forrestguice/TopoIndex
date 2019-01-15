@@ -1,12 +1,40 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- About -->
     <string name="app_name">TopoIndex</string>
+    <string name="app_version"><![CDATA[<b>Version:</b>]]> <xliff:g id="versionString">%s</xliff:g></string>
+    <string name="app_shortdesc">An index of USGS maps.</string>
+    <string name="app_url"><xliff:g id="url"><![CDATA[
+        <a href="https://forrestguice.github.io/TopoIndex/">forrestguice.github.io/TopoIndex</a>
+    ]]></xliff:g></string>
+    <string name="app_support_url"><![CDATA[
+        <b>Support:</b> visit the
+        <a href="https://github.com/forrestguice/TopoIndex/issues">issue tracker</a> to submit a request.
+    ]]></string>
+    <string name="app_legal1"><![CDATA[
+        <b>Source Code:</b><br />
+        Copyright &#169 2019 Forrest Guice <br />
+        Source code available under GPLv3.
+    ]]></string>
+    <string name="app_legal2" />
+    <string name="app_legal3" />
+
+    <string name="privacy_policy"><![CDATA[<b>Privacy:</b><br/>TopoIndex does not collect, store, or transmit personal user data. It contains <b>no advertising</b>, <b>no analytics</b>, <b>no trackers</b>, and <b>no unnecessary permissions</b>. <br/><br/><xliff:g id="permissionsExplained">%1$s</xliff:g>]]></string>
+    <string name="privacy_url"><xliff:g id="url"><![CDATA[
+        <a href="https://github.com/forrestguice/TopoIndex/wiki/Privacy">github.com/forrestguice/TopoIndex/wiki/Privacy</a>
+    ]]></xliff:g></string>
+    <string name="privacy_permission_storage"><![CDATA[TopoIndex uses <b>external storage</b> permissions to .. TODO.]]></string>  <!-- TODO -->
+
+    <!-- Navigation -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">@string/app_name</string>
     <string name="nav_header_subtitle">TODO</string>
     <string name="nav_header_desc">Navigation header</string>
+
+    <string name="action_about">About</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_settings">Settings</string>
+
+    <string name="title_activity_settings">@string/action_settings</string>
 
     <!-- General settings -->
     <string name="pref_header_general">General</string>
@@ -16,5 +44,7 @@
     <string name="pref_title_database_update">Update Database</string>
     <string name="pref_title_database_date">Data Version</string>
     <string name="pref_title_database_lastupdate">Last Update</string>
+
+
 
 </resources>
