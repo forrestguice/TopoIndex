@@ -25,6 +25,23 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:padding="5dp" android:layout_marginStart="5dp" android:layout_marginLeft="5dp" android:layout_marginBottom="10dp">
 
+        <!-- Automatic Mode -->
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/location_mode_label"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Automatic" />
+
+            <Switch
+                android:id="@+id/location_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
         <!-- Latitude -->
         <LinearLayout
             android:layout_width="match_parent" android:layout_height="wrap_content"

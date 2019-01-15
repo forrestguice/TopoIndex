@@ -23,12 +23,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -73,11 +75,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
-
-        /**FragmentManager fragments = getSupportFragmentManager();
-        AboutDialog aboutDialog = (AboutDialog) fragments.findFragmentByTag(TAG_DIALOG_ABOUT);
-        if (aboutDialog != null){
-        }*/
+        FragmentManager fragments = getSupportFragmentManager();
+        restoreLocationDialog(fragments);
     }
 
     private void initViews(Context context)
@@ -182,8 +181,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (id)
         {
             case R.id.action_location:
-                LocationDialog locationDialog = new LocationDialog();
-                locationDialog.show(getSupportFragmentManager(), TAG_DIALOG_LOCATION);
+                showLocationDialog();
                 return true;
 
             case R.id.action_about:
@@ -223,6 +221,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Location
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void showLocationDialog()
+    {
+        LocationDialog locationDialog = new LocationDialog();
+        locationDialog.setDialogListener(onLocationDialogDismissed);
+        locationDialog.show(getSupportFragmentManager(), TAG_DIALOG_LOCATION);
+    }
+
+    private void restoreLocationDialog(FragmentManager fragments)
+    {
+        LocationDialog locationDialog = (LocationDialog) fragments.findFragmentByTag(TAG_DIALOG_LOCATION);
+        if (locationDialog != null) {
+            locationDialog.setDialogListener(onLocationDialogDismissed);
+        }
+    }
+
+    private LocationDialog.LocationDialogListener onLocationDialogDismissed = new LocationDialog.LocationDialogListener()
+    {
+        @Override
+        public void onOk(LocationDialog dialog)
+        {
+            Log.d(TAG, "OnLocationDialogDismissed: " + dialog.getLatitude() + ", " + dialog.getLongitude() + " [automatic? " + (dialog.automaticMode() ? "true" : "false") + "]");
+            // TODO
+        }
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // initDatabase

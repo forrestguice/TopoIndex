@@ -22,18 +22,34 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.res.Resources;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import com.forrestguice.topoindex.R;
 
 public class LocationDialog extends DialogFragment
 {
     public static final String TAG = "TopoIndexLocation";
+
+    private Switch switch_automatic;
+
+    private TextView label_latitude;
+    private EditText edit_latitude;
+
+    private TextView label_longitude;
+    private EditText edit_longitude;
 
     @NonNull
     @Override
@@ -46,49 +62,143 @@ public class LocationDialog extends DialogFragment
         @SuppressLint("InflateParams") final View dialogContent = inflater.inflate(R.layout.layout_dialog_location, null);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(myParent);
+        builder.setTitle(myParent.getString(R.string.location_dialog_title));
         builder.setView(dialogContent);
-        AlertDialog dialog = builder.create();
-        /**dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", (DialogInterface.OnClickListener)null);
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Apply", (DialogInterface.OnClickListener)null);
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener()
+        {
             @Override
-            public void onShow(DialogInterface dialog) {
-                dialogContent.post(new Runnable() {
+            public void onShow(DialogInterface dialogInterface) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void run() { // TODO }
+                    public void onClick(View view) {
+                        if (validateInput()) {
+                            if (dialogListener != null) {
+                                dialogListener.onOk(LocationDialog.this);
+                            }
+                            dialog.dismiss();
+                        }
+                    }
+                });
+
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (dialogListener != null) {
+                            dialogListener.onCancel(LocationDialog.this);
+                        }
+                        dialog.dismiss();
+                    }
                 });
             }
-        });*/
-
+        });
         initViews(getActivity(), dialogContent);
         return dialog;
     }
 
     public void initViews(Context context, View dialogContent)
     {
-        // TODO
+        label_latitude = (TextView)dialogContent.findViewById(R.id.location_latitude_label);
+        edit_latitude = (EditText)dialogContent.findViewById(R.id.location_latitude);
+
+        label_longitude = (TextView)dialogContent.findViewById(R.id.location_longitude_label);
+        edit_longitude = (EditText)dialogContent.findViewById(R.id.location_longitude);
+
+        switch_automatic = (Switch)dialogContent.findViewById(R.id.location_mode);
+        switch_automatic.setOnCheckedChangeListener(onModeChanged);
     }
+
+    private CompoundButton.OnCheckedChangeListener onModeChanged = new CompoundButton.OnCheckedChangeListener()
+    {
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean automatic)
+        {
+            label_latitude.setEnabled(!automatic);
+            edit_latitude.setEnabled(!automatic);
+
+            label_longitude.setEnabled(!automatic);
+            edit_longitude.setEnabled(!automatic);
+        }
+    };
 
     public boolean automaticMode()
     {
-        // TODO
-        return false;
+        return switch_automatic.isChecked();
+    }
+    public void setAutomaticMode( boolean automaticMode )
+    {
+        if (switch_automatic != null) {
+            switch_automatic.setChecked(automaticMode);
+        }
     }
 
     public boolean validateInput()
     {
-        // TODO
-        return false;
+        boolean isValid = true;
+
+        try {
+            Double.parseDouble(edit_latitude.getText().toString());
+
+        } catch (NumberFormatException e) {
+            isValid = false;
+            edit_latitude.setError("Invalid latitude!");  // TODO: strings
+        }
+
+        try {
+            Double.parseDouble(edit_longitude.getText().toString());
+
+        } catch (NumberFormatException e) {
+            isValid = false;
+            edit_latitude.setError("Invalid longitude!");  // TODO: strings
+        }
+
+        return isValid;
     }
 
     public double getLatitude()
     {
-        // TODO
-        return Double.POSITIVE_INFINITY;
+        try {
+            return Double.parseDouble(edit_latitude.getText().toString());
+        } catch (NumberFormatException e) {
+            return Double.POSITIVE_INFINITY;
+        }
+    }
+    public void setLatitude(double latitude)
+    {
+        if (edit_latitude != null) {
+            edit_latitude.setText(Double.toString(latitude));  // TODO: format
+        }
     }
 
     public double getLongitude()
     {
-        //
-        return Double.POSITIVE_INFINITY;
+        try {
+            return Double.parseDouble(edit_longitude.getText().toString());
+        } catch (NumberFormatException e) {
+            return Double.POSITIVE_INFINITY;
+        }
+    }
+    public void setLongitude(double longitude)
+    {
+        if (edit_longitude != null) {
+            edit_longitude.setText(Double.toString(longitude));  // TODO: format
+        }
+    }
+
+    public static abstract class LocationDialogListener
+    {
+        public void onOk(LocationDialog dialog) {}
+        public void onCancel(LocationDialog dialog) {}
+    }
+
+    private LocationDialogListener dialogListener = null;
+    public void setDialogListener( LocationDialogListener listener ) {
+        this.dialogListener = listener;
     }
 
 }
