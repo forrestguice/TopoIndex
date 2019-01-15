@@ -43,6 +43,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TAG_ABOUT = "about";
 
     private ListView listView;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         listView = (ListView) findViewById(R.id.list_maps);
+        progressBar = (ProgressBar) findViewById(R.id.progress_list_maps);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -108,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onPreExecute()
         {
             database.open();
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -125,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected void onPostExecute(Cursor cursor)
         {
+            progressBar.setVisibility(View.GONE);
             adapter = new TopoIndexDatabaseCursorAdapter(MainActivity.this, cursor);
             if (listView != null) {
                 listView.setAdapter(adapter);
