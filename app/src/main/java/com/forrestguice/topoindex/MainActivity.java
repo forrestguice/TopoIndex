@@ -80,8 +80,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
         super.onResume();
+
         FragmentManager fragments = getSupportFragmentManager();
         restoreLocationDialog(fragments);
     }
@@ -158,11 +160,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         AppSettings.Location location = AppSettings.getLocation(MainActivity.this);
         toolbar.setSubtitle(location.getLatitudeDisplay() + ", " + location.getLongitudeDisplay());   // TODO: strings
+        updateMenus();
+    }
+
+    private void updateMenus()
+    {
+        if (mainMenu != null)
+        {
+            boolean autoMode = AppSettings.getAutoLocation(MainActivity.this);
+            MenuItem positionItem = mainMenu.findItem(R.id.action_location_auto);
+            positionItem.setVisible(autoMode);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Menus / Navigation
     ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private Menu mainMenu;
 
     @Override
     public void onBackPressed()
@@ -181,6 +196,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.main, menu);
+        mainMenu = menu;
+        updateMenus();
         return true;
     }
 

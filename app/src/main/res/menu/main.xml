@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_location_auto"
+        android:orderInCategory="0"
+        android:title="@string/action_location_auto"
+        android:icon="?attr/icPosition"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/action_location"
         android:orderInCategory="50"
