@@ -39,6 +39,7 @@
 
     <string name="title_activity_settings">@string/action_settings</string>
     <string name="location_dialog_title">@string/action_location</string>
+    <string name="permissions_dialog_title">Permissions</string>
 
     <!-- General settings -->
     <string name="pref_header_general">General</string>

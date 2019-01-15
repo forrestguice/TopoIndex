@@ -21,6 +21,7 @@ package com.forrestguice.topoindex;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -37,6 +38,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -253,8 +255,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Location
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static final long LOCATION_UPDATE_INTERVAL = 5 * 1000;  // 5s
-    public static final long LOCATION_UPDATE_MAXAGE = 60 * 1000;  // 1m
+    public static final long LOCATION_UPDATE_INTERVAL = 5 * 1000;  // 5s   // TODO: from settings
+    public static final long LOCATION_UPDATE_MAXAGE = 60 * 1000;  // 1m    // TODO: from settings
+
+    public static final int PERMISSION_REQUEST_LOCATION = 0;
 
     private void initLocation(Context context)
     {
@@ -266,19 +270,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
                 {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
+                    requestLocationPermissions();
                     return;
                 }
                 locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
 
             } else {
                 locationManager.removeUpdates(locationListener);
+            }
+        }
+    }
+
+    private void requestLocationPermissions()
+    {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION))
+        {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+            dialog.setTitle(getString(R.string.permissions_dialog_title));
+            dialog.setMessage(AboutDialog.fromHtml(getString(R.string.privacy_permission_location)));
+            dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION);
+                }
+            });
+            dialog.show();
+
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        if (requestCode == PERMISSION_REQUEST_LOCATION && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+        {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager != null) {
+                    locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
+                }
             }
         }
     }
