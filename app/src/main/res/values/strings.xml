@@ -50,6 +50,8 @@
     <string name="pref_title_database_date">Data Version</string>
     <string name="pref_title_database_lastupdate">Last Update</string>
 
+    <string name="database_update_confirm_title">Update Database</string>
+    <string name="database_update_confirm_message">Are you certain you want update? This process takes a long time and should be done infrequently.</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_title">@string/action_location</string>

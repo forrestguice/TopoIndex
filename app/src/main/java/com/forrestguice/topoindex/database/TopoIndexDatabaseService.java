@@ -147,9 +147,8 @@ public class TopoIndexDatabaseService extends Service
                     startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
                 }
 
-                if (listener != null) {
-                    listener.onProgress(progress);
-                }
+                progress[0].message = "Initializing database";  // TODO
+                signalOnProgress(progress[0]);
             }
 
             @Override
@@ -254,9 +253,6 @@ public class TopoIndexDatabaseService extends Service
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * SuntimesCalendarServiceListener
-     */
     public static abstract class TopoIndexDatabaseServiceListener implements Parcelable
     {
         public void onStartCommand(boolean result) {}

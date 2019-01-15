@@ -20,8 +20,10 @@ package com.forrestguice.topoindex;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -31,12 +33,15 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
@@ -128,7 +133,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     public static class DatabasePreferenceFragment extends PreferenceFragment
     {
         private static TopoIndexDatabaseService databaseService;
-        boolean boundToService = false;
+        private boolean boundToService = false;
+        private Snackbar progressBar;
 
         private ServiceConnection databaseServiceConnection = new ServiceConnection()
         {
@@ -155,13 +161,30 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 if (action_sync != null) {
                     action_sync.setEnabled(status == TopoIndexDatabaseService.STATUS_READY);
                 }
+
+                if (progressBar == null) {
+                    if (getView() != null) {
+                        progressBar = Snackbar.make(getView(), "", Snackbar.LENGTH_INDEFINITE);
+                    }
+                }
+
+                if (progressBar != null) {
+                    if (status == TopoIndexDatabaseService.STATUS_READY) {
+                        progressBar.dismiss();
+                    } else {
+                        progressBar.show();
+                    }
+                }
+
                 updateDateFields();
             }
 
             @Override
             public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress progress)
             {
-                // TODO
+                if (progressBar != null) {
+                    progressBar.setText(progress.getMessage());
+                }
             }
         };
 
@@ -206,9 +229,27 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                     @Override
                     public boolean onPreferenceClick(Preference preference)
                     {
-                        if (databaseService != null) {
-                            databaseService.runDatabaseInitTask(getActivity(), null, null, null);
-                        }
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+                        dialog.setTitle(getString(R.string.database_update_confirm_title));
+                        dialog.setMessage(getString(R.string.database_update_confirm_message));
+
+                        dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                if (databaseService != null) {
+                                    databaseService.runDatabaseInitTask(getActivity(), null, null, null);
+                                }
+                            }
+                        });
+                        dialog.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                /* EMPTY */
+                            }
+                        });
+
+                        dialog.show();
                         return false;
                     }
                 });
