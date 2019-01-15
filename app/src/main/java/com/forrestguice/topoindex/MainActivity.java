@@ -49,11 +49,14 @@ import android.widget.TextView;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
+import com.forrestguice.topoindex.dialogs.AboutDialog;
+import com.forrestguice.topoindex.dialogs.LocationDialog;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     public static final String TAG = "TopoIndexActivity";
-    public static final String TAG_ABOUT = "about";
+    public static final String TAG_DIALOG_LOCATION = "location";
+    public static final String TAG_DIALOG_ABOUT = "about";
 
     private ListView listView;
     private ProgressBar progressBar;
@@ -64,6 +67,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews(this);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        /**FragmentManager fragments = getSupportFragmentManager();
+        AboutDialog aboutDialog = (AboutDialog) fragments.findFragmentByTag(TAG_DIALOG_ABOUT);
+        if (aboutDialog != null){
+        }*/
     }
 
     private void initViews(Context context)
@@ -167,9 +181,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id)
         {
+            case R.id.action_location:
+                LocationDialog locationDialog = new LocationDialog();
+                locationDialog.show(getSupportFragmentManager(), TAG_DIALOG_LOCATION);
+                return true;
+
             case R.id.action_about:
                 AboutDialog aboutDialog = new AboutDialog();
-                aboutDialog.show(getSupportFragmentManager(), TAG_ABOUT);
+                aboutDialog.show(getSupportFragmentManager(), TAG_DIALOG_ABOUT);
                 return true;
 
             case R.id.action_settings:

@@ -16,7 +16,7 @@
     along with TopoIndex.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.forrestguice.topoindex;
+package com.forrestguice.topoindex.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -37,6 +37,9 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+
+import com.forrestguice.topoindex.BuildConfig;
+import com.forrestguice.topoindex.R;
 
 public class AboutDialog extends DialogFragment
 {

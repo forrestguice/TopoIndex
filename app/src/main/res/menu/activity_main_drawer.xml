@@ -6,7 +6,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_local_list"
-            android:icon="@drawable/ic_menu_maps"
+            android:icon="@drawable/ic_menu_maps_light"
             android:title="Local Collection" />
     </group>
 
@@ -14,11 +14,11 @@
         <menu>
             <item
                 android:id="@+id/nav_index_usgs_htmc"
-                android:icon="@drawable/ic_menu_maps"
+                android:icon="@drawable/ic_menu_maps_light"
                 android:title="Historical Topo" />
             <item
                 android:id="@+id/nav_index_usgs_ustopo"
-                android:icon="@drawable/ic_menu_maps"
+                android:icon="@drawable/ic_menu_maps_light"
                 android:title="US Topo" />
         </menu>
     </item>

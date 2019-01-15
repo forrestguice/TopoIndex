@@ -1,6 +1,8 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="icLocation">@drawable/ic_menu_mylocation</item>
+        <item name="icMaps">@drawable/ic_menu_maps</item>
         <item name="hrColor">@color/hr_dark</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>

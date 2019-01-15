@@ -6,22 +6,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
-        android:id="@+id/mapItem_series"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        android:gravity="center_vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="US Topo"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall" />
-
-    <TextView
         android:id="@android:id/text1"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceListItem"
         android:gravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mapItem_series"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="Map"
         android:minHeight="?android:attr/listPreferredItemHeightSmall" />
 
@@ -36,11 +26,21 @@
         android:minHeight="?android:attr/listPreferredItemHeightSmall" />
 
     <TextView
-        android:id="@+id/mapItem_date"
+        android:id="@+id/mapItem_series"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
         android:gravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="US Topo"
+        android:minHeight="?android:attr/listPreferredItemHeightSmall" />
+
+    <TextView
+        android:id="@+id/mapItem_date"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+        android:gravity="center_vertical"
+        app:layout_constraintStart_toEndOf="@+id/mapItem_series"
         app:layout_constraintTop_toBottomOf="@android:id/text1"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:text="1972"
