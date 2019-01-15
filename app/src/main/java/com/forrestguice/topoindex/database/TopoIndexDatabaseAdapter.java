@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 
 public class TopoIndexDatabaseAdapter
 {
@@ -83,7 +84,7 @@ public class TopoIndexDatabaseAdapter
     /**
      * USGS HTMC (Historical Topo Collection)
      */
-    private static final String TABLE_MAPS_USGS_HTMC = "usgs_htmc";
+    public static final String TABLE_MAPS_USGS_HTMC = "usgs_htmc";
     private static final String TABLE_MAPS_USGS_HTMC_CREATE_COLS = DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
@@ -104,7 +105,7 @@ public class TopoIndexDatabaseAdapter
     /**
      * USGS US Topo (Current quadrangles; 2010 and later)
      */
-    private static final String TABLE_MAPS_USGS_USTOPO = "usgs_ustopo";
+    public static final String TABLE_MAPS_USGS_USTOPO = "usgs_ustopo";
     private static final String TABLE_MAPS_USGS_USTOPO_CREATE_COLS = DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
@@ -125,7 +126,7 @@ public class TopoIndexDatabaseAdapter
     /**
      * Local Topo (files on the local drive)
      */
-    private static final String TABLE_MAPS = "maps";
+    public static final String TABLE_MAPS = "maps";
     private static final String TABLE_MAPS_CREATE_COLS = DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
@@ -180,7 +181,7 @@ public class TopoIndexDatabaseAdapter
         return getMaps(TABLE_MAPS, n, fullEntry);
     }
 
-    public Cursor getMaps(String table, int n, boolean fullEntry)
+    public Cursor getMaps(@NonNull String table, int n, boolean fullEntry)
     {
         String[] QUERY = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
         Cursor cursor =  (n > 0) ? database.query( table, QUERY, null, null, null, null, "_id DESC", n+"" )

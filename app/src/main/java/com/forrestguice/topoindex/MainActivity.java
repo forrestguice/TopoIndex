@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,7 +30,6 @@ import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,8 +52,9 @@ import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     public static final String TAG = "TopoIndexActivity";
+    public static final String TAG_ABOUT = "about";
 
-    private ListView mapListView;
+    private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -70,14 +69,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mapListView = (ListView) findViewById(R.id.list_maps);
-        initListAdapter(context);
+        listView = (ListView) findViewById(R.id.list_maps);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                initDatabase();
+            public void onClick(View view)
+            {
+                initListAdapter(MainActivity.this, null);
             }
         });
 
@@ -91,19 +90,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void initListAdapter(Context context)
+    private void initListAdapter(Context context, String table)
     {
         if (database == null) {
             database = new TopoIndexDatabaseAdapter(MainActivity.this);
         }
 
         ListAdapterTask task = new ListAdapterTask();
-        task.execute();
+        task.execute(table);
     }
 
     private TopoIndexDatabaseAdapter database;
     private TopoIndexDatabaseCursorAdapter adapter;
-    private class ListAdapterTask extends AsyncTask<Void, Void, Cursor>
+    private class ListAdapterTask extends AsyncTask<String, Void, Cursor>
     {
         @Override
         protected void onPreExecute()
@@ -112,37 +111,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        protected Cursor doInBackground(Void... voids)
+        protected Cursor doInBackground(String... tables)
         {
-            return database.getMaps_USGS_HTMC(0, false);
+            if (tables.length > 0 && tables[0] != null)
+            {
+                return database.getMaps(tables[0], 0, false);
+
+            } else {
+                return database.getMaps_USGS_HTMC(0, false);
+            }
         }
 
         @Override
         protected void onPostExecute(Cursor cursor)
         {
             adapter = new TopoIndexDatabaseCursorAdapter(MainActivity.this, cursor);
-            if (mapListView != null) {
-                mapListView.setAdapter(adapter);
+            if (listView != null) {
+                listView.setAdapter(adapter);
             }
         }
     }
-
-    /**
-     * MapItem
-     */
-    /**public static class MapItem
-    {
-        private String name;
-        public MapItem(String name)
-        {
-            this.name = name;
-        }
-
-        public String toString()
-        {
-            return name;
-        }
-    }*/
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Menus / Navigation
@@ -172,11 +160,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
-        if (id == R.id.action_settings)
+        switch (id)
         {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
+            case R.id.action_about:
+                AboutDialog aboutDialog = new AboutDialog();
+                aboutDialog.show(getSupportFragmentManager(), TAG_ABOUT);
+                return true;
+
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -186,19 +180,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(MenuItem item)
     {
         int id = item.getItemId();
+        switch (id)
+        {
+            case R.id.nav_local_list:
+                // TODO
+                break;
 
-        /**if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+            case R.id.nav_index_usgs_htmc:
+                initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC);
+                break;
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-        }*/
+            case R.id.nav_index_usgs_ustopo:
+                initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO);
+                break;
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
