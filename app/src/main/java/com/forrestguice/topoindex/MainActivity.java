@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                initListAdapter(MainActivity.this, null);
+                scanCollection();
             }
         });
 
@@ -373,6 +373,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             AppSettings.setLocation(MainActivity.this, dialog.getLatitude(), dialog.getLongitude());
             initLocation(MainActivity.this);
             updateViews();
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // scanCollection
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private boolean scanCollection()
+    {
+        if (databaseService.getStatus() != TopoIndexDatabaseService.STATUS_READY)
+        {
+            Log.w(TAG, "scanCollection: a task is already running (or pending); ignoring call...");
+            return false;
+        }
+        return databaseService.scanCollection(scanTaskListener);
+    }
+
+    private TopoIndexDatabaseInitTask.DatabaseTaskListener scanTaskListener = new TopoIndexDatabaseInitTask.DatabaseTaskListener()
+    {
+        @Override
+        public void onStarted()
+        {
+            // TODO
+        }
+
+        @Override
+        public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress)
+        {
+            // TODO
+        }
+
+        @Override
+        public void onFinished(TopoIndexDatabaseInitTask.DatabaseTaskResult result)
+        {
+            // TODO
         }
     };
 

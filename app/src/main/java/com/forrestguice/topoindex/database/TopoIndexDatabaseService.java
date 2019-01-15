@@ -98,6 +98,18 @@ public class TopoIndexDatabaseService extends Service
     public static final int NOTIFICATION_COMPLETE = 20;
     public static final int NOTIFICATION_FAILED = 30;
 
+    public boolean scanCollection(@Nullable final TopoIndexDatabaseInitTask.DatabaseTaskListener listener)
+    {
+        if (getStatus() != STATUS_READY) {
+            Log.w(TAG, "scanCollection: A task is already running! ignoring...");
+            return false;
+        }
+
+        // TODO
+
+        return true;
+    }
+
     private static TopoIndexDatabaseInitTask databaseTask = null;
     private static TopoIndexDatabaseInitTask.DatabaseTaskListener databaseTaskListener;
     public boolean runDatabaseInitTask(final Context context, @Nullable Intent intent, Uri uri, @Nullable final TopoIndexDatabaseInitTask.DatabaseTaskListener listener)
