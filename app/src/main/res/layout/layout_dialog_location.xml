@@ -35,6 +35,7 @@
 
             <TextView
                 android:id="@+id/location_mode_label"
+                android:labelFor="@+id/location_mode"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
                 android:text="@string/label_auto" />
@@ -47,6 +48,7 @@
             <android.support.v7.widget.AppCompatImageButton
                 android:id="@+id/location_mode_help"
                 android:layout_width="24dp" android:layout_height="24dp"
+                android:contentDescription="@string/action_help"
                 app:tint="@drawable/btn_image_dark"
                 app:srcCompat="@drawable/ic_menu_help_light" />
 
@@ -61,6 +63,7 @@
 
             <TextView
                 android:id="@+id/location_latitude_label"
+                android:labelFor="@+id/location_latitude"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
                 android:text="@string/label_latitude" />
@@ -81,6 +84,7 @@
 
             <TextView
                 android:id="@+id/location_longitude_label"
+                android:labelFor="@+id/location_longitude"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
                 android:text="@string/label_longitude" />
