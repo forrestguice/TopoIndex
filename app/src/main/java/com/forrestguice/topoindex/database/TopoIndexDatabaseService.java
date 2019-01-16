@@ -76,30 +76,33 @@ public class TopoIndexDatabaseService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        String action = intent.getAction();
-        if (action != null)
+        if (intent != null)
         {
-            TopoIndexDatabaseServiceListener serviceListener = intent.getParcelableExtra(EXTRA_SERVICE_LISTENER);
+            String action = intent.getAction();
+            if (action != null)
+            {
+                TopoIndexDatabaseServiceListener serviceListener = intent.getParcelableExtra(EXTRA_SERVICE_LISTENER);
 
-            if (action.equals(ACTION_INIT)) {
-                Log.d(TAG, "onStartCommand: " + action);
-                boolean started = runDatabaseInitTask(this, intent, intent.getData(), null);
-                signalOnStartCommand(started);
-                if (serviceListener != null) {
-                    serviceListener.onStartCommand(started);
-                }
+                if (action.equals(ACTION_INIT)) {
+                    Log.d(TAG, "onStartCommand: " + action);
+                    boolean started = runDatabaseInitTask(this, intent, intent.getData(), null);
+                    signalOnStartCommand(started);
+                    if (serviceListener != null) {
+                        serviceListener.onStartCommand(started);
+                    }
 
-            } else if (action.equals(ACTION_SCAN)) {
-                Log.d(TAG, "onStartCommand: " + action);
-                boolean started = runScanCollectionTask(this,null);
-                signalOnStartCommand(started);
-                if (serviceListener != null) {
-                    serviceListener.onStartCommand(started);
-                }
+                } else if (action.equals(ACTION_SCAN)) {
+                    Log.d(TAG, "onStartCommand: " + action);
+                    boolean started = runScanCollectionTask(this,null);
+                    signalOnStartCommand(started);
+                    if (serviceListener != null) {
+                        serviceListener.onStartCommand(started);
+                    }
 
-            } else Log.d(TAG, "onStartCommand: unrecognized action: " + action);
+                } else Log.d(TAG, "onStartCommand: unrecognized action: " + action);
 
-        } else Log.d(TAG, "onStartCommand: null action");
+            } else Log.d(TAG, "onStartCommand: null action");
+        } else Log.d(TAG, "onStartCommand: null intent");
         return START_NOT_STICKY;
     }
 
