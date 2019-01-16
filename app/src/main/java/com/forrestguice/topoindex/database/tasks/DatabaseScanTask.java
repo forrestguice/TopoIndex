@@ -18,12 +18,14 @@
 
 package com.forrestguice.topoindex.database.tasks;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
 import com.forrestguice.topoindex.AppSettings;
+import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
 import java.io.File;
 import java.util.Calendar;
@@ -40,7 +42,8 @@ public class DatabaseScanTask extends DatabaseTask
     @Override
     protected DatabaseTaskResult doInBackground(Uri... uris)
     {
-        int count = 0;
+        ScanResult result = new ScanResult();
+
         String storageState = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(storageState) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(storageState))
         {
@@ -54,25 +57,87 @@ public class DatabaseScanTask extends DatabaseTask
                 if (!mapDirectory.exists()) {
                     if (!mapDirectory.mkdirs())
                     {
-                        Log.e(TAG, "scanCollection: failed to create path... " + mapDirectory.getAbsolutePath());
+                        Log.e(TAG, "scan: failed to create path... " + mapDirectory.getAbsolutePath());
                         return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
-                    }
-                }
+                    } else Log.i(TAG, "scan: created path... " + mapDirectory.getAbsolutePath());
+                } // else Log.d("DEBUG", "dataDir: " + mapDirectory.getAbsolutePath());
 
-                Log.d("DEBUG", "dataDir: " + mapDirectory.getAbsolutePath());
-
-                // TODO: iterate over files, add to database
-                count++;
+                database.open();
+                scanDirectory(mapDirectory, result);
+                database.close();
 
             } else {
-                Log.e(TAG, "Context is null!");
+                Log.e(TAG, "scan: Context is null!");
                 return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
             }
         } else {
-            Log.e(TAG, "External storage is unavailable!");
+            Log.e(TAG, "scan: External storage is unavailable!");
             return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
         }
 
-        return new DatabaseTaskResult(true, count, Calendar.getInstance().getTimeInMillis());
+        return new DatabaseTaskResult(true, result.count, Calendar.getInstance().getTimeInMillis());
+    }
+
+    protected void scanDirectory(File dir, ScanResult result)
+    {
+        if (dir.exists())
+        {
+            Log.d(TAG, "scanDirectory: " + dir.getAbsolutePath());
+            for (File file : dir.listFiles())
+            {
+                if (file.isDirectory())
+                    scanDirectory(file, result);
+                else scanFile(file, result);
+            }
+        }
+    }
+
+    protected void scanFile(File file, ScanResult result)
+    {
+        if (file.exists())
+        {
+            String fileName = file.getName();
+            if (fileName.toLowerCase().endsWith("geo.pdf"))
+            {
+                ContentValues values = getValuesFromFileName(file);
+                if (values != null)
+                {
+                    Log.d(TAG, "scanFile: " + file.getAbsolutePath());
+                    database.addMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, values);
+                    result.count++;
+                }
+
+            } else {
+                Log.d(TAG, "scanFile: ignoring " + file.getAbsolutePath());
+            }
+        }
+    }
+
+    protected ContentValues getValuesFromFileName( File file )
+    {
+        String fileName = file.getName();
+        String[] parts = fileName.split("_");
+        if (parts.length == 6)
+        {
+            ContentValues values = new ContentValues();
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_STATE, parts[0]);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_NAME, parts[1]);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, parts[2]);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATE, parts[3]);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCALE, parts[4]);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, file.getAbsolutePath());
+            return values;
+
+        } else {
+            Log.w(TAG, "scanFile: unrecognized filename " + fileName);
+            return null;
+        }
+    }
+
+    public static class ScanResult
+    {
+        public int count = 0;
     }
 }
