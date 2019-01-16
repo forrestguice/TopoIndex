@@ -223,6 +223,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id)
         {
+            case R.id.action_help:
+                AlertDialog.Builder helpDialog = new AlertDialog.Builder(MainActivity.this);
+                helpDialog.setMessage(getString(R.string.help_general));
+                helpDialog.show();
+                return true;
+
             case R.id.action_location:
                 showLocationDialog();
                 return true;
