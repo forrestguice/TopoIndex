@@ -100,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         listView = (ListView) findViewById(R.id.list_maps);
         progressBar = (ProgressBar) findViewById(R.id.progress_list_maps);
+        View emptyView = findViewById(R.id.list_maps_empty);
+        if (emptyView != null) {
+            listView.setEmptyView(emptyView);
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

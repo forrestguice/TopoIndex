@@ -30,6 +30,9 @@
     <string name="help_general">TODO .. general help</string>  <!-- TODO -->
     <string name="help_location">TODO .. location from the Passive provider</string>  <!-- TODO -->
 
+    <!-- List -->
+    <string name="list_empty">Empty</string>
+
     <!-- Navigation -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
