@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -230,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
+    public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
         int id = item.getItemId();
         switch (id)
@@ -256,9 +257,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Location
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static final long LOCATION_UPDATE_INTERVAL = 5 * 1000;  // 5s   // TODO: from settings
-    public static final long LOCATION_UPDATE_MAXAGE = 60 * 1000;  // 1m    // TODO: from settings
 
     public static final int PERMISSION_REQUEST_LOCATION = 0;
 
@@ -327,10 +325,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             Calendar now = Calendar.getInstance();
             long d;
-            if ((d = now.getTimeInMillis() - lastLocationUpdate) > LOCATION_UPDATE_INTERVAL)
+            long updateInterval = AppSettings.getLocationInterval(MainActivity.this);
+            if ((d = now.getTimeInMillis() - lastLocationUpdate) > updateInterval)
             {
                 lastLocationUpdate = Calendar.getInstance().getTimeInMillis();
-                if (location.getAccuracy() < lastLocationAccuracy || d > LOCATION_UPDATE_MAXAGE)
+                long maxAge = AppSettings.getLocationMaxAge(MainActivity.this);
+                if (location.getAccuracy() < lastLocationAccuracy || d > maxAge)
                 {
                     lastLocationAccuracy = location.getAccuracy();
                     AppSettings.setLocation(MainActivity.this, location.getLatitude(), location.getLongitude());

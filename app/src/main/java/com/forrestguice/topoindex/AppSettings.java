@@ -32,6 +32,12 @@ public class AppSettings
     public static final String KEY_COLLECTION_PATH = "collectionPath";
     public static final String DEF_COLLECTION_PATH = "maps";
 
+    public static final String KEY_LOCATION_INTERVAL = "locationInterval";
+    public static final long DEF_LOCATION_INTERVAL = 5 * 1000;
+
+    public static final String KEY_LOCATION_MAXAGE = "locationMaxAge";
+    public static final long DEF_LOCATION_MAXAGE = 60 * 1000;
+
     public static final String KEY_LOCATION_AUTO = "locationAuto";
     public static final boolean DEF_LOCATION_AUTO = true;
 
@@ -45,6 +51,18 @@ public class AppSettings
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(KEY_COLLECTION_PATH, DEF_COLLECTION_PATH);
+    }
+
+    public static long getLocationInterval(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getLong(KEY_LOCATION_INTERVAL, DEF_LOCATION_INTERVAL);
+    }
+
+    public static long getLocationMaxAge(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getLong(KEY_LOCATION_MAXAGE, DEF_LOCATION_MAXAGE);
     }
 
     public static boolean getAutoLocation(Context context)
