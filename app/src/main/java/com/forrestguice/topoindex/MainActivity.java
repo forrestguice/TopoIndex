@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (id)
         {
             case R.id.nav_local_list:
-                // TODO
+                initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS);
                 break;
 
             case R.id.nav_index_usgs_htmc:
