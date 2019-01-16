@@ -7,20 +7,20 @@
         <item
             android:id="@+id/nav_local_list"
             android:icon="@drawable/ic_menu_maps_light"
-            android:title="Local Collection" />
+            android:title="@string/nav_item_local" />
     </group>
 
-    <item android:title="USGS Index" android:checkableBehavior="single">
+    <item android:title="@string/nav_group_usgs" android:checkableBehavior="single">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/nav_index_usgs_htmc"
                     android:icon="@drawable/ic_menu_maps_light"
-                    android:title="Historical Topo" />
+                    android:title="@string/nav_item_usgs_htmc" />
                 <item
                     android:id="@+id/nav_index_usgs_ustopo"
                     android:icon="@drawable/ic_menu_maps_light"
-                    android:title="US Topo" />
+                    android:title="@string/nav_item_usgs_ustopo" />
             </group>
         </menu>
     </item>
