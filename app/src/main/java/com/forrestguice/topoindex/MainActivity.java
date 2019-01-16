@@ -19,6 +19,7 @@
 package com.forrestguice.topoindex;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -273,12 +274,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     requestLocationPermissions();
                     return;
                 }
-                locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
+                requestLocationUpdates(locationManager);
 
             } else {
                 locationManager.removeUpdates(locationListener);
             }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void requestLocationUpdates(LocationManager locationManager)
+    {
+        Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        lastLocationAccuracy = location.getAccuracy();
+        AppSettings.setLocation(MainActivity.this, location.getLatitude(), location.getLongitude());
+        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
     }
 
     private void requestLocationPermissions()
@@ -311,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null) {
-                    locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
+                    requestLocationUpdates(locationManager);
                 }
             }
         }
