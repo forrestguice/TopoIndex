@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void updateViews()
     {
         AppSettings.Location location = AppSettings.getLocation(MainActivity.this);
-        toolbar.setSubtitle(location.getLatitudeDisplay() + ", " + location.getLongitudeDisplay());   // TODO: strings
+        toolbar.setSubtitle(getString(R.string.location_format, location.getLatitudeDisplay(), location.getLongitudeDisplay()));
         updateMenus();
     }
 

@@ -24,6 +24,11 @@
     ]]></xliff:g></string>
     <string name="privacy_permission_location"><![CDATA[TopoIndex uses the <b>location</b> permission to determine your current longitude and latitude.]]></string>
     <string name="privacy_permission_storage"><![CDATA[TopoIndex uses <b>external storage</b> permissions to .. TODO.]]></string>  <!-- TODO -->
+    <string name="permissions_dialog_title">Permissions</string>
+
+    <!-- Help -->
+    <string name="help_general">TODO .. general help</string>  <!-- TODO -->
+    <string name="help_location">TODO .. location from the Passive provider</string>  <!-- TODO -->
 
     <!-- Navigation -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -38,11 +43,8 @@
     <string name="action_location">Location</string>
     <string name="action_location_auto">Current Location</string>
 
-    <string name="title_activity_settings">@string/action_settings</string>
-
-    <string name="permissions_dialog_title">Permissions</string>
-
     <!-- General settings -->
+    <string name="title_activity_settings">@string/action_settings</string>
     <string name="pref_header_general">General</string>
 
     <!-- Database settings -->
@@ -54,7 +56,7 @@
     <string name="database_update_confirm_title">Update Database</string>
     <string name="database_update_confirm_message">Are you certain you want update? This process takes a long time and should be done infrequently.</string>
 
-    <!-- Location Dialog -->
+    <!-- Location -->
     <string name="location_dialog_title">@string/action_location</string>
 
     <string name="hint_latitude">0</string>
@@ -64,8 +66,7 @@
     <string name="label_latitude">Latitude</string>
     <string name="label_longitude">Longitude</string>
 
-    <!-- Help -->
-    <string name="help_general">TODO .. general help</string>  <!-- TODO -->
-    <string name="help_location">TODO .. location from the Passive provider</string>  <!-- TODO -->
+    <string name="location_format"><xliff:g id="latitude">$1%s</xliff:g>, <xliff:g id="longitude">$2%s</xliff:g></string>
+
 
 </resources>
