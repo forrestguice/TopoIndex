@@ -56,6 +56,14 @@
     <string name="database_update_confirm_title">Update Database</string>
     <string name="database_update_confirm_message">Are you certain you want update? This process takes a long time and should be done infrequently.</string>
 
+    <string name="database_update_success">Database updated (<xliff:g id="count">$1%s</xliff:g> items)</string>
+    <string name="database_update_failed">Failed to update database</string>
+    <string name="database_update_progress">Updating database …</string>
+
+    <string name="database_scan_success">Collection scanned (<xliff:g id="count">$1%s</xliff:g> items)</string>
+    <string name="database_scan_failed">Failed to scan collection</string>
+    <string name="database_scan_progress">Scanning files …</string>
+
     <!-- Location -->
     <string name="location_dialog_title">@string/action_location</string>
 
