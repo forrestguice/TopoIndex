@@ -35,15 +35,6 @@ public class AppSettings
 {
     public static final String TAG = "TopoIndexSettings";
 
-    public static final String KEY_FILTER_STATE = "filterByState";
-    public static final String[] DEF_FILTER_STATE = new String[0];   // def no filter (empty)
-
-    public static final String KEY_FILTER_MINYEAR = "filterByMinYear";
-    public static final int DEF_FILTER_MINYEAR = -1;           // def no min
-
-    public static final String KEY_FILTER_MAXYEAR = "filterByMaxYear";
-    public static final int DEF_FILTER_MAXYEAR = -1;            // def no max
-
     public static final String KEY_COLLECTION_PATH = "collectionPath";            // TODO: expose
     public static final String DEF_COLLECTION_PATH = "maps";
 
@@ -61,6 +52,18 @@ public class AppSettings
 
     public static final String KEY_LOCATION_LON = "longitude";
     public static final float DEF_LOCATION_LON = 0;
+
+    public static final String KEY_FILTER_STATE = "filterByState";
+    public static final String[] DEF_FILTER_STATE = new String[0];   // def no filter (empty)
+
+    public static final String KEY_FILTER_MINYEAR = "filterByMinYear";
+    public static final int DEF_FILTER_MINYEAR = -1;           // def no min
+
+    public static final String KEY_FILTER_MAXYEAR = "filterByMaxYear";
+    public static final int DEF_FILTER_MAXYEAR = -1;            // def no max
+
+    public static final String KEY_FILTER_PROXIMITY = "filterByProximity";
+    public static final float DEF_FILTER_PROXIMITY = 0.0f;      // def no min
 
     public static String getCollectionPath(Context context)
     {
@@ -81,7 +84,7 @@ public class AppSettings
         prefs.apply();
     }
 
-    public static Integer getFilter_byMinYear(Context context)
+    public static int getFilter_byMinYear(Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getInt(KEY_FILTER_MINYEAR, DEF_FILTER_MINYEAR);
@@ -93,7 +96,7 @@ public class AppSettings
         prefs.apply();
     }
 
-    public static Integer getFilter_byMaxYear(Context context)
+    public static int getFilter_byMaxYear(Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getInt(KEY_FILTER_MAXYEAR, DEF_FILTER_MAXYEAR);
@@ -102,6 +105,18 @@ public class AppSettings
     {
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
         prefs.putInt(KEY_FILTER_MAXYEAR, year);
+        prefs.apply();
+    }
+
+    public static float getFilter_byProximity(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getFloat(KEY_FILTER_PROXIMITY, DEF_FILTER_PROXIMITY);
+    }
+    public static void setFilter_byProximity(Context context, float proximity)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putFloat(KEY_FILTER_PROXIMITY, proximity);
         prefs.apply();
     }
 
