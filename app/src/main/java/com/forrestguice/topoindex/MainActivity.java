@@ -67,7 +67,8 @@ import com.forrestguice.topoindex.dialogs.LocationDialog;
 
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+{
     public static final String TAG = "TopoIndexActivity";
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_ABOUT = "about";
@@ -75,13 +76,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Toolbar toolbar;
     private ListView listView;
     private ProgressBar progressBar;
+    private Snackbar progressSnackbar;
+    private String currentTable = TopoIndexDatabaseAdapter.TABLE_MAPS;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews(this);
         initLocation(this);
+        initListAdapter(this, currentTable, true);
     }
 
     @Override
@@ -94,16 +99,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         restoreLocationDialog(fragments);
     }
 
-    private void initViews(Context context) {
+    private void initViews(Context context)
+    {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         listView = (ListView) findViewById(R.id.list_maps);
-        progressBar = (ProgressBar) findViewById(R.id.progress_list_maps);
         View emptyView = findViewById(R.id.list_maps_empty);
         if (emptyView != null) {
             listView.setEmptyView(emptyView);
         }
+
+        progressBar = (ProgressBar) findViewById(R.id.progress_list_maps);
+        progressSnackbar = Snackbar.make(listView, getString(R.string.database_update_progress), Snackbar.LENGTH_INDEFINITE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -123,13 +131,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void initListAdapter(Context context, final String table) {
+    private void initListAdapter(Context context, final String table)
+    {
+        initListAdapter(context, table, false);
+    }
+    private void initListAdapter(Context context, final String table, boolean updateNavMenu)
+    {
         if (database == null) {
             database = new TopoIndexDatabaseAdapter(MainActivity.this);
         }
         initEmptyView(context, table);
         ListAdapterTask task = new ListAdapterTask();
         task.execute(table);
+
+        if (updateNavMenu) {
+            setNavItemChecked(table);
+        }
     }
 
     private void initEmptyView(Context context, final String table)
@@ -166,6 +183,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TopoIndexDatabaseCursorAdapter adapter;
     private class ListAdapterTask extends AsyncTask<String, Void, Cursor>
     {
+        private String table;
+
         @Override
         protected void onPreExecute()
         {
@@ -178,9 +197,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (tables.length > 0 && tables[0] != null)
             {
-                return database.getMaps(tables[0], 0, false);
+                table = tables[0];
+                return database.getMaps(table, 0, false);
 
             } else {
+                table = TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC;
                 return database.getMaps_USGS_HTMC(0, false);
             }
         }
@@ -190,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             progressBar.setVisibility(View.GONE);
             adapter = new TopoIndexDatabaseCursorAdapter(MainActivity.this, cursor);
+            currentTable = table;
             if (listView != null) {
                 listView.setAdapter(adapter);
             }
@@ -228,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     private Menu mainMenu;
+    private Menu navMenu;
 
     @Override
     public void onBackPressed()
@@ -303,6 +326,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private int getNavItemForTable(String table)
+    {
+        if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC)) {
+            return R.id.nav_index_usgs_htmc;
+
+        } else if (table.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO)) {
+            return R.id.nav_index_usgs_ustopo;
+
+        } else {
+            return R.id.nav_local_list;
+        }
+    }
+
+    private void setNavItemChecked(String table)
+    {
+        NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
+        if (navView != null)
+        {
+            Menu navMenu = navView.getMenu();
+            if (navMenu != null)
+            {
+                MenuItem menuItem = navMenu.findItem(getNavItemForTable(table));
+                if (menuItem != null) {
+                    menuItem.setChecked(true);
+                }
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -459,19 +511,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onStarted()
         {
-            // TODO
+            progressSnackbar.setText(getString(R.string.database_scan_progress));
+            progressSnackbar.show();
         }
 
         @Override
         public void onProgress(DatabaseTaskProgress... progress)
         {
-            // TODO
+            if (progressSnackbar != null && progress.length > 0) {
+                progressSnackbar.setText(progress[0].getMessage());
+            }
         }
 
         @Override
         public void onFinished(DatabaseTaskResult result)
         {
-            // TODO
+            progressSnackbar.dismiss();
+            initListAdapter(MainActivity.this, TopoIndexDatabaseAdapter.TABLE_MAPS, true);
         }
     };
 
@@ -494,14 +550,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return databaseService.runDatabaseInitTask(context, null, uri, initTaskListener);
     }
 
-    private Snackbar progressSnackbar;
     private DatabaseTaskListener initTaskListener = new DatabaseTaskListener()
     {
         @Override
         public void onStarted()
         {
-            progressSnackbar = Snackbar.make(findViewById(R.id.fab), "Initializing the database . . .", Snackbar.LENGTH_LONG);
-            progressSnackbar.setAction("Cancel", null);
+            progressSnackbar.setText(getString(R.string.database_update_progress));
             progressSnackbar.show();
         }
 
@@ -516,8 +570,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onFinished(DatabaseTaskResult result)
         {
-            progressSnackbar.setText("Database Initialization " + (result.getResult() ? "succeeded" : "failed"));
-            progressSnackbar.setAction(null, null);
+            progressSnackbar.dismiss();
+            initListAdapter(MainActivity.this, currentTable, true);
         }
     };
 
@@ -553,6 +607,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             databaseService = binder.getService();
             boundToService = true;
             databaseService.addServiceListener(serviceListener);
+            if (serviceListener != null) {
+                serviceListener.onStatusChanged(databaseService.getStatus());
+            }
         }
 
         @Override
@@ -565,7 +622,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onStatusChanged(int status)
         {
-            // TODO
+            if (status == TopoIndexDatabaseService.STATUS_READY) {
+                progressSnackbar.dismiss();
+
+            } else {
+                progressSnackbar.show();
+            }
         }
 
         @Override

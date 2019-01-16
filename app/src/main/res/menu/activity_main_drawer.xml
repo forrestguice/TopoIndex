@@ -12,14 +12,16 @@
 
     <item android:title="USGS Index" android:checkableBehavior="single">
         <menu>
-            <item
-                android:id="@+id/nav_index_usgs_htmc"
-                android:icon="@drawable/ic_menu_maps_light"
-                android:title="Historical Topo" />
-            <item
-                android:id="@+id/nav_index_usgs_ustopo"
-                android:icon="@drawable/ic_menu_maps_light"
-                android:title="US Topo" />
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_index_usgs_htmc"
+                    android:icon="@drawable/ic_menu_maps_light"
+                    android:title="Historical Topo" />
+                <item
+                    android:id="@+id/nav_index_usgs_ustopo"
+                    android:icon="@drawable/ic_menu_maps_light"
+                    android:title="US Topo" />
+            </group>
         </menu>
     </item>
 
