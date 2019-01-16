@@ -82,13 +82,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         initViews(this);
         initLocation(this);
-        updateViews();
     }
 
     @Override
     protected void onResume()
     {
         super.onResume();
+        updateViews();
 
         FragmentManager fragments = getSupportFragmentManager();
         restoreLocationDialog(fragments);
@@ -176,6 +176,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             boolean autoMode = AppSettings.getAutoLocation(MainActivity.this);
             MenuItem positionItem = mainMenu.findItem(R.id.action_location_auto);
             positionItem.setVisible(autoMode);
+
+            if (autoMode)
+            {
+                LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager != null)
+                {
+                    boolean locationServicesEnabled = (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+                    positionItem.setIcon( locationServicesEnabled ? R.drawable.ic_menu_mylocation : R.drawable.ic_menu_mylocation_disabled  );
+                }
+            }
         }
     }
 
@@ -286,8 +296,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void requestLocationUpdates(LocationManager locationManager)
     {
         Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        lastLocationAccuracy = location.getAccuracy();
-        AppSettings.setLocation(MainActivity.this, location.getLatitude(), location.getLongitude());
+        if (location != null) {
+            lastLocationAccuracy = location.getAccuracy();
+            AppSettings.setLocation(MainActivity.this, location.getLatitude(), location.getLongitude());
+        }
         locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
     }
 
