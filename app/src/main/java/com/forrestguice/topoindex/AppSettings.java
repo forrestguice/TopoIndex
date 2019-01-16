@@ -24,18 +24,27 @@ import android.preference.PreferenceManager;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AppSettings
 {
     public static final String TAG = "TopoIndexSettings";
 
-    public static final String KEY_COLLECTION_PATH = "collectionPath";
+    public static final String KEY_FILTER_STATE = "filterByState";
+    public static final String[] DEF_FILTER_STATE = new String[0];   // no filter (empty)
+
+    public static final String KEY_COLLECTION_PATH = "collectionPath";            // TODO: expose
     public static final String DEF_COLLECTION_PATH = "maps";
 
-    public static final String KEY_LOCATION_INTERVAL = "locationInterval";
+    public static final String KEY_LOCATION_INTERVAL = "locationInterval";        // TODO: expose
     public static final long DEF_LOCATION_INTERVAL = 5 * 1000;
 
-    public static final String KEY_LOCATION_MAXAGE = "locationMaxAge";
+    public static final String KEY_LOCATION_MAXAGE = "locationMaxAge";            // TODO: expose
     public static final long DEF_LOCATION_MAXAGE = 60 * 1000;
 
     public static final String KEY_LOCATION_AUTO = "locationAuto";
@@ -51,6 +60,19 @@ public class AppSettings
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(KEY_COLLECTION_PATH, DEF_COLLECTION_PATH);
+    }
+
+    public static String[] getFilter_byState(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> filterSet = prefs.getStringSet(KEY_FILTER_STATE, new HashSet<String>(Arrays.asList(DEF_FILTER_STATE)));
+        return new ArrayList<String>(filterSet).toArray(new String[0]);
+    }
+    public static void setFilter_byState(Context context, String[] filterSet)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putStringSet(KEY_FILTER_STATE, new HashSet<String>(Arrays.asList(filterSet)));
+        prefs.apply();
     }
 
     public static long getLocationInterval(Context context)
@@ -144,5 +166,6 @@ public class AppSettings
         }
 
     }
+
 
 }
