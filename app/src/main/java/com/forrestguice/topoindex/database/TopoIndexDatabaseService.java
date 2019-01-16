@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -35,19 +34,17 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.MainActivity;
 import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskListener;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskResult;
-import com.forrestguice.topoindex.database.tasks.TopoIndexDatabaseInitTask;
-import com.forrestguice.topoindex.database.tasks.TopoIndexDatabaseScanTask;
-import com.forrestguice.topoindex.database.tasks.TopoIndexDatabaseTask;
+import com.forrestguice.topoindex.database.tasks.DatabaseInitTask;
+import com.forrestguice.topoindex.database.tasks.DatabaseScanTask;
+import com.forrestguice.topoindex.database.tasks.DatabaseTask;
 
 public class TopoIndexDatabaseService extends Service
 {
@@ -113,7 +110,7 @@ public class TopoIndexDatabaseService extends Service
     public static final int NOTIFICATION_COMPLETE = 20;
     public static final int NOTIFICATION_FAILED = 30;
 
-    private static TopoIndexDatabaseTask databaseTask = null;
+    private static DatabaseTask databaseTask = null;
     private static DatabaseTaskListener databaseTaskListener;
 
     /**
@@ -126,7 +123,7 @@ public class TopoIndexDatabaseService extends Service
             return false;
         }
 
-        databaseTask = new TopoIndexDatabaseScanTask(context);
+        databaseTask = new DatabaseScanTask(context);
         databaseTaskListener = new DatabaseTaskListener()
         {
             @Override
@@ -229,7 +226,7 @@ public class TopoIndexDatabaseService extends Service
             return false;
         }
 
-        databaseTask = new TopoIndexDatabaseInitTask(context);
+        databaseTask = new DatabaseInitTask(context);
 
         databaseTaskListener = new DatabaseTaskListener()
         {

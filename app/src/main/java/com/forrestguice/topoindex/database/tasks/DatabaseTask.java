@@ -26,14 +26,14 @@ import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
 import java.lang.ref.WeakReference;
 
-public abstract class TopoIndexDatabaseTask extends AsyncTask<Uri, DatabaseTaskProgress, DatabaseTaskResult>
+public abstract class DatabaseTask extends AsyncTask<Uri, DatabaseTaskProgress, DatabaseTaskResult>
 {
     public static final String TAG = "TopoIndexTask";
 
     protected WeakReference<Context> contextRef;
     protected TopoIndexDatabaseAdapter database;
 
-    public TopoIndexDatabaseTask(Context context )
+    public DatabaseTask(Context context )
     {
         contextRef = new WeakReference<>(context);
         database = new TopoIndexDatabaseAdapter(context);

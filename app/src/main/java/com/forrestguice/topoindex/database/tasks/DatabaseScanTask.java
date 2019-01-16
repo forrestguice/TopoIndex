@@ -28,11 +28,11 @@ import com.forrestguice.topoindex.AppSettings;
 import java.io.File;
 import java.util.Calendar;
 
-public class TopoIndexDatabaseScanTask extends TopoIndexDatabaseTask
+public class DatabaseScanTask extends DatabaseTask
 {
     public static final String TAG = "TopoIndexTask";
 
-    public TopoIndexDatabaseScanTask(Context context )
+    public DatabaseScanTask(Context context )
     {
         super(context);
     }

@@ -38,11 +38,11 @@ import java.util.Calendar;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class TopoIndexDatabaseInitTask extends TopoIndexDatabaseTask
+public class DatabaseInitTask extends DatabaseTask
 {
     public static final String TAG = "TopoIndexTask";
 
-    public TopoIndexDatabaseInitTask( Context context )
+    public DatabaseInitTask(Context context )
     {
         super(context);
     }
