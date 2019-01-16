@@ -113,6 +113,11 @@ public class DatabaseScanTask extends DatabaseTask
         }
     }
 
+    protected static class ScanResult
+    {
+        int count = 0;
+    }
+
     protected ContentValues getValuesFromFileName( File file )
     {
         String fileName = file.getName();
@@ -134,10 +139,5 @@ public class DatabaseScanTask extends DatabaseTask
             Log.w(TAG, "scanFile: unrecognized filename " + fileName);
             return null;
         }
-    }
-
-    public static class ScanResult
-    {
-        public int count = 0;
     }
 }

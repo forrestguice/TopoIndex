@@ -139,9 +139,8 @@ public class TopoIndexDatabaseService extends Service
                 }
 
                 String message = context.getString(R.string.database_scan_progress);
-
                 signalOnStatusChanged(STATUS_BUSY);
-                signalOnProgress(new DatabaseTaskProgress(message, 0, 0));  // TODO
+                signalOnProgress(new DatabaseTaskProgress(message, 0, 0));
 
                 progressNotification = createProgressNotificationBuilder(context, message);
                 startService(new Intent( context, TopoIndexDatabaseService.class));  // bind the service to itself (to keep things running if the activity unbinds)
@@ -220,9 +219,8 @@ public class TopoIndexDatabaseService extends Service
                 }
 
                 String message = context.getString(R.string.database_update_progress);
-
                 signalOnStatusChanged(STATUS_BUSY);
-                signalOnProgress(new DatabaseTaskProgress(message, 0, 0));  // TODO
+                signalOnProgress(new DatabaseTaskProgress(message, 0, 0));
 
                 progressNotification = createProgressNotificationBuilder(context, message);
                 startService(new Intent( context, TopoIndexDatabaseService.class));  // bind the service to itself (to keep things running if the activity unbinds)
