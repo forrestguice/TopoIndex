@@ -4,7 +4,8 @@
 
     <LinearLayout
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:orientation="vertical" android:gravity="center">
+        android:orientation="vertical" android:gravity="center"
+        android:layout_marginLeft="16dp" android:layout_marginRight="16dp">
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/list_maps_empty_icon"
@@ -13,12 +14,18 @@
             app:srcCompat="@drawable/ic_menu_maps_light" />
 
         <TextView
-            android:id="@+id/list_maps_empty_text"
+            android:id="@+id/list_maps_empty_title"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             style="@style/TextAppearance.AppCompat.Headline"
             android:textStyle="bold"
-            android:text="@string/list_empty" />
+            android:text="@string/list_empty_maps" />
+
+        <TextView
+            android:id="@+id/list_maps_empty_message"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:gravity="center"
+            style="@style/TextAppearance.AppCompat.Medium" />
 
     </LinearLayout>
 

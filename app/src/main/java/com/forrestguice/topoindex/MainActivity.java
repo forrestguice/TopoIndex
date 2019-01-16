@@ -123,13 +123,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void initListAdapter(Context context, String table) {
+    private void initListAdapter(Context context, final String table) {
         if (database == null) {
             database = new TopoIndexDatabaseAdapter(MainActivity.this);
         }
-
+        initEmptyView(context, table);
         ListAdapterTask task = new ListAdapterTask();
         task.execute(table);
+    }
+
+    private void initEmptyView(Context context, final String table)
+    {
+        TextView emptyListTitle = findViewById(R.id.list_maps_empty_title);
+        if (emptyListTitle != null)
+        {
+            if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
+                emptyListTitle.setText(getString(R.string.list_empty_maps));
+            else emptyListTitle.setText(getString(R.string.list_empty_index));
+        }
+
+        final TextView emptyListMessage = findViewById(R.id.list_maps_empty_message);
+        if (emptyListMessage != null)
+        {
+            if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
+                emptyListMessage.setText(AboutDialog.fromHtml("<a href=''>Scan</a> for files now."));   // TODO
+            else emptyListMessage.setText(AboutDialog.fromHtml("<a href=''>Update</a> the database now."));   // TODO
+
+            emptyListMessage.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
+                        scanCollection();
+                    else initDatabase();
+                }
+            });
+        }
     }
 
     private TopoIndexDatabaseAdapter database;
