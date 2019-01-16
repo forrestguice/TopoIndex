@@ -16,17 +16,16 @@
     along with TopoIndex.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.forrestguice.topoindex.database;
+package com.forrestguice.topoindex.database.tasks;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.database.DatabaseUtils;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.support.v4.util.Pools;
 import android.util.Log;
+
+import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -34,33 +33,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseInitTask.DatabaseTaskProgress, TopoIndexDatabaseInitTask.DatabaseTaskResult>
+public class TopoIndexDatabaseInitTask extends TopoIndexDatabaseTask
 {
     public static final String TAG = "TopoIndexTask";
 
-    private WeakReference<Context> contextRef;
-    private TopoIndexDatabaseAdapter database;
-
     public TopoIndexDatabaseInitTask( Context context )
     {
-        contextRef = new WeakReference<>(context);
-        database = new TopoIndexDatabaseAdapter(context);
-    }
-
-    @Override
-    protected void onPreExecute()
-    {
-        super.onPreExecute();
-        if (taskListener != null) {
-            taskListener.onStarted();
-        }
+        super(context);
     }
 
     @Override
@@ -208,99 +192,6 @@ public class TopoIndexDatabaseInitTask extends AsyncTask<Uri, TopoIndexDatabaseI
             Log.e(TAG, "DatabaseInitTask: missing uri!");
             return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
         }
-    }
-
-    @Override
-    protected void onProgressUpdate( DatabaseTaskProgress... progress )
-    {
-        super.onProgressUpdate(progress);
-        if (taskListener != null) {
-            taskListener.onProgress(progress);
-        }
-    }
-
-    @Override
-    protected void onPostExecute( DatabaseTaskResult result )
-    {
-        super.onPostExecute(result);
-        if (taskListener != null) {
-            taskListener.onFinished(result);
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * DatabaseTaskResult
-     */
-    public static class DatabaseTaskResult
-    {
-        public DatabaseTaskResult(boolean result, int count, long date)
-        {
-            this.result = result;
-            this.count = count;
-            this.date = date;
-        }
-
-        private boolean result;
-        public boolean getResult()
-        {
-            return result;
-        }
-
-        private int count;
-        public int numItems() {
-            return count;
-        }
-
-        private long date;
-        public long getDate()
-        {
-            return date;
-        }
-    }
-
-    /**
-     * DatabaseTaskProgress
-     */
-    public static class DatabaseTaskProgress
-    {
-        public DatabaseTaskProgress( String msg, int itemNum, int numItems )
-        {
-            this.message = msg;
-            this.count[0] = itemNum;
-            this.count[1] = numItems;
-        }
-
-        protected String message;
-        public String getMessage() {
-            return message;
-        }
-
-        protected int[] count = new int[] {0, 0};
-        public int itemNumber() {
-            return count[0];
-        }
-        public int numItems() {
-            return count[1];
-        }
-    }
-
-    /**
-     * DatabaseTaskListener
-     */
-    public static abstract class DatabaseTaskListener
-    {
-        public abstract void onStarted();
-        public abstract void onProgress( DatabaseTaskProgress... progress );
-        public abstract void onFinished( DatabaseTaskResult result );
-    }
-
-    private DatabaseTaskListener taskListener = null;
-    public void setTaskListener( DatabaseTaskListener listener )
-    {
-        this.taskListener = listener;
     }
 
 }

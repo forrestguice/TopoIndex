@@ -56,7 +56,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
-import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
+import com.forrestguice.topoindex.database.tasks.DatabaseTaskListener;
+import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
+import com.forrestguice.topoindex.database.tasks.DatabaseTaskResult;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.dialogs.AboutDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
@@ -387,10 +389,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.w(TAG, "scanCollection: a task is already running (or pending); ignoring call...");
             return false;
         }
-        return databaseService.scanCollection(scanTaskListener);
+        return databaseService.runScanCollectionTask(MainActivity.this, scanTaskListener);
     }
 
-    private TopoIndexDatabaseInitTask.DatabaseTaskListener scanTaskListener = new TopoIndexDatabaseInitTask.DatabaseTaskListener()
+    private DatabaseTaskListener scanTaskListener = new DatabaseTaskListener()
     {
         @Override
         public void onStarted()
@@ -399,13 +401,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress)
+        public void onProgress(DatabaseTaskProgress... progress)
         {
             // TODO
         }
 
         @Override
-        public void onFinished(TopoIndexDatabaseInitTask.DatabaseTaskResult result)
+        public void onFinished(DatabaseTaskResult result)
         {
             // TODO
         }
@@ -431,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private Snackbar progressSnackbar;
-    private TopoIndexDatabaseInitTask.DatabaseTaskListener initTaskListener = new TopoIndexDatabaseInitTask.DatabaseTaskListener()
+    private DatabaseTaskListener initTaskListener = new DatabaseTaskListener()
     {
         @Override
         public void onStarted()
@@ -442,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress)
+        public void onProgress(DatabaseTaskProgress... progress)
         {
             if (progressSnackbar != null && progress.length > 0) {
                 progressSnackbar.setText(progress[0].getMessage());
@@ -450,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public void onFinished(TopoIndexDatabaseInitTask.DatabaseTaskResult result)
+        public void onFinished(DatabaseTaskResult result)
         {
             progressSnackbar.setText("Database Initialization " + (result.getResult() ? "succeeded" : "failed"));
             progressSnackbar.setAction(null, null);
@@ -505,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress progress)
+        public void onProgress(DatabaseTaskProgress progress)
         {
             // TODO
         }

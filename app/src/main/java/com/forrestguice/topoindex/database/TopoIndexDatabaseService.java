@@ -18,13 +18,13 @@
 
 package com.forrestguice.topoindex.database;
 
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -35,17 +35,26 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.MainActivity;
 import com.forrestguice.topoindex.R;
+import com.forrestguice.topoindex.database.tasks.DatabaseTaskListener;
+import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
+import com.forrestguice.topoindex.database.tasks.DatabaseTaskResult;
+import com.forrestguice.topoindex.database.tasks.TopoIndexDatabaseInitTask;
+import com.forrestguice.topoindex.database.tasks.TopoIndexDatabaseScanTask;
+import com.forrestguice.topoindex.database.tasks.TopoIndexDatabaseTask;
 
 public class TopoIndexDatabaseService extends Service
 {
     public static final String TAG = "TopoIndexService";
 
-    public static final String ACTION_INIT_DB = "initDatabase";
+    public static final String ACTION_INIT = "initDatabase";
+    public static final String ACTION_SCAN = "scanCollection";
 
     public final static int STATUS_READY = 0;
     public final static int STATUS_BUSY = 1;
@@ -75,11 +84,17 @@ public class TopoIndexDatabaseService extends Service
         {
             TopoIndexDatabaseServiceListener serviceListener = intent.getParcelableExtra(EXTRA_SERVICE_LISTENER);
 
-            if (action.equals(ACTION_INIT_DB))
-            {
+            if (action.equals(ACTION_INIT)) {
                 Log.d(TAG, "onStartCommand: " + action);
                 boolean started = runDatabaseInitTask(this, intent, intent.getData(), null);
+                signalOnStartCommand(started);
+                if (serviceListener != null) {
+                    serviceListener.onStartCommand(started);
+                }
 
+            } else if (action.equals(ACTION_SCAN)) {
+                Log.d(TAG, "onStartCommand: " + action);
+                boolean started = runScanCollectionTask(this,null);
                 signalOnStartCommand(started);
                 if (serviceListener != null) {
                     serviceListener.onStartCommand(started);
@@ -98,30 +113,21 @@ public class TopoIndexDatabaseService extends Service
     public static final int NOTIFICATION_COMPLETE = 20;
     public static final int NOTIFICATION_FAILED = 30;
 
-    public boolean scanCollection(@Nullable final TopoIndexDatabaseInitTask.DatabaseTaskListener listener)
+    private static TopoIndexDatabaseTask databaseTask = null;
+    private static DatabaseTaskListener databaseTaskListener;
+
+    /**
+     * runScanCollectionTask
+     */
+    public boolean runScanCollectionTask(final Context context, @Nullable final DatabaseTaskListener listener)
     {
         if (getStatus() != STATUS_READY) {
             Log.w(TAG, "scanCollection: A task is already running! ignoring...");
             return false;
         }
 
-        // TODO
-
-        return true;
-    }
-
-    private static TopoIndexDatabaseInitTask databaseTask = null;
-    private static TopoIndexDatabaseInitTask.DatabaseTaskListener databaseTaskListener;
-    public boolean runDatabaseInitTask(final Context context, @Nullable Intent intent, Uri uri, @Nullable final TopoIndexDatabaseInitTask.DatabaseTaskListener listener)
-    {
-        if (getStatus() != STATUS_READY) {
-            Log.w(TAG, "runDatabaseInitTask: A task is already running! ignoring...");
-            return false;
-        }
-
-        databaseTask = new TopoIndexDatabaseInitTask(context);
-
-        databaseTaskListener = new TopoIndexDatabaseInitTask.DatabaseTaskListener()
+        databaseTask = new TopoIndexDatabaseScanTask(context);
+        databaseTaskListener = new DatabaseTaskListener()
         {
             @Override
             public void onStarted()
@@ -130,10 +136,10 @@ public class TopoIndexDatabaseService extends Service
                     listener.onStarted();
                 }
 
-                String message = "Initializing database";  // TODO
+                String message = "Scanning collection";  // TODO
 
                 signalOnStatusChanged(STATUS_BUSY);
-                signalOnProgress(new TopoIndexDatabaseInitTask.DatabaseTaskProgress(message, 0, 0));  // TODO
+                signalOnProgress(new DatabaseTaskProgress(message, 0, 0));  // TODO
 
                 progressNotification = new NotificationCompat.Builder(context);
                 progressNotification.setContentTitle(context.getString(R.string.app_name))
@@ -152,19 +158,123 @@ public class TopoIndexDatabaseService extends Service
             private NotificationCompat.Builder progressNotification;
 
             @Override
-            public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress... progress)
+            public void onProgress(DatabaseTaskProgress... progress)
             {
                 if (progressNotification != null) {
                     progressNotification.setProgress(progress[0].numItems(), progress[0].itemNumber(), false);
                     startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
                 }
 
-                progress[0].message = "Initializing database";  // TODO
+                progress[0].setMessage("Scanning Collection");  // TODO
                 signalOnProgress(progress[0]);
             }
 
             @Override
-            public void onFinished(TopoIndexDatabaseInitTask.DatabaseTaskResult result)
+            public void onFinished(DatabaseTaskResult result)
+            {
+                if (listener != null) {
+                    listener.onFinished(result);
+                }
+
+                if (result.getResult())
+                {
+                    String message = "Collection scanned (" + result.numItems() + " items)";   // TODO
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
+                    notificationBuilder.setContentTitle(context.getString(R.string.app_name))
+                            .setContentText(message)
+                            .setSmallIcon(R.mipmap.ic_launcher)       // TODO
+                            .setPriority(NotificationCompat.PRIORITY_LOW)
+                            .setContentIntent(getNotificationIntent(context)).setAutoCancel(true)
+                            .setProgress(0, 0, false);
+
+                    notificationManager.notify(NOTIFICATION_COMPLETE, notificationBuilder.build());
+                    signalOnStatusChanged(STATUS_READY);
+                    stopForeground(true);
+                    stopSelf();
+
+                } else {
+                    String message = "Failed to scan collection";    // TODO
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
+                    notificationBuilder.setContentTitle(context.getString(R.string.app_name))
+                            .setContentText(message)
+                            .setSmallIcon(R.mipmap.ic_launcher)       // TODO
+                            .setPriority(NotificationCompat.PRIORITY_LOW)
+                            .setContentIntent(getNotificationIntent(context)).setAutoCancel(true)
+                            .setProgress(0, 0, false);
+
+                    notificationManager.notify(NOTIFICATION_FAILED, notificationBuilder.build());
+                    signalOnStatusChanged(STATUS_READY);
+                    stopForeground(true);
+                    stopSelf();
+                }
+            }
+
+
+        };
+        databaseTask.setTaskListener(databaseTaskListener);
+        databaseTask.execute();
+        return true;
+    }
+
+    /**
+     * runDatabaseInitTask
+     */
+    public boolean runDatabaseInitTask(final Context context, @Nullable Intent intent, Uri uri, @Nullable final DatabaseTaskListener listener)
+    {
+        if (getStatus() != STATUS_READY) {
+            Log.w(TAG, "runDatabaseInitTask: A task is already running! ignoring...");
+            return false;
+        }
+
+        databaseTask = new TopoIndexDatabaseInitTask(context);
+
+        databaseTaskListener = new DatabaseTaskListener()
+        {
+            @Override
+            public void onStarted()
+            {
+                if (listener != null) {
+                    listener.onStarted();
+                }
+
+                String message = "Initializing database";  // TODO
+
+                signalOnStatusChanged(STATUS_BUSY);
+                signalOnProgress(new DatabaseTaskProgress(message, 0, 0));  // TODO
+
+                progressNotification = new NotificationCompat.Builder(context);
+                progressNotification.setContentTitle(context.getString(R.string.app_name))
+                        .setContentText(message)
+                        .setSmallIcon(R.mipmap.ic_launcher)        // TODO
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setProgress(0, 0, true);
+                startService(new Intent( context, TopoIndexDatabaseService.class));  // bind the service to itself (to keep things running if the activity unbinds)
+                startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
+
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+                notificationManager.cancel(NOTIFICATION_COMPLETE);
+                notificationManager.cancel(NOTIFICATION_FAILED);
+            }
+
+            private NotificationCompat.Builder progressNotification;
+
+            @Override
+            public void onProgress(DatabaseTaskProgress... progress)
+            {
+                if (progressNotification != null) {
+                    progressNotification.setProgress(progress[0].numItems(), progress[0].itemNumber(), false);
+                    startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
+                }
+
+                progress[0].setMessage("Initializing database");  // TODO
+                signalOnProgress(progress[0]);
+            }
+
+            @Override
+            public void onFinished(DatabaseTaskResult result)
             {
                 if (result.getResult()) {
                     TopoIndexDatabaseSettings.setDatabaseLastUpdate(context, Calendar.getInstance().getTimeInMillis());
@@ -185,7 +295,7 @@ public class TopoIndexDatabaseService extends Service
                             .setContentText(message)
                             .setSmallIcon(R.mipmap.ic_launcher)       // TODO
                             .setPriority(NotificationCompat.PRIORITY_LOW)
-                            .setContentIntent(getNotificationIntent()).setAutoCancel(true)
+                            .setContentIntent(getNotificationIntent(context)).setAutoCancel(true)
                             .setProgress(0, 0, false);
 
                     notificationManager.notify(NOTIFICATION_COMPLETE, notificationBuilder.build());
@@ -201,7 +311,7 @@ public class TopoIndexDatabaseService extends Service
                             .setContentText(message)
                             .setSmallIcon(R.mipmap.ic_launcher)       // TODO
                             .setPriority(NotificationCompat.PRIORITY_LOW)
-                            .setContentIntent(getNotificationIntent()).setAutoCancel(true)
+                            .setContentIntent(getNotificationIntent(context)).setAutoCancel(true)
                             .setProgress(0, 0, false);
 
                     notificationManager.notify(NOTIFICATION_FAILED, notificationBuilder.build());
@@ -211,15 +321,16 @@ public class TopoIndexDatabaseService extends Service
                 }
             }
 
-            private PendingIntent getNotificationIntent()
-            {
-                Intent intent = new Intent(context, MainActivity.class);
-                return PendingIntent.getActivity(context, 0, intent, 0);
-            }
         };
         databaseTask.setTaskListener(databaseTaskListener);
         databaseTask.execute(uri);
         return true;
+    }
+
+    public static PendingIntent getNotificationIntent(Context context)
+    {
+        Intent intent = new Intent(context, MainActivity.class);
+        return PendingIntent.getActivity(context, 0, intent, 0);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,8 +354,8 @@ public class TopoIndexDatabaseService extends Service
         return STATUS_READY;
     }
 
-    private TopoIndexDatabaseInitTask.DatabaseTaskProgress lastProgress;
-    public TopoIndexDatabaseInitTask.DatabaseTaskProgress getLastProgress()
+    private DatabaseTaskProgress lastProgress;
+    public DatabaseTaskProgress getLastProgress()
     {
         return lastProgress;
     }
@@ -269,7 +380,7 @@ public class TopoIndexDatabaseService extends Service
     {
         public void onStartCommand(boolean result) {}
         public void onStatusChanged(int status) {}
-        public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress progress) {}
+        public void onProgress(DatabaseTaskProgress progress) {}
 
         public TopoIndexDatabaseServiceListener() {}
         protected TopoIndexDatabaseServiceListener(Parcel in) {}
@@ -301,7 +412,7 @@ public class TopoIndexDatabaseService extends Service
         }
     }
 
-    private void signalOnProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress progress)
+    private void signalOnProgress(DatabaseTaskProgress progress)
     {
         lastProgress = progress;
         for (TopoIndexDatabaseServiceListener listener : serviceListeners) {

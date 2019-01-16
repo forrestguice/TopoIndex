@@ -40,10 +40,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
-import android.view.View;
-import android.widget.ProgressBar;
 
-import com.forrestguice.topoindex.database.TopoIndexDatabaseInitTask;
+import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseSettings;
 
@@ -180,7 +178,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             }
 
             @Override
-            public void onProgress(TopoIndexDatabaseInitTask.DatabaseTaskProgress progress)
+            public void onProgress(DatabaseTaskProgress progress)
             {
                 if (progressBar != null) {
                     progressBar.setText(progress.getMessage());

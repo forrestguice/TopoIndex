@@ -29,6 +29,9 @@ public class AppSettings
 {
     public static final String TAG = "TopoIndexSettings";
 
+    public static final String KEY_COLLECTION_PATH = "collectionPath";
+    public static final String DEF_COLLECTION_PATH = "maps";
+
     public static final String KEY_LOCATION_AUTO = "locationAuto";
     public static final boolean DEF_LOCATION_AUTO = true;
 
@@ -37,6 +40,12 @@ public class AppSettings
 
     public static final String KEY_LOCATION_LON = "longitude";
     public static final float DEF_LOCATION_LON = 0;
+
+    public static String getCollectionPath(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(KEY_COLLECTION_PATH, DEF_COLLECTION_PATH);
+    }
 
     public static boolean getAutoLocation(Context context)
     {
