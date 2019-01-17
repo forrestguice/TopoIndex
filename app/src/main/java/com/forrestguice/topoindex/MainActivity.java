@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 listTitle.setText(getString(R.string.nav_item_usgs_htmc));
             else if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO))
                 listTitle.setText(getString(R.string.nav_item_usgs_ustopo));
-            else listTitle.setText(getString(R.string.nav_item_local));
+            else listTitle.setText(getString(R.string.nav_item_locallist));
         }
     }
 
@@ -332,6 +332,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id)
         {
+            case R.id.nav_nearest9:
+                // TODO: show 9x9 quad view centered on location
+                break;
+
             case R.id.nav_local_list:
                 initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS);
                 break;

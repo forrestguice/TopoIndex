@@ -5,9 +5,14 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_nearest9"
+            android:icon="@drawable/ic_menu_location_light"
+            android:title="@string/nav_item_nearest9" />
+
+        <item
             android:id="@+id/nav_local_list"
             android:icon="@drawable/ic_menu_maps_light"
-            android:title="@string/nav_item_local" />
+            android:title="@string/nav_item_locallist" />
     </group>
 
     <item android:title="@string/nav_group_usgs" android:checkableBehavior="single">

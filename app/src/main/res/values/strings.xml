@@ -41,8 +41,9 @@
     <string name="nav_header_subtitle">TODO</string>
     <string name="nav_header_desc">Navigation header</string>
 
-    <string name="nav_item_local">My Collection</string>
-    <string name="nav_group_usgs">Historical Topo</string>
+    <string name="nav_item_nearest9">Nearby</string>
+    <string name="nav_item_locallist">My Collection</string>
+    <string name="nav_group_usgs">USGS Index</string>
     <string name="nav_item_usgs_htmc">Historical Topo</string>
     <string name="nav_item_usgs_ustopo">US Topo</string>
 
