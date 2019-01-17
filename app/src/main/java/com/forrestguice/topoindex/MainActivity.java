@@ -239,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView listTitle = findViewById(R.id.title_maps);
         if (listTitle != null)
         {
+            listTitle.setVisibility(View.GONE);  // TODO: fix vertical text
             if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC))
                 listTitle.setText(getString(R.string.nav_item_usgs_htmc));
             else if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO))
