@@ -63,7 +63,7 @@
     <string name="pref_title_database_lastupdate">Last Update</string>
 
     <string name="database_update_confirm_title">Update Database</string>
-    <string name="database_update_confirm_message">Are you certain you want update? This process takes a long time and should be done infrequently.</string>
+    <string name="database_update_confirm_message">Are you sure you want update?\n\nUpdating takes several minutes.\n\nWhen completed the database will consume around 200 MB.</string>
 
     <string name="database_update_success">Database updated (%s items)</string>
     <string name="database_update_failed">Failed to update database</string>

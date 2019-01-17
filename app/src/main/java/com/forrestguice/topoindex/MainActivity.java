@@ -562,14 +562,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initDatabase(this, null);
     }
 
-    private boolean initDatabase(Context context, Uri uri)
+    private boolean initDatabase(final Context context, final Uri uri)
     {
         if (databaseService.getStatus() != TopoIndexDatabaseService.STATUS_READY)
         {
             Log.w(TAG, "initDatabase: DatabaseInitTask is already running (or pending); ignoring call...");
             return false;
         }
-        return databaseService.runDatabaseInitTask(context, null, uri, initTaskListener);
+
+        android.app.AlertDialog.Builder dialog = new android.app.AlertDialog.Builder(MainActivity.this);
+        dialog.setTitle(getString(R.string.database_update_confirm_title));
+        dialog.setMessage(getString(R.string.database_update_confirm_message));
+
+        dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                if (databaseService != null) {
+                    databaseService.runDatabaseInitTask(context, null, uri, initTaskListener);
+                }
+            }
+        });
+        dialog.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) { /* EMPTY */ }
+        });
+
+        dialog.show();
+        return true;
     }
 
     private DatabaseTaskListener initTaskListener = new DatabaseTaskListener()
