@@ -69,6 +69,7 @@ import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskResult;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.dialogs.AboutDialog;
+import com.forrestguice.topoindex.dialogs.FilterDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
 
 import java.util.Calendar;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 {
     public static final String TAG = "TopoIndexActivity";
     public static final String TAG_DIALOG_LOCATION = "location";
+    public static final String TAG_DIALOG_FILTERS = "filters";
     public static final String TAG_DIALOG_ABOUT = "about";
 
     public static final String KEY_FLIPPER_INDEX = "flipperIndex";
@@ -379,6 +381,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id)
         {
+            case R.id.action_filters:
+                FilterDialog filterDialog = new FilterDialog();
+                filterDialog.show(getSupportFragmentManager(), TAG_DIALOG_FILTERS);
+                return true;
+
             case R.id.action_help:
                 AlertDialog.Builder helpDialog = new AlertDialog.Builder(MainActivity.this);
                 helpDialog.setMessage(getString(R.string.help_general));
