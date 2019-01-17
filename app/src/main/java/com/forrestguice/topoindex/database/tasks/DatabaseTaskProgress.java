@@ -47,4 +47,9 @@ public class DatabaseTaskProgress
     public int numItems() {
         return count[1];
     }
+
+    public String toString()
+    {
+        return message + " (" + this.count[0] + "/" + this.count[1] + ")";
+    }
 }

@@ -40,6 +40,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
@@ -101,7 +104,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity
      * GeneralPreferenceFragment
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
+    public static class GeneralPreferenceFragment extends PreferenceFragment
+    {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -132,7 +136,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     {
         private static TopoIndexDatabaseService databaseService;
         private boolean boundToService = false;
-        private Snackbar progressBar;
+        private Snackbar snackbar;
+        private ProgressBar snackbarProgress;
 
         private ServiceConnection databaseServiceConnection = new ServiceConnection()
         {
@@ -143,7 +148,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 databaseService = binder.getService();
                 boundToService = true;
                 databaseService.addServiceListener(serviceListener);
-                serviceListener.onStatusChanged(databaseService.getStatus());
+                if (serviceListener != null) {
+                    serviceListener.onStatusChanged(databaseService.getStatus());
+                }
             }
 
             @Override
@@ -160,17 +167,32 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                     action_sync.setEnabled(status == TopoIndexDatabaseService.STATUS_READY);
                 }
 
-                if (progressBar == null) {
-                    if (getView() != null) {
-                        progressBar = Snackbar.make(getView(), "", Snackbar.LENGTH_INDEFINITE);
+                if (snackbar == null)                      // lazy init snackbar
+                {
+                    Activity activity = getActivity();
+                    View view = getView();
+                    if (activity != null && view != null)
+                    {
+                        snackbar = Snackbar.make(getView(), "", Snackbar.LENGTH_INDEFINITE);
+                        ViewGroup snackbarContent = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                        if (snackbarContent != null) {
+                            snackbarProgress = new ProgressBar(getActivity()); // for  horizontal progress: // (context, null, android.R.attr.progressBarStyleHorizontal);
+                            snackbarProgress.setPadding(0, 8, 0, 8);
+                            snackbarContent.addView(snackbarProgress);
+                        } else Log.w(TAG, "initViews: android.support.design.R.id.snackbar_text not found!");
                     }
                 }
 
-                if (progressBar != null) {
-                    if (status == TopoIndexDatabaseService.STATUS_READY) {
-                        progressBar.dismiss();
-                    } else {
-                        progressBar.show();
+                if (snackbar != null) {
+                    if (status == TopoIndexDatabaseService.STATUS_READY)
+                        snackbar.dismiss();
+                    else snackbar.show();
+                }
+
+                if (status != TopoIndexDatabaseService.STATUS_READY) {
+                    DatabaseTaskProgress lastProgress = databaseService.getLastProgress();
+                    if (lastProgress != null) {
+                        onProgress(lastProgress);
                     }
                 }
 
@@ -180,8 +202,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             @Override
             public void onProgress(DatabaseTaskProgress progress)
             {
-                if (progressBar != null) {
-                    progressBar.setText(progress.getMessage());
+                if (snackbar != null) {
+                    snackbar.setText(progress.getMessage());
+                }
+
+                if (snackbarProgress != null) {
+                    int n = progress.numItems();
+                    if (n > 0) {
+                        snackbarProgress.setIndeterminate(false);
+                    }
+                    snackbarProgress.setMax(progress.numItems());
+                    snackbarProgress.setProgress(progress.itemNumber());
                 }
             }
         };
