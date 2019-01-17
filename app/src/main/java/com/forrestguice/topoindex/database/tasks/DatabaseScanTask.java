@@ -34,6 +34,8 @@ public class DatabaseScanTask extends DatabaseTask
 {
     public static final String TAG = "TopoIndexTask";
 
+    public static final String EXT_GEOPDF = "geo.pdf";
+
     public DatabaseScanTask(Context context )
     {
         super(context);
@@ -97,7 +99,7 @@ public class DatabaseScanTask extends DatabaseTask
         if (file.exists())
         {
             String fileName = file.getName();
-            if (fileName.toLowerCase().endsWith("geo.pdf"))
+            if (fileName.toLowerCase().endsWith(EXT_GEOPDF))
             {
                 ContentValues values = getValuesFromFileName(file);
                 if (values != null)
@@ -130,8 +132,8 @@ public class DatabaseScanTask extends DatabaseTask
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, parts[2]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATE, parts[3]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCALE, parts[4]);
-            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
-            values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);       // TODO: how to determine this from the filename... possible?
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);        // TODO: is this value more or less the same as series?
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, file.getAbsolutePath());
             return values;
 
