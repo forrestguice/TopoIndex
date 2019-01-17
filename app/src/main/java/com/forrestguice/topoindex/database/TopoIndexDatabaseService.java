@@ -34,6 +34,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -218,9 +220,9 @@ public class TopoIndexDatabaseService extends Service
                     listener.onStarted();
                 }
 
-                String message = context.getString(R.string.database_update_progress);
+                String message = context.getString(R.string.database_update_progress, "");
                 signalOnStatusChanged(STATUS_BUSY);
-                signalOnProgress(new DatabaseTaskProgress(message, 0, 0));
+                signalOnProgress(new DatabaseTaskProgress(message, 0, 100));
 
                 progressNotification = createProgressNotificationBuilder(context, message);
                 startService(new Intent( context, TopoIndexDatabaseService.class));  // bind the service to itself (to keep things running if the activity unbinds)
@@ -232,17 +234,25 @@ public class TopoIndexDatabaseService extends Service
             }
 
             private NotificationCompat.Builder progressNotification;
+            private NumberFormat percentFormatter;
 
             @Override
             public void onProgress(DatabaseTaskProgress... progress)
             {
+                if (percentFormatter == null) {
+                    percentFormatter = DecimalFormat.getPercentInstance();
+                    percentFormatter.setMinimumFractionDigits(0);
+                    percentFormatter.setMaximumFractionDigits(0);
+                }
+                String percentString = percentFormatter.format((double)progress[0].itemNumber() / (double)progress[0].numItems());
+                progress[0].setMessage(context.getString(R.string.database_update_progress, percentString));
+                signalOnProgress(progress[0]);
+
                 if (progressNotification != null) {
+                    progressNotification.setContentText(progress[0].getMessage());
                     progressNotification.setProgress(progress[0].numItems(), progress[0].itemNumber(), false);
                     startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
                 }
-
-                progress[0].setMessage(context.getString(R.string.database_update_progress));
-                signalOnProgress(progress[0]);
             }
 
             @Override

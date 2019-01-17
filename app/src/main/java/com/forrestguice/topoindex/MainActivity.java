@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         progressBar = (ProgressBar) findViewById(R.id.progress_list_maps);
-        progressSnackbar = Snackbar.make(listView, getString(R.string.database_update_progress), Snackbar.LENGTH_INDEFINITE);
+        progressSnackbar = Snackbar.make(listView, getString(R.string.database_update_progress, ""), Snackbar.LENGTH_INDEFINITE);
 
         ViewGroup snackbarContent = (ViewGroup) progressSnackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         if (snackbarContent != null) {
@@ -577,7 +577,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onStarted()
         {
-            progressSnackbar.setText(getString(R.string.database_update_progress));
+            progressSnackbar.setText(getString(R.string.database_update_progress, ""));
             progressSnackbar.show();
         }
 
