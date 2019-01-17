@@ -36,7 +36,7 @@ public class AppSettings
     public static final String TAG = "TopoIndexSettings";
 
     public static final String KEY_COLLECTION_PATH = "collectionPath";            // TODO: expose
-    public static final String DEF_COLLECTION_PATH = "maps";
+    public static final String[] DEF_COLLECTION_PATH = new String[] { "maps" };   // /sdcard/<PATH>
 
     public static final String KEY_LOCATION_INTERVAL = "locationInterval";        // TODO: expose
     public static final long DEF_LOCATION_INTERVAL = 5 * 1000;
@@ -65,10 +65,17 @@ public class AppSettings
     public static final String KEY_FILTER_PROXIMITY = "filterByProximity";
     public static final float DEF_FILTER_PROXIMITY = 0.0f;      // def no min
 
-    public static String getCollectionPath(Context context)
+    public static String[] getCollectionPath(Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(KEY_COLLECTION_PATH, DEF_COLLECTION_PATH);
+        Set<String> paths = prefs.getStringSet(KEY_COLLECTION_PATH, new HashSet<String>(Arrays.asList(DEF_COLLECTION_PATH)));
+        return new ArrayList<String>(paths).toArray(new String[0]);
+    }
+    public static void setCollectionPath(Context context, String[] paths)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putStringSet(KEY_COLLECTION_PATH, new HashSet<String>(Arrays.asList(paths)));
+        prefs.apply();
     }
 
     public static String[] getFilter_byState(Context context)
