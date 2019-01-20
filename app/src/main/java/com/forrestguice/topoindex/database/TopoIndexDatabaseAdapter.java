@@ -49,7 +49,7 @@ public class TopoIndexDatabaseAdapter
     public static final String DEF_MAP_VERSION = KEY_MAP_VERSION + " text";
 
     public static final String KEY_MAP_CELLID = "cellid";
-    public static final String DEF_MAP_CELLID = KEY_MAP_CELLID + " text not null";
+    public static final String DEF_MAP_CELLID = KEY_MAP_CELLID + " text";
 
     public static final String KEY_MAP_NAME = "name";
     public static final String DEF_MAP_NAME = KEY_MAP_NAME + " text not null";
@@ -73,7 +73,7 @@ public class TopoIndexDatabaseAdapter
     public static final String DEF_MAP_LONGITUDE_EAST = KEY_MAP_LONGITUDE_EAST + " text";
 
     public static final String KEY_MAP_SCALE = "scale";
-    public static final String DEF_MAP_SCALE = KEY_MAP_SCALE + " text not null";
+    public static final String DEF_MAP_SCALE = KEY_MAP_SCALE + " text";
 
     public static final String KEY_MAP_DATUM = "datum";
     public static final String DEF_MAP_DATUM = KEY_MAP_DATUM + " text";
@@ -223,11 +223,11 @@ public class TopoIndexDatabaseAdapter
         return getMaps(TABLE_MAPS_USGS_USTOPO, n, fullEntry);
     }
 
-    public Cursor getMap(@NonNull String table, @NonNull String cellID, boolean fullEntry)
+    public Cursor getMap(@NonNull String table, @NonNull String gdaItemID, boolean fullEntry)
     {
         String[] QUERY = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
-        String selection = KEY_MAP_CELLID + " = ?";
-        String[] selectionArgs = new String[] { cellID };
+        String selection = KEY_MAP_GDAITEMID + " = ?";
+        String[] selectionArgs = new String[] { gdaItemID };
         Cursor cursor = database.query( table, QUERY, selection, selectionArgs, null, null, "_id DESC" );
         if (cursor != null) {
             cursor.moveToFirst();
@@ -235,9 +235,9 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
-    public boolean hasMap(@NonNull String table, String cellID)
+    public boolean hasMap(@NonNull String table, String gdaItemID)
     {
-        Cursor cursor = getMap(table, cellID, false);
+        Cursor cursor = getMap(table, gdaItemID, false);
         if (cursor != null) {
             return (cursor.getCount() > 0);
         }
@@ -266,11 +266,11 @@ public class TopoIndexDatabaseAdapter
         database.beginTransaction();
         for (ContentValues entry : values)
         {
-            String cellID = entry.getAsString(KEY_MAP_CELLID);
-            if (cellID != null && !cellID.isEmpty())
+            String gdaItemID = entry.getAsString(KEY_MAP_GDAITEMID);
+            if (gdaItemID != null && !gdaItemID.isEmpty())
             {
-                String where = KEY_MAP_CELLID + " = ?";
-                String[] whereArgs = new String[] { cellID };
+                String where = KEY_MAP_GDAITEMID + " = ?";
+                String[] whereArgs = new String[] { gdaItemID };
                 lastRowId = database.update(table, entry, where, whereArgs);
             }
         }
@@ -291,8 +291,6 @@ public class TopoIndexDatabaseAdapter
 
     public static void toContentValues( ContentValues values, String[] fields )
     {
-
-
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, fields[0].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, fields[1].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, fields[2].replaceAll("\"",""));
