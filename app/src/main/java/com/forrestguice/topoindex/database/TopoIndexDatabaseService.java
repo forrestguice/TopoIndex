@@ -42,6 +42,7 @@ import java.util.Calendar;
 
 import com.forrestguice.topoindex.MainActivity;
 import com.forrestguice.topoindex.R;
+import com.forrestguice.topoindex.database.tasks.DatabaseClearTask;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskListener;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskResult;
@@ -55,6 +56,7 @@ public class TopoIndexDatabaseService extends Service
 
     public static final String ACTION_INIT = "initDatabase";
     public static final String ACTION_SCAN = "scanCollection";
+    public static final String ACTION_CLEAR = "clearCollection";
 
     public final static int STATUS_READY = 0;
     public final static int STATUS_BUSY = 1;
@@ -102,8 +104,15 @@ public class TopoIndexDatabaseService extends Service
                         serviceListener.onStartCommand(started);
                     }
 
-                } else Log.d(TAG, "onStartCommand: unrecognized action: " + action);
+                } else if (action.equals(ACTION_CLEAR)) {
+                    Log.d(TAG, "onStartCommand: " + action);
+                    boolean started = runClearCollectionTask(this,null);
+                    signalOnStartCommand(started);
+                    if (serviceListener != null) {
+                        serviceListener.onStartCommand(started);
+                    }
 
+                } else Log.d(TAG, "onStartCommand: unrecognized action: " + action);
             } else Log.d(TAG, "onStartCommand: null action");
         } else Log.d(TAG, "onStartCommand: null intent");
         return START_NOT_STICKY;
@@ -198,6 +207,45 @@ public class TopoIndexDatabaseService extends Service
         databaseTask.setTaskListener(databaseTaskListener);
         databaseTask.execute();
         return true;
+    }
+
+    /**
+     * runClearCollectionTask
+     */
+    public boolean runClearCollectionTask(final Context context, @Nullable final DatabaseTaskListener listener)
+    {
+        if (getStatus() != STATUS_READY) {
+            Log.w(TAG, "clearCollection: A task is already running! ignoring...");
+            return false;
+        }
+
+        databaseTask = new DatabaseClearTask(context);
+        databaseTaskListener = new DatabaseTaskListener()
+        {
+            @Override
+            public void onStarted() {
+                if (listener != null) {
+                    listener.onStarted();
+                }
+                signalOnStatusChanged(STATUS_BUSY);
+            }
+
+            @Override
+            public void onProgress(DatabaseTaskProgress... progress) {
+                signalOnProgress(progress[0]);
+            }
+
+            @Override
+            public void onFinished(DatabaseTaskResult result) {
+                if (listener != null) {
+                    listener.onFinished(result);
+                }
+                signalOnStatusChanged(STATUS_READY);
+            }
+        };
+        databaseTask.setTaskListener(databaseTaskListener);
+        databaseTask.execute(Uri.parse(TopoIndexDatabaseAdapter.TABLE_MAPS));
+        return false;
     }
 
     /**

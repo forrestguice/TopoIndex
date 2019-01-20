@@ -16,11 +16,11 @@
     along with TopoIndex.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 package com.forrestguice.topoindex.database.tasks;
 
 /**
  * DatabaseTaskProgress
+ * @see DatabaseTask
  */
 public class DatabaseTaskProgress
 {

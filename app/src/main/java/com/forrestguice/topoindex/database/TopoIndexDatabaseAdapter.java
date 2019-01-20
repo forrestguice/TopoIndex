@@ -25,6 +25,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.HashMap;
 
@@ -249,6 +250,30 @@ public class TopoIndexDatabaseAdapter
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST, fields[48].replaceAll("\"",""));
 
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, fields[50].replaceAll("\"",""));
+    }
+
+    /**
+     * Clear Maps
+     */
+
+    public boolean clearMaps(String table)
+    {
+        if (table.equals(TABLE_MAPS_USGS_HTMC)) {
+            database.execSQL("DROP TABLE IF EXISTS " + table);
+            database.execSQL(TABLE_MAPS_USGS_HTMC_CREATE);
+            return true;
+
+        } else if (table.equals(TABLE_MAPS_USGS_USTOPO)) {
+            database.execSQL("DROP TABLE IF EXISTS " + table);
+            database.execSQL(TABLE_MAPS_USGS_USTOPO_CREATE);
+            return true;
+
+        } else if (table.equals(TABLE_MAPS)) {
+            database.execSQL("DROP TABLE IF EXISTS " + table);
+            database.execSQL(TABLE_MAPS_CREATE);
+            return true;
+        }
+        return false;
     }
 
     /**

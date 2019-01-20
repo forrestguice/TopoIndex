@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                scanCollection();
+                clearCollection();
             }
         });
 
@@ -643,6 +643,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             initListAdapter(MainActivity.this, TopoIndexDatabaseAdapter.TABLE_MAPS, true);
         }
     };
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // clearCollection
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private boolean clearCollection()
+    {
+        if (databaseService.getStatus() != TopoIndexDatabaseService.STATUS_READY)
+        {
+            Log.w(TAG, "clearCollection: a task is already running (or pending); ignoring call...");
+            return false;
+        }
+        return databaseService.runClearCollectionTask(MainActivity.this, null);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // initDatabase
