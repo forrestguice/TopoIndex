@@ -21,12 +21,14 @@ package com.forrestguice.topoindex;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -224,16 +226,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
                     if (cursor != null)
                     {
-                        int i = cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_URL);
-                        if (i != -1) {
-                            String url = cursor.getString(i);
-                            Toast.makeText(context, url, Toast.LENGTH_LONG).show();
+                        ContentValues contentValues = new ContentValues();
+                        DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+                        String url = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_URL);
+                        String itemID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
+                        AppSettings.Location nwCorner = getNorthwestCorner(contentValues);
+                        AppSettings.Location seCorner = getSoutheastCorner(contentValues);
+
+                        if (nwCorner != null && seCorner != null) {
+                            Toast.makeText(context, itemID + ": " + nwCorner.toString() + "\n" + seCorner.toString(), Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(context, itemID + ": " + url, Toast.LENGTH_LONG).show();
                         }
                         // TODO
                     }
                 }
             });
         }
+    }
+
+    public AppSettings.Location getNorthwestCorner(ContentValues values)
+    {
+        String latString = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH);
+        String lonString = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST);
+        if (latString != null && lonString != null)
+        {
+            double latitude = Double.parseDouble(latString);
+            double longitude = Double.parseDouble(lonString);
+            return new AppSettings.Location(latitude, longitude);
+
+        } else return null;
+    }
+
+    public AppSettings.Location getSoutheastCorner(ContentValues values)
+    {
+        String latString = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH);
+        String lonString = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST);
+        if (latString != null && lonString != null)
+        {
+            double latitude = Double.parseDouble(latString);
+            double longitude = Double.parseDouble(lonString);
+            return new AppSettings.Location(latitude, longitude);
+
+        } else return null;
     }
 
     private void initListTitle(Context context, String table)
