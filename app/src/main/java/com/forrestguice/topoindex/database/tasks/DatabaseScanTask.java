@@ -20,6 +20,7 @@ package com.forrestguice.topoindex.database.tasks;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -101,13 +102,25 @@ public class DatabaseScanTask extends DatabaseTask
             String fileName = file.getName();
             if (fileName.toLowerCase().endsWith(EXT_GEOPDF))
             {
-                ContentValues values = getValuesFromFileName(file);
-                if (values != null)
+                ContentValues fileValues = getValuesFromFileName(file);
+                if (fileValues != null)
                 {
                     Log.d(TAG, "scanFile: " + file.getAbsolutePath());
-                    database.addMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, values);
+                    fileValues = updateValuesFromDB(fileValues);
+
+                    String cellID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_CELLID);
+                    if (database.hasMap(TopoIndexDatabaseAdapter.TABLE_MAPS, cellID))
+                    {
+                        Log.d(TAG, "scanFile: updating " + file.getAbsolutePath());
+                        database.updateMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
+
+                    } else {
+                        Log.d(TAG, "scanFile: adding " + file.getAbsolutePath());
+                        database.addMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
+                    }
                     result.count++;
-                }
+
+                } else Log.w(TAG, "scanFile: missing values; skipping");
 
             } else {
                 Log.d(TAG, "scanFile: ignoring " + file.getAbsolutePath());
@@ -141,5 +154,41 @@ public class DatabaseScanTask extends DatabaseTask
             Log.w(TAG, "scanFile: unrecognized filename " + fileName);
             return null;
         }
+    }
+
+    protected ContentValues updateValuesFromDB(ContentValues values)
+    {
+        if (values != null)
+        {
+            String series = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);   // TODO: series on values object is set incorrectly - always HTMC
+            if (series != null && !series.isEmpty())
+            {
+                String cellID = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_CELLID);
+                if (cellID != null && !cellID.isEmpty())
+                {
+                    String table = series.toLowerCase().equals("htmc") ? TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC : TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO;
+                    Cursor cursor = database.getMap(table, cellID, true);
+                    if (cursor != null)
+                    {
+                        if (cursor.getCount() > 0)
+                        {
+                            Log.d(TAG, "updateValuesFromDB: " + cellID);
+                            cursor.moveToFirst();
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATUM, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_DATUM)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_VERSION)));
+                        }
+                        cursor.close();
+                    }
+
+                } else Log.w(TAG, "updateValuesFromDB: missing cellID; skipping");
+            } else Log.w(TAG, "updateValuesFromDB: missing series; skipping");
+        }  else Log.w(TAG, "updateValuesFromDB: missing values; skipping");
+
+        return values;
     }
 }

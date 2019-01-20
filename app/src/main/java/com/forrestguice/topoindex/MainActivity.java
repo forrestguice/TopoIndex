@@ -381,6 +381,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id)
         {
+            case R.id.action_scan:
+                scanCollection();
+                return true;
+
             case R.id.action_filters:
                 FilterDialog filterDialog = new FilterDialog();
                 filterDialog.show(getSupportFragmentManager(), TAG_DIALOG_FILTERS);

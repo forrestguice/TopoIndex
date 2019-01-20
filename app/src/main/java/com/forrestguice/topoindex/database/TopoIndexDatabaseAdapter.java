@@ -205,6 +205,27 @@ public class TopoIndexDatabaseAdapter
         return getMaps(TABLE_MAPS_USGS_USTOPO, n, fullEntry);
     }
 
+    public Cursor getMap(@NonNull String table, @NonNull String cellID, boolean fullEntry)
+    {
+        String[] QUERY = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
+        String selection = KEY_MAP_CELLID + " = ?";
+        String[] selectionArgs = new String[] { cellID };
+        Cursor cursor = database.query( table, QUERY, selection, selectionArgs, null, null, "_id DESC" );
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+        return cursor;
+    }
+
+    public boolean hasMap(@NonNull String table, String cellID)
+    {
+        Cursor cursor = getMap(table, cellID, false);
+        if (cursor != null) {
+            return (cursor.getCount() > 0);
+        }
+        return false;
+    }
+
     /**
      * Add Maps
      */
@@ -215,6 +236,25 @@ public class TopoIndexDatabaseAdapter
         database.beginTransaction();
         for (ContentValues entry : values) {
             lastRowId = database.insert(table, null, entry);
+        }
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        return lastRowId;
+    }
+
+    public long updateMaps(String table, ContentValues... values)
+    {
+        long lastRowId = -1;
+        database.beginTransaction();
+        for (ContentValues entry : values)
+        {
+            String cellID = entry.getAsString(KEY_MAP_CELLID);
+            if (cellID != null && !cellID.isEmpty())
+            {
+                String where = KEY_MAP_CELLID + " = ?";
+                String[] whereArgs = new String[] { cellID };
+                lastRowId = database.update(table, entry, where, whereArgs);
+            }
         }
         database.setTransactionSuccessful();
         database.endTransaction();

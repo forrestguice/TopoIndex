@@ -18,6 +18,12 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_scan"
+        android:orderInCategory="75"
+        android:title="@string/action_scan"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_filters"
         android:orderInCategory="75"
         android:title="@string/action_filters"
