@@ -27,9 +27,13 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.BottomSheetDialogFragment;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.forrestguice.topoindex.R;
 
@@ -37,8 +41,15 @@ public class FilterDialog extends BottomSheetDialogFragment
 {
     public static final String TAG = "TopoIndexFilter";
 
+    public static final String FILTER_NAME = "nameFilter";
+    public static final String FILTER_STATE = "stateFilter";
+    public static final String FILTER_SCALE = "scaleFilter";
+
+    private EditText edit_filterName;
+
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View dialogContent = inflater.inflate(R.layout.layout_dialog_filters, container, false);
         initViews(getActivity(), dialogContent);
@@ -67,15 +78,97 @@ public class FilterDialog extends BottomSheetDialogFragment
         });
 
         if (savedInstanceState != null) {
-            // TODO
+            restoreFromState(savedInstanceState);
         }
 
         return dialog;
     }
 
-    public void initViews(Context context, View dialogContent)
+    private void restoreFromState(Bundle state)
+    {
+        if (edit_filterName != null) {
+            edit_filterName.setText(state.getString(FILTER_NAME, ""));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState( @NonNull Bundle state )
+    {
+        if (edit_filterName != null) {
+            state.putString(FILTER_NAME, edit_filterName.getText().toString());
+        }
+        super.onSaveInstanceState(state);
+    }
+
+    public void initViews(Context context, final View dialogContent)
+    {
+        edit_filterName = (EditText) dialogContent.findViewById(R.id.edit_filter_name);
+        if (edit_filterName != null)
+        {
+            edit_filterName.setText(initialFilterName);
+            edit_filterName.setOnEditorActionListener(new TextView.OnEditorActionListener()
+            {
+                @Override
+                public boolean onEditorAction(TextView textView, int action, KeyEvent keyEvent)
+                {
+                    if (action == EditorInfo.IME_ACTION_DONE)
+                    {
+                        if (dialogListener != null) {
+                            dialogListener.onFilterChanged(FilterDialog.this, FILTER_NAME);
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
+    private String initialFilterName;
+    public void setFilter_name(String value)
+    {
+        initialFilterName = value;
+        if (edit_filterName != null) {
+            edit_filterName.setText(value);
+        }
+    }
+    public String getFilter_name()
+    {
+        if (edit_filterName != null)
+            return edit_filterName.getText().toString();
+        else return "";
+    }
+
+    public void setFilter_state(String value)
     {
         // TODO
+    }
+    public String getFilter_state()
+    {
+        return "";  // TODO
+    }
+
+    public void setFilter_scale(String value)
+    {
+        // TODO
+    }
+    public String getFilter_scale()
+    {
+        return "";  // TODO
+    }
+
+    private FilterDialogListener dialogListener;
+    public void setFilterDialogListener( FilterDialogListener listener )
+    {
+        this.dialogListener = listener;
+    }
+
+    /**
+     * FilterDialogListener
+     */
+    public static abstract class FilterDialogListener
+    {
+        public void onFilterChanged( FilterDialog dialog, String filterName ) {}
     }
 
 }

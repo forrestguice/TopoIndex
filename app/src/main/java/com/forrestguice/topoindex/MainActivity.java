@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         FragmentManager fragments = getSupportFragmentManager();
         restoreLocationDialog(fragments);
+        restoreFilterDialog(fragments);
     }
 
     @Override
@@ -421,8 +422,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
 
             case R.id.action_filters:
-                FilterDialog filterDialog = new FilterDialog();
-                filterDialog.show(getSupportFragmentManager(), TAG_DIALOG_FILTERS);
+                showFilterDialog();
                 return true;
 
             case R.id.action_help:
@@ -508,6 +508,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Filters
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void showFilterDialog()
+    {
+        FilterDialog filterDialog = new FilterDialog();
+        filterDialog.setFilter_name(AppSettings.getFilter_byName(MainActivity.this));
+        filterDialog.setFilterDialogListener(onFilterChanged);
+        filterDialog.show(getSupportFragmentManager(), TAG_DIALOG_FILTERS);
+    }
+
+    private void restoreFilterDialog(FragmentManager fragments)
+    {
+        FilterDialog filterDialog = (FilterDialog) fragments.findFragmentByTag(TAG_DIALOG_FILTERS);
+        if (filterDialog != null) {
+            filterDialog.setFilterDialogListener(onFilterChanged);
+        }
+    }
+
+    FilterDialog.FilterDialogListener onFilterChanged = new FilterDialog.FilterDialogListener()
+    {
+        public void onFilterChanged( FilterDialog dialog, String filterName )
+        {
+            if (filterName.equals(FilterDialog.FILTER_NAME)) {
+                AppSettings.setFilter_byName(MainActivity.this, dialog.getFilter_name());
+                Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_name());
+            }
+
+            // TODO: trigger list update
+        }
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Location

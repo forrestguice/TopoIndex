@@ -53,8 +53,11 @@ public class AppSettings
     public static final String KEY_LOCATION_LON = "longitude";
     public static final float DEF_LOCATION_LON = 0;
 
+    public static final String KEY_FILTER_NAME = "filterByName";
+    public static final String DEF_FILTER_NAME = "";    // def no filter (empty)
+
     public static final String KEY_FILTER_STATE = "filterByState";
-    public static final String[] DEF_FILTER_STATE = new String[0];   // def no filter (empty)
+    public static final String[] DEF_FILTER_STATE = new String[0];    // def no filter (empty)
 
     public static final String KEY_FILTER_MINYEAR = "filterByMinYear";
     public static final int DEF_FILTER_MINYEAR = -1;           // def no min
@@ -90,6 +93,18 @@ public class AppSettings
         SharedPreferences.Editor prefsEdit = PreferenceManager.getDefaultSharedPreferences(context).edit();
         prefsEdit.putStringSet(KEY_COLLECTION_PATH, paths);
         prefsEdit.apply();
+    }
+
+    public static String getFilter_byName(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(KEY_FILTER_NAME, DEF_FILTER_NAME);
+    }
+    public static void setFilter_byName(Context context, String value)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putString(KEY_FILTER_NAME, value);
+        prefs.apply();
     }
 
     public static String[] getFilter_byState(Context context)
