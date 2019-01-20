@@ -231,6 +231,11 @@ public class AppSettings
             return retValue;
         }
 
+        public String toString()
+        {
+            return getLongitudeDisplay() + ", " + getLatitudeDisplay();
+        }
+
     }
 
 
