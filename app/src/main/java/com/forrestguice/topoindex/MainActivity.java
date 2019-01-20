@@ -335,7 +335,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (tables.length > 0 && tables[0] != null)
             {
                 table = tables[0];
-                return database.getMaps(table, 0, false);
+                String nameFilter = AppSettings.getFilter_byName(MainActivity.this);
+                return database.getMaps(table, 0, false, nameFilter);
 
             } else {
                 table = TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC;
@@ -533,9 +534,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         public void onFilterChanged( FilterDialog dialog, String filterName )
         {
-            if (filterName.equals(FilterDialog.FILTER_NAME)) {
-                AppSettings.setFilter_byName(MainActivity.this, dialog.getFilter_name());
+            if (filterName.equals(FilterDialog.FILTER_NAME))
+            {
                 Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_name());
+                AppSettings.setFilter_byName(MainActivity.this, dialog.getFilter_name());
+                initListAdapter(MainActivity.this, currentTable, false);
             }
 
             // TODO: trigger list update

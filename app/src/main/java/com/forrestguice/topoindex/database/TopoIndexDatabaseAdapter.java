@@ -204,9 +204,22 @@ public class TopoIndexDatabaseAdapter
 
     public Cursor getMaps(@NonNull String table, int n, boolean fullEntry)
     {
-        String[] QUERY = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
-        Cursor cursor =  (n > 0) ? database.query( table, QUERY, null, null, null, null, "_id DESC", n+"" )
-                : database.query( table, QUERY, null, null, null, null, "_id DESC" );
+        return getMaps(table, n, fullEntry, null);
+    }
+
+    public Cursor getMaps(@NonNull String table, int n, boolean fullEntry, String nameFilter)
+    {
+        String[] query = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
+        String selection = null;
+        String[] selectionArgs = null;
+
+        if (nameFilter != null) {
+            selection = KEY_MAP_NAME + " LIKE ?";
+            selectionArgs = new String[] {"%" + nameFilter + "%"};
+        }
+
+        Cursor cursor =  (n > 0) ? database.query( table, query, selection, selectionArgs, null, null, "_id DESC", n+"" )
+                                 : database.query( table, query, selection, selectionArgs, null, null, "_id DESC" );
         if (cursor != null) {
             cursor.moveToFirst();
         }
