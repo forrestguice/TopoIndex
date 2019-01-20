@@ -659,8 +659,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.w(TAG, "clearCollection: a task is already running (or pending); ignoring call...");
             return false;
         }
-        return databaseService.runClearCollectionTask(MainActivity.this, null);
+        return databaseService.runClearCollectionTask(MainActivity.this, clearTaskListener);
     }
+
+    private DatabaseTaskListener clearTaskListener = new DatabaseTaskListener()
+    {
+        @Override
+        public void onStarted() { /* EMPTY */ }
+
+        @Override
+        public void onProgress(DatabaseTaskProgress... progress) { /* EMPTY */ }
+
+        @Override
+        public void onFinished(DatabaseTaskResult result)
+        {
+            initListAdapter(MainActivity.this, TopoIndexDatabaseAdapter.TABLE_MAPS, true);
+        }
+    };
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // initDatabase

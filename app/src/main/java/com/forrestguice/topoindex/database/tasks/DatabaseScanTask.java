@@ -181,12 +181,13 @@ public class DatabaseScanTask extends DatabaseTask
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATUM, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_DATUM)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_VERSION)));
-                        }
-                        cursor.close();
-                    }
 
+                        } else Log.w(TAG, "updateValuesFromDB: empty cursor; skipping " + cellID);
+                        cursor.close();
+
+                    } else Log.w(TAG, "updateValuesFromDB: null cursor; skipping " + cellID);
                 } else Log.w(TAG, "updateValuesFromDB: missing cellID; skipping");
-            } else Log.w(TAG, "updateValuesFromDB: missing series; skipping");
+            } else Log.w(TAG, "updateValuesFromDB: missing series; skipping ");
         }  else Log.w(TAG, "updateValuesFromDB: missing values; skipping");
 
         return values;
