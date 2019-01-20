@@ -21,14 +21,14 @@ package com.forrestguice.topoindex;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class AppSettings
@@ -73,9 +73,23 @@ public class AppSettings
     }
     public static void setCollectionPath(Context context, String[] paths)
     {
-        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        prefs.putStringSet(KEY_COLLECTION_PATH, new HashSet<String>(Arrays.asList(paths)));
-        prefs.apply();
+        if (paths.length > 0 && paths[0] != null && !paths[0].isEmpty())
+        {
+            SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+            prefs.putStringSet(KEY_COLLECTION_PATH, new HashSet<String>(Arrays.asList(paths)));
+            prefs.apply();
+        } else Log.w(TAG, "setCollectionPath: at least one non-empty path must be provided; ignored");
+    }
+    public static void addCollectionPath(Context context, String path)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> paths = prefs.getStringSet(KEY_COLLECTION_PATH, new HashSet<String>(Arrays.asList(DEF_COLLECTION_PATH)));
+        if (!paths.contains(path)) {
+            paths.add(path);
+        }
+        SharedPreferences.Editor prefsEdit = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefsEdit.putStringSet(KEY_COLLECTION_PATH, paths);
+        prefsEdit.apply();
     }
 
     public static String[] getFilter_byState(Context context)

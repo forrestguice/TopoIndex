@@ -31,6 +31,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.support.design.widget.Snackbar;
@@ -111,6 +112,24 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
+
+            EditTextPreference pathPref = (EditTextPreference) findPreference(AppSettings.KEY_COLLECTION_PATH + "0");
+            if (pathPref != null)
+            {
+                pathPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+                {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object value)
+                    {
+                        Activity activity = getActivity();
+                        String stringValue = (String)value;
+                        if (activity != null && stringValue != null) {
+                            AppSettings.setCollectionPath(getActivity(), new String[] {stringValue});
+                        }
+                        return true;
+                    }
+                });
+            }
 
             //bindPreferenceSummaryToValue(findPreference("example_text"));  // TODO
             //bindPreferenceSummaryToValue(findPreference("example_list"));

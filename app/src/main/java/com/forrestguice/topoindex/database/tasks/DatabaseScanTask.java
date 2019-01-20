@@ -52,7 +52,7 @@ public class DatabaseScanTask extends DatabaseTask
             Context context = contextRef.get();
             if (context != null)
             {
-                String collectionPath = AppSettings.getCollectionPath(context);
+                String collectionPath = AppSettings.getCollectionPath(context)[0];    // TODO: support for multiple paths
                 File dataDirectory = Environment.getExternalStorageDirectory();
                 File mapDirectory = new File(dataDirectory + File.separator + collectionPath);
 
