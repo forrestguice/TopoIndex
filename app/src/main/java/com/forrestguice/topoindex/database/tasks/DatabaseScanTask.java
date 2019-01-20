@@ -45,6 +45,7 @@ public class DatabaseScanTask extends DatabaseTask
     @Override
     protected DatabaseTaskResult doInBackground(Uri... uris)
     {
+        long bench_start = System.nanoTime();
         ScanResult result = new ScanResult();
 
         String storageState = Environment.getExternalStorageState();
@@ -78,6 +79,8 @@ public class DatabaseScanTask extends DatabaseTask
             return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
         }
 
+        long bench_end = System.nanoTime();
+        Log.d(TAG, "scan: took " + ((bench_end - bench_start) / 1000000.0) + " ms; " + result.count + " items.");
         return new DatabaseTaskResult(true, result.count, Calendar.getInstance().getTimeInMillis());
     }
 
@@ -108,8 +111,8 @@ public class DatabaseScanTask extends DatabaseTask
                     Log.d(TAG, "scanFile: " + file.getAbsolutePath());
                     fileValues = updateValuesFromDB(fileValues);
 
-                    String cellID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_CELLID);
-                    if (database.hasMap(TopoIndexDatabaseAdapter.TABLE_MAPS, cellID))
+                    String gdaItemID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
+                    if (database.hasMap(TopoIndexDatabaseAdapter.TABLE_MAPS, gdaItemID))
                     {
                         Log.d(TAG, "scanFile: updating " + file.getAbsolutePath());
                         database.updateMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
@@ -142,10 +145,10 @@ public class DatabaseScanTask extends DatabaseTask
             ContentValues values = new ContentValues();
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_STATE, parts[0]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_NAME, parts[1]);
-            values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, parts[2]);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, parts[2]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATE, parts[3]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCALE, parts[4]);
-            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);       // TODO: how to determine this from the filename... possible?
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);       // TODO: how to determine this from the filename... possible? from date?
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);        // TODO: is this value more or less the same as series?
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, file.getAbsolutePath());
             return values;
@@ -163,17 +166,18 @@ public class DatabaseScanTask extends DatabaseTask
             String series = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);   // TODO: series on values object is set incorrectly - always HTMC
             if (series != null && !series.isEmpty())
             {
-                String cellID = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_CELLID);
-                if (cellID != null && !cellID.isEmpty())
+                String itemID = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
+                if (itemID != null && !itemID.isEmpty())
                 {
-                    String table = series.toLowerCase().equals("htmc") ? TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC : TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO;
-                    Cursor cursor = database.getMap(table, cellID, true);
+                    String table = TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC; // series.toLowerCase().equals("htmc") ? TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO ;
+                    Cursor cursor = database.getMap(table, itemID, true);
                     if (cursor != null)
                     {
                         if (cursor.getCount() > 0)
                         {
-                            Log.d(TAG, "updateValuesFromDB: " + cellID);
+                            Log.d(TAG, "updateValuesFromDB: " + itemID);
                             cursor.moveToFirst();
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_CELLID)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST)));
@@ -182,11 +186,11 @@ public class DatabaseScanTask extends DatabaseTask
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATUM, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_DATUM)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_VERSION)));
 
-                        } else Log.w(TAG, "updateValuesFromDB: empty cursor; skipping " + cellID);
+                        } else Log.w(TAG, "updateValuesFromDB: empty cursor; skipping " + itemID);
                         cursor.close();
 
-                    } else Log.w(TAG, "updateValuesFromDB: null cursor; skipping " + cellID);
-                } else Log.w(TAG, "updateValuesFromDB: missing cellID; skipping");
+                    } else Log.w(TAG, "updateValuesFromDB: null cursor; skipping " + itemID);
+                } else Log.w(TAG, "updateValuesFromDB: missing GDA Item ID; skipping");
             } else Log.w(TAG, "updateValuesFromDB: missing series; skipping ");
         }  else Log.w(TAG, "updateValuesFromDB: missing values; skipping");
 

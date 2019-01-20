@@ -50,6 +50,7 @@ public class DatabaseInitTask extends DatabaseTask
     @Override
     protected DatabaseTaskResult doInBackground(Uri... uris)
     {
+        long bench_start = System.nanoTime();
         if (uris.length > 0)
         {
             Uri uri = uris[0];
@@ -88,14 +89,14 @@ public class DatabaseInitTask extends DatabaseTask
 
                     if (foundFile)
                     {
-                        Log.d(TAG, "DatabaseInitTask: zip contains file: " + filename);
+                        Log.d(TAG, "initDB: zip contains file: " + filename);
 
                         BufferedInputStream bufferedInput = new BufferedInputStream(zipInput);
                         BufferedReader reader = new BufferedReader(new InputStreamReader(bufferedInput));
 
                         String columnsLine = reader.readLine();
                         String[] columns = columnsLine.split(",");
-                        Log.d(TAG, "DatabaseInitTask: columns: " + columnsLine);
+                        Log.d(TAG, "initDB: columns: " + columnsLine);
 
                         database.open();
 
@@ -145,10 +146,10 @@ public class DatabaseInitTask extends DatabaseTask
                                     c++;
 
                                 } else {
-                                    Log.w(TAG, "DatabaseInitTask: unrecognized series: " + entry[0] + " .. " + line + " .. ignoring this line...");
+                                    Log.w(TAG, "initDB: unrecognized series: " + entry[0] + " .. " + line + " .. ignoring this line...");
                                 }
                             } else {
-                                Log.w(TAG, "DatabaseInitTask: line " + i + " has the wrong number of columns; " + entry.length + " (expects " + columns.length + ") .. ignoring this line...");
+                                Log.w(TAG, "initDB: line " + i + " has the wrong number of columns; " + entry.length + " (expects " + columns.length + ") .. ignoring this line...");
                             }
                             i++;
                         }
@@ -167,29 +168,32 @@ public class DatabaseInitTask extends DatabaseTask
 
                         zipInput.closeEntry();
                         zipInput.close();
+
+                        long bench_end = System.nanoTime();
+                        Log.d(TAG, "initDB: took " + ((bench_end - bench_start) / 1000000.0) + " ms; " + c + " rows.");
                         return new DatabaseTaskResult(true, c, Calendar.getInstance().getTimeInMillis());
 
                     } else {
                         zipInput.closeEntry();
                         zipInput.close();
-                        Log.e(TAG, "DatabaseInitTask: Zip is missing file: " + filename);
+                        Log.e(TAG, "initDB: Zip is missing file: " + filename);
                         return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
                     }
 
                 } catch (FileNotFoundException e) {
-                    Log.e(TAG, "DatabaseInitTask: FileNotFound! " + e);
+                    Log.e(TAG, "initDB: FileNotFound! " + e);
 
                 } catch (IOException e) {
-                    Log.e(TAG, "DatabaseInitTask: IOException! " + e);
+                    Log.e(TAG, "initDB: IOException! " + e);
                 }
                 return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
 
             } else {
-                Log.e(TAG, "DatabaseInitTask: null context!");
+                Log.e(TAG, "initDB: null context!");
                 return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
             }
         } else {
-            Log.e(TAG, "DatabaseInitTask: missing uri!");
+            Log.e(TAG, "initDB: missing uri!");
             return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
         }
     }
