@@ -37,6 +37,9 @@ public class TopoIndexDatabaseAdapter
     public static final String KEY_ROWID = "_id";
     public static final String DEF_ROWID = KEY_ROWID + " integer primary key autoincrement";
 
+    public static final String KEY_MAP_GDAITEMID = "gdaitemid";
+    public static final String DEF_MAP_GDAITEMID = KEY_MAP_GDAITEMID + " text not null";
+
     public static final String KEY_MAP_SERIES = "series";
     public static final String DEF_MAP_SERIES = KEY_MAP_SERIES + " text not null";
     public static final String VAL_MAP_SERIES_HTMC = "\"HTMC\"";
@@ -78,11 +81,17 @@ public class TopoIndexDatabaseAdapter
     public static final String KEY_MAP_PROJECTION = "projection";
     public static final String DEF_MAP_PROJECTION = KEY_MAP_PROJECTION + " text";
 
-    public static final String KEY_MAP_URL = "url";
+    public static final String KEY_MAP_URL = "url0";                           // url: geo pdf download (pre Jan 2018; legacy)
     public static final String DEF_MAP_URL = KEY_MAP_URL + " text";
 
-    private static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_URL};
-    private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL};
+    public static final String KEY_MAP_URL1 = "url1";                          // url: S3 cloud download (post Jan 2018)
+    public static final String DEF_MAP_URL1 = KEY_MAP_URL1 + " text";
+
+    public static final String KEY_MAP_URL2 = "url2";                          // url: (reserved) not-used
+    public static final String DEF_MAP_URL2 = KEY_MAP_URL2 + " text";
+
+    private static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
+    private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
 
     /**
      * USGS HTMC (Historical Topo Collection)
@@ -91,6 +100,7 @@ public class TopoIndexDatabaseAdapter
     private static final String TABLE_MAPS_USGS_HTMC_CREATE_COLS = DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
+            + DEF_MAP_GDAITEMID + ", "
             + DEF_MAP_CELLID + ", "
             + DEF_MAP_NAME + ", "
             + DEF_MAP_STATE + ", "
@@ -102,7 +112,9 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LONGITUDE_WEST + ", "
             + DEF_MAP_LATITUDE_SOUTH + ", "
             + DEF_MAP_LONGITUDE_EAST + ", "
-            + DEF_MAP_URL;
+            + DEF_MAP_URL + ", "
+            + DEF_MAP_URL1 + ", "
+            + DEF_MAP_URL2;
     private static final String TABLE_MAPS_USGS_HTMC_CREATE = "create table " + TABLE_MAPS_USGS_HTMC + " (" + TABLE_MAPS_USGS_HTMC_CREATE_COLS + ");";
 
     /**
@@ -112,6 +124,7 @@ public class TopoIndexDatabaseAdapter
     private static final String TABLE_MAPS_USGS_USTOPO_CREATE_COLS = DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
+            + DEF_MAP_GDAITEMID + ", "
             + DEF_MAP_CELLID + ", "
             + DEF_MAP_NAME + ", "
             + DEF_MAP_STATE + ", "
@@ -123,7 +136,9 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LONGITUDE_WEST + ", "
             + DEF_MAP_LATITUDE_SOUTH + ", "
             + DEF_MAP_LONGITUDE_EAST + ", "
-            + DEF_MAP_URL;
+            + DEF_MAP_URL + ", "
+            + DEF_MAP_URL1 + ", "
+            + DEF_MAP_URL2;
     private static final String TABLE_MAPS_USGS_USTOPO_CREATE = "create table " + TABLE_MAPS_USGS_USTOPO + " (" + TABLE_MAPS_USGS_USTOPO_CREATE_COLS + ");";
 
     /**
@@ -133,6 +148,7 @@ public class TopoIndexDatabaseAdapter
     private static final String TABLE_MAPS_CREATE_COLS = DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
+            + DEF_MAP_GDAITEMID + ", "
             + DEF_MAP_CELLID + ", "
             + DEF_MAP_NAME + ", "
             + DEF_MAP_STATE + ", "
@@ -144,7 +160,9 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LONGITUDE_WEST + ", "
             + DEF_MAP_LATITUDE_SOUTH + ", "
             + DEF_MAP_LONGITUDE_EAST + ", "
-            + DEF_MAP_URL;
+            + DEF_MAP_URL + ", "
+            + DEF_MAP_URL1 + ", "
+            + DEF_MAP_URL2;
     private static final String TABLE_MAPS_CREATE = "create table " + TABLE_MAPS + " (" + TABLE_MAPS_CREATE_COLS + ");";
 
     /**
@@ -273,9 +291,12 @@ public class TopoIndexDatabaseAdapter
 
     public static void toContentValues( ContentValues values, String[] fields )
     {
+
+
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, fields[0].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, fields[1].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, fields[2].replaceAll("\"",""));
+
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_NAME, fields[3].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_STATE, fields[4].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCALE, fields[5].replaceAll("\"",""));
@@ -290,6 +311,9 @@ public class TopoIndexDatabaseAdapter
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST, fields[48].replaceAll("\"",""));
 
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, fields[50].replaceAll("\"",""));
+        values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL1, fields[58].replaceAll("\"",""));
+
+        values.put(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, fields[54].replaceAll("\"",""));
     }
 
     /**
