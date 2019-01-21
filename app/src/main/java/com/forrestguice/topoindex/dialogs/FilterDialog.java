@@ -34,11 +34,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.forrestguice.topoindex.R;
+import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
 public class FilterDialog extends BottomSheetDialogFragment
 {
@@ -51,11 +55,11 @@ public class FilterDialog extends BottomSheetDialogFragment
     public static final String FILTER_SCALE = "scaleFilter";
 
     private EditText edit_filterName;
-
     private TextView label_filterState;
     private EditText edit_filterState;
-
-    private ImageButton clear_filterName, clear_filterState;
+    private Spinner spin_filterScale;
+    private ArrayAdapter<TopoIndexDatabaseAdapter.MapScale> spin_filterScaleAdapter;
+    private ImageButton clear_filterName, clear_filterState, clear_filterScale;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -124,6 +128,48 @@ public class FilterDialog extends BottomSheetDialogFragment
 
     public void initViews(final Context context, final View dialogContent)
     {
+        // filter by scale
+        spin_filterScale = (Spinner) dialogContent.findViewById(R.id.spin_filter_scale);
+        if (spin_filterScale != null)
+        {
+            spin_filterScaleAdapter = new ArrayAdapter<TopoIndexDatabaseAdapter.MapScale>(context, android.R.layout.simple_spinner_item, TopoIndexDatabaseAdapter.MapScale.values());
+            spin_filterScaleAdapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
+            spin_filterScale.setAdapter(spin_filterScaleAdapter);
+            spin_filterScale.setSelection(spin_filterScaleAdapter.getPosition(initialFilterScale));
+            spin_filterScale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+            {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
+                {
+                    if (dialogListener != null) {
+                        dialogListener.onFilterChanged(FilterDialog.this, FILTER_SCALE);
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {}
+            });
+        }
+
+        clear_filterScale = (ImageButton) dialogContent.findViewById(R.id.clear_filter_scale);
+        if (clear_filterScale != null)
+        {
+            clear_filterScale.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    if (spin_filterScale != null) {
+                        spin_filterScale.setSelection(spin_filterScaleAdapter.getPosition(TopoIndexDatabaseAdapter.MapScale.SCALE_ANY));
+                    }
+                    if (dialogListener != null) {
+                        dialogListener.onFilterChanged(FilterDialog.this, FILTER_SCALE);
+                    }
+                }
+            });
+        }
+
+        // filter by state
         edit_filterState = (EditText) dialogContent.findViewById(R.id.text_filter_state);
         if (edit_filterState != null)
         {
@@ -155,6 +201,7 @@ public class FilterDialog extends BottomSheetDialogFragment
             });
         }
 
+        // filter by name
         edit_filterName = (EditText) dialogContent.findViewById(R.id.edit_filter_name);
         if (edit_filterName != null)
         {
@@ -269,13 +316,27 @@ public class FilterDialog extends BottomSheetDialogFragment
         }
     }
 
+    private TopoIndexDatabaseAdapter.MapScale initialFilterScale;
+    public void setFilter_scale(TopoIndexDatabaseAdapter.MapScale value)
+    {
+        initialFilterScale = value;
+        if (spin_filterScale != null && spin_filterScaleAdapter != null) {
+            spin_filterScale.setSelection(spin_filterScaleAdapter.getPosition(initialFilterScale));
+        }
+    }
     public void setFilter_scale(String value)
     {
-        // TODO
+        setFilter_scale(TopoIndexDatabaseAdapter.MapScale.findValue(value));
     }
+
     public String getFilter_scale()
     {
-        return "";  // TODO
+        if (spin_filterScale != null)
+        {
+            TopoIndexDatabaseAdapter.MapScale scale = (TopoIndexDatabaseAdapter.MapScale)spin_filterScale.getSelectedItem();
+            return scale.getValue();
+        }
+        return "";
     }
 
     private AppCompatActivity appCompatActivity;

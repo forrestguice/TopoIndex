@@ -25,7 +25,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -246,6 +245,19 @@ public class TopoIndexDatabaseAdapter
                     selection.append(" OR ");
                 }
             }
+            firstFilter = false;
+        }
+
+        String scaleFilter = filter.getScaleFilter();
+        if (scaleFilter != null && !scaleFilter.isEmpty())
+        {
+            if (!firstFilter) {
+                selection.append(" AND ");
+            }
+
+            selection.append(KEY_MAP_SCALE + " = ?");
+            selectionArgs.add(scaleFilter);
+            firstFilter = false;
         }
 
         /**String selectionArgsDebug = "";
@@ -255,8 +267,8 @@ public class TopoIndexDatabaseAdapter
         }
         Log.d("DEBUG", "selection: " + selection.toString() + " :: args: " + selectionArgsDebug);*/
 
-        Cursor cursor =  (n > 0) ? database.query( table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id DESC", n+"" )
-                                 : database.query( table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id DESC" );
+        Cursor cursor =  (n > 0) ? database.query( table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC", n+"" )
+                                 : database.query( table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC" );
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -468,11 +480,13 @@ public class TopoIndexDatabaseAdapter
     {
         protected String filter_name;
         protected String[] filter_states;
+        protected String filter_scale;
 
-        public FilterValues(String nameFilter, String[] statesFilter)
+        public FilterValues(String nameFilter, String[] statesFilter, String scaleFilter)
         {
             filter_name = nameFilter;
             filter_states = statesFilter;
+            filter_scale = scaleFilter;
         }
 
         public String getNameFilter()
@@ -485,6 +499,11 @@ public class TopoIndexDatabaseAdapter
             return filter_states;
         }
 
+        public String getScaleFilter()
+        {
+            return filter_scale;
+        }
+
         public String toString()
         {
             StringBuilder statesFilter = new StringBuilder();
@@ -492,7 +511,46 @@ public class TopoIndexDatabaseAdapter
                 statesFilter.append(state);
                 statesFilter.append(" ");
             }
-            return filter_name + " : " + statesFilter.toString().trim();
+            return filter_name + " :: " + statesFilter.toString().trim() + " :: " + filter_scale;
+        }
+    }
+
+    /**
+     * MapScale
+     */
+    public enum MapScale
+    {
+        SCALE_ANY("Any", ""),                   // TODO: i18n
+        SCALE_250K("250K", "250000"),
+        SCALE_100K("100K", "100000"),
+        SCALE_63K("63K", "63000"),
+        SCALE_48K("48K", "48000"),
+        SCALE_24K("24K", "24000");
+
+        MapScale(String displayString, String value) {
+            this.displayString = displayString;
+            this.value = value;
+        }
+
+        private String value;
+        public String getValue()
+        {
+            return value;
+        }
+
+        public static MapScale findValue(String value)
+        {
+            for (MapScale scale : MapScale.values()) {
+                if (scale.value.equals(value)) {
+                    return scale;
+                }
+            }
+            return SCALE_ANY;
+        }
+
+        private String displayString;
+        public String toString() {
+            return displayString;
         }
     }
 

@@ -61,6 +61,9 @@ public class AppSettings
     public static final String KEY_FILTER_STATE = "filterByState";
     public static final String[] DEF_FILTER_STATE = new String[0];    // def no filter (empty)
 
+    public static final String KEY_FILTER_SCALE = "filterByScale";
+    public static final String DEF_FILTER_SCALE = TopoIndexDatabaseAdapter.MapScale.SCALE_ANY.getValue();
+
     public static final String KEY_FILTER_MINYEAR = "filterByMinYear";
     public static final int DEF_FILTER_MINYEAR = -1;           // def no min
 
@@ -101,14 +104,18 @@ public class AppSettings
     {
         String nameFilter = getFilter_byName(context);
         String[] stateFilter = getFilter_byState(context);
-        return (nameFilter == null || nameFilter.isEmpty()) && (stateFilter.length == 0);
+        String scaleFilter = getFilter_byScale(context);
+        return (nameFilter == null || nameFilter.isEmpty())
+                && (stateFilter.length == 0)
+                && (scaleFilter == null || scaleFilter.isEmpty());
     }
 
     public static TopoIndexDatabaseAdapter.FilterValues getFilters(Context context)
     {
         String nameFilter = getFilter_byName(context);
         String[] statesFilter = getFilter_byState(context);
-        return new TopoIndexDatabaseAdapter.FilterValues(nameFilter, statesFilter);
+        String scaleFilter = getFilter_byScale(context);
+        return new TopoIndexDatabaseAdapter.FilterValues(nameFilter, statesFilter, scaleFilter);
     }
 
     public static String getFilter_byName(Context context)
@@ -133,6 +140,18 @@ public class AppSettings
     {
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
         prefs.putStringSet(KEY_FILTER_STATE, new HashSet<String>(Arrays.asList(filterSet)));
+        prefs.apply();
+    }
+
+    public static String getFilter_byScale(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(KEY_FILTER_SCALE, DEF_FILTER_SCALE);
+    }
+    public static void setFilter_byScale(Context context, String value)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putString(KEY_FILTER_SCALE, value);
         prefs.apply();
     }
 

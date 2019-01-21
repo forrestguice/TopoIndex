@@ -537,6 +537,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FilterDialog filterDialog = new FilterDialog();
         filterDialog.setFilter_name(AppSettings.getFilter_byName(MainActivity.this));
         filterDialog.setFilter_state(AppSettings.getFilter_byState(MainActivity.this));
+        filterDialog.setFilter_scale(AppSettings.getFilter_byScale(MainActivity.this));
         filterDialog.setAppCompatActivity(this);
         filterDialog.setFilterDialogListener(onFilterChanged);
         filterDialog.show(getSupportFragmentManager(), TAG_DIALOG_FILTERS);
@@ -555,6 +556,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         AppSettings.setFilter_byName(MainActivity.this, "");
         AppSettings.setFilter_byState(MainActivity.this, new String[0]);
+        AppSettings.setFilter_byScale(MainActivity.this, TopoIndexDatabaseAdapter.MapScale.SCALE_ANY.getValue());
         initListAdapter(MainActivity.this, currentTable, false);
     }
 
@@ -572,8 +574,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_stateDisplay());
                 AppSettings.setFilter_byState(MainActivity.this, dialog.getFilter_state());
                 initListAdapter(MainActivity.this, currentTable, false);
-            }
 
+            } else if (filterName.equals(FilterDialog.FILTER_SCALE)) {
+                Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_scale());
+                AppSettings.setFilter_byScale(MainActivity.this, dialog.getFilter_scale());
+                initListAdapter(MainActivity.this, currentTable, false);
+            }
         }
     };
 
