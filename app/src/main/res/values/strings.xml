@@ -58,8 +58,8 @@
 
     <!-- Filters -->
     <string name="filter_label_name">Map Name</string>
-    <string name="filter_label_state">State</string>
-    <string name="filter_label_scale">Scale</string>
+    <string name="filter_label_state">States</string>
+    <string name="filter_label_scale">Map Scale</string>
     <string name="filter_label_none">No Filter</string>
 
     <!-- General settings -->
