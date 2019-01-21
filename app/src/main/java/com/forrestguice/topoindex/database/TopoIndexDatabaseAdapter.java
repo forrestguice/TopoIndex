@@ -254,12 +254,12 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
-    public Cursor getMap(@NonNull String table, @NonNull String gdaItemID, boolean fullEntry)
+    public Cursor getMap_USTopo(String table, @NonNull String gdaItemID, boolean fullEntry)
     {
-        String[] QUERY = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
+        String[] query = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
         String selection = KEY_MAP_GDAITEMID + " = ?";
         String[] selectionArgs = new String[] { gdaItemID };
-        Cursor cursor = database.query( table, QUERY, selection, selectionArgs, null, null, "_id DESC" );
+        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, "_id DESC" );
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -269,6 +269,15 @@ public class TopoIndexDatabaseAdapter
     public boolean hasMap_HTMC(@NonNull String table, String scanID)
     {
         Cursor cursor = getMap_HTMC(table, scanID, false);
+        if (cursor != null) {
+            return (cursor.getCount() > 0);
+        }
+        return false;
+    }
+
+    public boolean hasMap_USTopo(@NonNull String table, String gdaItemID)
+    {
+        Cursor cursor = getMap_USTopo(table, gdaItemID, false);
         if (cursor != null) {
             return (cursor.getCount() > 0);
         }
@@ -291,13 +300,23 @@ public class TopoIndexDatabaseAdapter
         return lastRowId;
     }
 
+    public long addMaps_HTMC(ContentValues... values)
+    {
+        return addMaps(TABLE_MAPS_USGS_HTMC, values);
+    }
+
+    public long addMaps_USTopo(ContentValues... values)
+    {
+        return addMaps(TABLE_MAPS_USGS_USTOPO, values);
+    }
+
     public long updateMaps_HTMC(String table, ContentValues... values)
     {
         long lastRowId = -1;
         database.beginTransaction();
         for (ContentValues entry : values)
         {
-            String scanID = entry.getAsString(KEY_MAP_SCANID);
+            String scanID = entry.getAsString(KEY_MAP_SCANID);         // HTMC rows matched by "Scan ID" (54)
             if (scanID != null && !scanID.isEmpty())
             {
                 String where = KEY_MAP_SCANID + " = ?";
@@ -310,14 +329,23 @@ public class TopoIndexDatabaseAdapter
         return lastRowId;
     }
 
-    public long addMaps_HTMC(ContentValues... values)
+    public long updateMaps_USTopo(String table, ContentValues... values)
     {
-        return addMaps(TABLE_MAPS_USGS_HTMC, values);
-    }
-
-    public long addMaps_USTopo(ContentValues... values)
-    {
-        return addMaps(TABLE_MAPS_USGS_USTOPO, values);
+        long lastRowId = -1;
+        database.beginTransaction();
+        for (ContentValues entry : values)
+        {
+            String itemID = entry.getAsString(KEY_MAP_GDAITEMID);        // US Topo rows matched by "GDA Item ID" (55)
+            if (itemID != null && !itemID.isEmpty())
+            {
+                String where = KEY_MAP_GDAITEMID + " = ?";
+                String[] whereArgs = new String[] { itemID };
+                lastRowId = database.update(table, entry, where, whereArgs);
+            }
+        }
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        return lastRowId;
     }
 
     public static void toContentValues( ContentValues values, String[] fields )
