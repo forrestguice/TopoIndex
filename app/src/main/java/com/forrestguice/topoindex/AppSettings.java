@@ -95,6 +95,13 @@ public class AppSettings
         prefsEdit.apply();
     }
 
+    public static boolean hasNoFilters(Context context)
+    {
+        String nameFilter = getFilter_byName(context);
+        String[] stateFilter = getFilter_byState(context);
+        return (nameFilter == null || nameFilter.isEmpty()) && (stateFilter.length == 0);
+    }
+
     public static String getFilter_byName(Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

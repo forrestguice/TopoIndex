@@ -96,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ProgressBar progressSnackbarProgress;
     private String currentTable = TopoIndexDatabaseAdapter.TABLE_MAPS;
 
+    private FloatingActionButton fabFilters, fabFiltersClear;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -164,11 +166,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             snackbarContent.addView(progressSnackbarProgress);
         } else Log.w(TAG, "initViews: android.support.design.R.id.snackbar_text not found!");
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        fabFilters = (FloatingActionButton) findViewById(R.id.fab_filters);
+        fabFilters.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showFilterDialog();
+            }
+        });
+
+        fabFiltersClear = (FloatingActionButton) findViewById(R.id.fab_filters_clear);
+        fabFiltersClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                clearFilters();
             }
         });
 
@@ -208,6 +219,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initEmptyView(context, table);
         initListTitle(context, table);
         initListClick(context, table);
+        updateViews();
+
         ListAdapterTask task = new ListAdapterTask();
         task.execute(table);
 
@@ -363,6 +376,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AppSettings.Location location = AppSettings.getLocation(MainActivity.this);
         toolbar.setSubtitle(getString(R.string.location_format, location.getLatitudeDisplay(), location.getLongitudeDisplay()));
         updateMenus();
+
+        if (AppSettings.hasNoFilters(MainActivity.this))
+            fabFiltersClear.hide();
+        else fabFiltersClear.show();
     }
 
     private void updateMenus()
@@ -533,6 +550,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             filterDialog.setAppCompatActivity(this);
             filterDialog.setFilterDialogListener(onFilterChanged);
         }
+    }
+
+    private void clearFilters()
+    {
+        AppSettings.setFilter_byName(MainActivity.this, "");
+        AppSettings.setFilter_byState(MainActivity.this, new String[0]);
+        initListAdapter(MainActivity.this, currentTable, false);
     }
 
     FilterDialog.FilterDialogListener onFilterChanged = new FilterDialog.FilterDialogListener()
