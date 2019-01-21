@@ -44,9 +44,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -58,12 +56,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Filter;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
@@ -74,6 +70,7 @@ import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.dialogs.AboutDialog;
 import com.forrestguice.topoindex.dialogs.FilterDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
+import com.forrestguice.topoindex.dialogs.MapItemDialog;
 
 import java.util.Calendar;
 
@@ -82,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TAG = "TopoIndexActivity";
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_FILTERS = "filters";
+    public static final String TAG_DIALOG_MAPITEM = "mapitem";
     public static final String TAG_DIALOG_ABOUT = "about";
 
     public static final String KEY_FLIPPER_INDEX = "flipperIndex";
@@ -117,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fragments = getSupportFragmentManager();
         restoreLocationDialog(fragments);
         restoreFilterDialog(fragments);
+        restoreMapItemDialog(fragments);
     }
 
     @Override
@@ -193,6 +192,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Lists / Grids
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     private void initGridAdapter(Context context)
     {
         if (flipper != null) {
@@ -238,53 +241,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long rowID)
                 {
-                    Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
-                    if (cursor != null)
-                    {
-                        ContentValues contentValues = new ContentValues();
-                        DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
-                        String url = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_URL);
-                        String gdaID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
-                        String scanID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
-                        AppSettings.Location nwCorner = getNorthwestCorner(contentValues);
-                        AppSettings.Location seCorner = getSoutheastCorner(contentValues);
-
-                        if (nwCorner != null && seCorner != null) {
-                            Toast.makeText(context, gdaID + ": " + scanID + ": " + nwCorner.toString() + "\n" + seCorner.toString(), Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(context, gdaID + ": " + scanID + ": " + url, Toast.LENGTH_LONG).show();
-                        }
-                        // TODO
-                    }
+                    showMapItemDialog(context, adapterView, position);
                 }
             });
         }
-    }
-
-    public AppSettings.Location getNorthwestCorner(ContentValues values)
-    {
-        String latString = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH);
-        String lonString = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST);
-        if (latString != null && lonString != null)
-        {
-            double latitude = Double.parseDouble(latString);
-            double longitude = Double.parseDouble(lonString);
-            return new AppSettings.Location(latitude, longitude);
-
-        } else return null;
-    }
-
-    public AppSettings.Location getSoutheastCorner(ContentValues values)
-    {
-        String latString = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH);
-        String lonString = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST);
-        if (latString != null && lonString != null)
-        {
-            double latitude = Double.parseDouble(latString);
-            double longitude = Double.parseDouble(lonString);
-            return new AppSettings.Location(latitude, longitude);
-
-        } else return null;
     }
 
     private void initListTitle(Context context, String table)
@@ -527,6 +487,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Map Item
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void showMapItemDialog(Context context, AdapterView<?> adapterView, int position)
+    {
+        Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
+        if (cursor != null)
+        {
+            ContentValues contentValues = new ContentValues();
+            DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+
+            MapItemDialog itemDialog = new MapItemDialog();
+            itemDialog.setContentValues( contentValues );
+            itemDialog.setMapItemDialogListener(onMapItem);
+            itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_MAPITEM);
+        }
+    }
+
+    private void restoreMapItemDialog(FragmentManager fragments)
+    {
+        MapItemDialog dialog = (MapItemDialog) fragments.findFragmentByTag(TAG_DIALOG_MAPITEM);
+        if (dialog != null) {
+            dialog.setMapItemDialogListener(onMapItem);
+        }
+    }
+
+    private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener() {
+        // TODO
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Filters
