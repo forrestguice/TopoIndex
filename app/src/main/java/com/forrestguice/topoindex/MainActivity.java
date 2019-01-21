@@ -58,6 +58,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Filter;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -519,6 +520,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         FilterDialog filterDialog = new FilterDialog();
         filterDialog.setFilter_name(AppSettings.getFilter_byName(MainActivity.this));
+        filterDialog.setFilter_state(AppSettings.getFilter_byState(MainActivity.this));
+        filterDialog.setAppCompatActivity(this);
         filterDialog.setFilterDialogListener(onFilterChanged);
         filterDialog.show(getSupportFragmentManager(), TAG_DIALOG_FILTERS);
     }
@@ -527,6 +530,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         FilterDialog filterDialog = (FilterDialog) fragments.findFragmentByTag(TAG_DIALOG_FILTERS);
         if (filterDialog != null) {
+            filterDialog.setAppCompatActivity(this);
             filterDialog.setFilterDialogListener(onFilterChanged);
         }
     }
@@ -540,9 +544,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_name());
                 AppSettings.setFilter_byName(MainActivity.this, dialog.getFilter_name());
                 initListAdapter(MainActivity.this, currentTable, false);
+
+            } else if (filterName.equals(FilterDialog.FILTER_STATE)) {
+                Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_stateDisplay());
+                AppSettings.setFilter_byState(MainActivity.this, dialog.getFilter_state());
+                initListAdapter(MainActivity.this, currentTable, false);
             }
 
-            // TODO: trigger list update
         }
     };
 

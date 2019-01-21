@@ -18,6 +18,7 @@
 
 package com.forrestguice.topoindex.dialogs;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,6 +28,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.BottomSheetDialogFragment;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,16 +41,20 @@ import android.widget.TextView;
 
 import com.forrestguice.topoindex.R;
 
+import org.w3c.dom.Text;
+
 public class FilterDialog extends BottomSheetDialogFragment
 {
     public static final String TAG = "TopoIndexFilter";
+
+    public static final String TAG_DIALOG_STATES = "statesDialog";
 
     public static final String FILTER_NAME = "nameFilter";
     public static final String FILTER_STATE = "stateFilter";
     public static final String FILTER_SCALE = "scaleFilter";
 
     private EditText edit_filterName;
-
+    private TextView label_filterState, text_filterState;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -72,7 +79,7 @@ public class FilterDialog extends BottomSheetDialogFragment
                 if (layout != null)
                 {
                     BottomSheetBehavior.from(layout).setHideable(true);
-                    BottomSheetBehavior.from(layout).setSkipCollapsed(false);
+                    BottomSheetBehavior.from(layout).setSkipCollapsed(true);
                     BottomSheetBehavior.from(layout).setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
             }
@@ -90,6 +97,10 @@ public class FilterDialog extends BottomSheetDialogFragment
         if (edit_filterName != null) {
             edit_filterName.setText(state.getString(FILTER_NAME, ""));
         }
+        filterStates = state.getStringArray(FILTER_STATE);
+        if (text_filterState != null) {
+            text_filterState.setText(getFilter_stateDisplay());
+        }
     }
 
     @Override
@@ -98,11 +109,32 @@ public class FilterDialog extends BottomSheetDialogFragment
         if (edit_filterName != null) {
             state.putString(FILTER_NAME, edit_filterName.getText().toString());
         }
+        state.putStringArray(FILTER_STATE, filterStates);
         super.onSaveInstanceState(state);
     }
 
+    private View.OnClickListener onStatesFilterClicked = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View view) {
+            showStatesDialog(appCompatActivity);
+        }
+    };
+
     public void initViews(final Context context, final View dialogContent)
     {
+        text_filterState = (TextView) dialogContent.findViewById(R.id.text_filter_state);
+        if (text_filterState != null)
+        {
+            text_filterState.setText(getFilter_stateDisplay());
+            text_filterState.setOnClickListener(onStatesFilterClicked);
+        }
+
+        label_filterState = (TextView) dialogContent.findViewById(R.id.label_filter_state);
+        if (label_filterState != null) {
+            label_filterState.setOnClickListener(onStatesFilterClicked);
+        }
+
         edit_filterName = (EditText) dialogContent.findViewById(R.id.edit_filter_name);
         if (edit_filterName != null)
         {
@@ -130,6 +162,31 @@ public class FilterDialog extends BottomSheetDialogFragment
         }
     }
 
+    private void showStatesDialog(AppCompatActivity activity)
+    {
+        if (activity != null)
+        {
+            StatesDialog statesDialog = new StatesDialog();
+            statesDialog.setSelection(filterStates);
+
+            statesDialog.setDialogListener(new StatesDialog.StatesDialogListener() {
+                @Override
+                public void onSelectionChanged(String[] selection)
+                {
+                    filterStates = selection;
+                    if (text_filterState != null) {
+                        text_filterState.setText(getFilter_stateDisplay());
+                    }
+                    if (dialogListener != null) {
+                        dialogListener.onFilterChanged(FilterDialog.this, FILTER_STATE);
+                    }
+                }
+            });
+
+            statesDialog.show(activity.getSupportFragmentManager(), TAG_DIALOG_STATES);
+        }
+    }
+
     private String initialFilterName;
     public void setFilter_name(String value)
     {
@@ -145,13 +202,27 @@ public class FilterDialog extends BottomSheetDialogFragment
         else return "";
     }
 
-    public void setFilter_state(String value)
+    private String[] filterStates;                 // TODO: preserve on orientation change
+    public void setFilter_state(String[] states)
     {
-        // TODO
+        filterStates = states;
     }
-    public String getFilter_state()
+    public String[] getFilter_state()
     {
-        return "";  // TODO
+        return filterStates;
+    }
+
+    public String getFilter_stateDisplay()
+    {
+        StringBuilder statesDisplay = new StringBuilder();
+        for (int i=0; i<filterStates.length; i++)
+        {
+            statesDisplay.append(filterStates[i]);
+            if (i != filterStates.length-1) {
+                statesDisplay.append(", ");
+            }
+        }
+        return statesDisplay.toString();
     }
 
     public void setFilter_scale(String value)
@@ -161,6 +232,12 @@ public class FilterDialog extends BottomSheetDialogFragment
     public String getFilter_scale()
     {
         return "";  // TODO
+    }
+
+    private AppCompatActivity appCompatActivity;
+    public void setAppCompatActivity(AppCompatActivity activity)
+    {
+        this.appCompatActivity = activity;
     }
 
     private FilterDialogListener dialogListener;

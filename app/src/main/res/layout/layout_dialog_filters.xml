@@ -21,11 +21,8 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="match_parent" android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/action_filters" />
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" android:layout_marginBottom="12dp">
 
         <!-- filter by name -->
         <LinearLayout
@@ -38,7 +35,7 @@
                 android:id="@+id/label_filter_name"
                 android:labelFor="@+id/edit_filter_name"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginRight="0dp" android:layout_marginEnd="0dp"
+                android:layout_marginRight="8dp" android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
                 android:text="@string/filter_name" />
 
@@ -60,13 +57,15 @@
             <TextView
                 android:id="@+id/label_filter_state"
                 android:labelFor="@+id/spin_filter_state"
+                android:textColor="@drawable/btn_text_dark"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginRight="0dp" android:layout_marginEnd="0dp"
+                android:layout_marginRight="8dp" android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
+                android:clickable="true" android:focusable="true"
                 android:text="@string/filter_state" />
 
-            <Spinner
-                android:id="@+id/spin_filter_state"
+            <TextView
+                android:id="@+id/text_filter_state"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginRight="0dp" android:layout_marginLeft="0dp" />
 
