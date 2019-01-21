@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -100,7 +101,7 @@ public class FilterDialog extends BottomSheetDialogFragment
         super.onSaveInstanceState(state);
     }
 
-    public void initViews(Context context, final View dialogContent)
+    public void initViews(final Context context, final View dialogContent)
     {
         edit_filterName = (EditText) dialogContent.findViewById(R.id.edit_filter_name);
         if (edit_filterName != null)
@@ -115,6 +116,11 @@ public class FilterDialog extends BottomSheetDialogFragment
                     {
                         if (dialogListener != null) {
                             dialogListener.onFilterChanged(FilterDialog.this, FILTER_NAME);
+                        }
+
+                        InputMethodManager inputMethodManager = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (inputMethodManager != null) {
+                            inputMethodManager.hideSoftInputFromWindow(edit_filterName.getWindowToken(), 0);
                         }
                         return true;
                     }
