@@ -105,17 +105,17 @@ public class DatabaseScanTask extends DatabaseTask
             String fileName = file.getName();
             if (fileName.toLowerCase().endsWith(EXT_GEOPDF))
             {
-                ContentValues fileValues = getValuesFromFileName(file);
+                ContentValues fileValues = getValuesFromFileName_HTMC(file);  // TODO: support for US Topo
                 if (fileValues != null)
                 {
                     Log.d(TAG, "scanFile: " + file.getAbsolutePath());
-                    fileValues = updateValuesFromDB(fileValues);
+                    fileValues = updateValuesFromDB_HTMC(fileValues);      // TODO: support US Topo
 
-                    String gdaItemID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
-                    if (database.hasMap(TopoIndexDatabaseAdapter.TABLE_MAPS, gdaItemID))
+                    String scanID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
+                    if (database.hasMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS, scanID))
                     {
-                        Log.d(TAG, "scanFile: updating " + file.getAbsolutePath());
-                        database.updateMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
+                        Log.d(TAG, "scanFile: updating " + file.getAbsolutePath() + " .. " + fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH));
+                        database.updateMaps_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
 
                     } else {
                         Log.d(TAG, "scanFile: adding " + file.getAbsolutePath());
@@ -136,7 +136,7 @@ public class DatabaseScanTask extends DatabaseTask
         int count = 0;
     }
 
-    protected ContentValues getValuesFromFileName( File file )
+    protected ContentValues getValuesFromFileName_HTMC( File file )
     {
         String fileName = file.getName();
         String[] parts = fileName.split("_");
@@ -145,10 +145,10 @@ public class DatabaseScanTask extends DatabaseTask
             ContentValues values = new ContentValues();
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_STATE, parts[0]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_NAME, parts[1]);
-            values.put(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, parts[2]);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCANID, parts[2]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATE, parts[3]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCALE, parts[4]);
-            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);       // TODO: how to determine this from the filename... possible? from date?
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);        // TODO: is this value more or less the same as series?
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, file.getAbsolutePath());
             return values;
@@ -159,25 +159,24 @@ public class DatabaseScanTask extends DatabaseTask
         }
     }
 
-    protected ContentValues updateValuesFromDB(ContentValues values)
+    protected ContentValues updateValuesFromDB_HTMC(ContentValues values)
     {
         if (values != null)
         {
             String series = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);   // TODO: series on values object is set incorrectly - always HTMC
             if (series != null && !series.isEmpty())
             {
-                String itemID = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
-                if (itemID != null && !itemID.isEmpty())
+                String scanID = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
+                if (scanID != null && !scanID.isEmpty())
                 {
-                    String table = TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC; // series.toLowerCase().equals("htmc") ? TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO ;
-                    Cursor cursor = database.getMap(table, itemID, true);
+                    Cursor cursor = database.getMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC, scanID, true);
                     if (cursor != null)
                     {
                         if (cursor.getCount() > 0)
                         {
-                            Log.d(TAG, "updateValuesFromDB: " + itemID);
+                            Log.d(TAG, "updateValuesFromDB_HTMC: " + scanID);
                             cursor.moveToFirst();
-                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_CELLID)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCANID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_SCANID)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST)));
@@ -186,11 +185,11 @@ public class DatabaseScanTask extends DatabaseTask
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATUM, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_DATUM)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_VERSION)));
 
-                        } else Log.w(TAG, "updateValuesFromDB: empty cursor; skipping " + itemID);
+                        } else Log.w(TAG, "updateValuesFromDB_HTMC: empty cursor; skipping " + scanID);
                         cursor.close();
 
-                    } else Log.w(TAG, "updateValuesFromDB: null cursor; skipping " + itemID);
-                } else Log.w(TAG, "updateValuesFromDB: missing GDA Item ID; skipping");
+                    } else Log.w(TAG, "updateValuesFromDB: null cursor; skipping " + scanID);
+                } else Log.w(TAG, "updateValuesFromDB: missing Scan ID; skipping");
             } else Log.w(TAG, "updateValuesFromDB: missing series; skipping ");
         }  else Log.w(TAG, "updateValuesFromDB: missing values; skipping");
 

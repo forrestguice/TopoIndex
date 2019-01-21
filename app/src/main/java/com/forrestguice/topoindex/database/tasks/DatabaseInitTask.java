@@ -125,7 +125,7 @@ public class DatabaseInitTask extends DatabaseTask
                                     htmcValues.add(values);
 
                                     if (htmcValues.size() >= batchValuesNum) {
-                                        database.addMaps_USGS_HTMC(htmcValues.toArray(new ContentValues[0]));
+                                        database.addMaps_HTMC(htmcValues.toArray(new ContentValues[0]));
                                         htmcValues.clear();
                                         progressObj.count[0] = c;
                                         publishProgress(progressObj);
@@ -138,7 +138,7 @@ public class DatabaseInitTask extends DatabaseTask
                                     ustopoValues.add(values);
 
                                     if (ustopoValues.size() >= batchValuesNum) {
-                                        database.addMaps_USGS_USTopo( ustopoValues.toArray(new ContentValues[0]) );
+                                        database.addMaps_USTopo( ustopoValues.toArray(new ContentValues[0]) );
                                         ustopoValues.clear();
                                         progressObj.count[0] = c;
                                         publishProgress(progressObj);
@@ -155,12 +155,12 @@ public class DatabaseInitTask extends DatabaseTask
                         }
 
                         if (htmcValues.size() >= 0) {
-                            database.addMaps_USGS_HTMC(htmcValues.toArray(new ContentValues[0]));
+                            database.addMaps_HTMC(htmcValues.toArray(new ContentValues[0]));
                             htmcValues.clear();
                         }
 
                         if (ustopoValues.size() >= 0) {
-                            database.addMaps_USGS_USTopo( ustopoValues.toArray(new ContentValues[0]) );
+                            database.addMaps_USTopo( ustopoValues.toArray(new ContentValues[0]) );
                             ustopoValues.clear();
                         }
 

@@ -230,14 +230,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         ContentValues contentValues = new ContentValues();
                         DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
                         String url = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_URL);
-                        String itemID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
+                        String gdaID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
+                        String scanID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
                         AppSettings.Location nwCorner = getNorthwestCorner(contentValues);
                         AppSettings.Location seCorner = getSoutheastCorner(contentValues);
 
                         if (nwCorner != null && seCorner != null) {
-                            Toast.makeText(context, itemID + ": " + nwCorner.toString() + "\n" + seCorner.toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, gdaID + ": " + scanID + ": " + nwCorner.toString() + "\n" + seCorner.toString(), Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(context, itemID + ": " + url, Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, gdaID + ": " + scanID + ": " + url, Toast.LENGTH_LONG).show();
                         }
                         // TODO
                     }
@@ -340,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             } else {
                 table = TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC;
-                return database.getMaps_USGS_HTMC(0, false);
+                return database.getMaps_HTMC(0, false);
             }
         }
 

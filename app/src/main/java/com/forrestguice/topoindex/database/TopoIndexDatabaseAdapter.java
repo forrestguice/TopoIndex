@@ -37,9 +37,6 @@ public class TopoIndexDatabaseAdapter
     public static final String KEY_ROWID = "_id";
     public static final String DEF_ROWID = KEY_ROWID + " integer primary key autoincrement";
 
-    public static final String KEY_MAP_GDAITEMID = "gdaitemid";
-    public static final String DEF_MAP_GDAITEMID = KEY_MAP_GDAITEMID + " text not null";
-
     public static final String KEY_MAP_SERIES = "series";
     public static final String DEF_MAP_SERIES = KEY_MAP_SERIES + " text not null";
     public static final String VAL_MAP_SERIES_HTMC = "\"HTMC\"";
@@ -48,8 +45,14 @@ public class TopoIndexDatabaseAdapter
     public static final String KEY_MAP_VERSION = "version";
     public static final String DEF_MAP_VERSION = KEY_MAP_VERSION + " text";
 
+    public static final String KEY_MAP_GDAITEMID = "gdaitemid";
+    public static final String DEF_MAP_GDAITEMID = KEY_MAP_GDAITEMID + " text";
+
     public static final String KEY_MAP_CELLID = "cellid";
     public static final String DEF_MAP_CELLID = KEY_MAP_CELLID + " text";
+
+    public static final String KEY_MAP_SCANID = "scanid";
+    public static final String DEF_MAP_SCANID = KEY_MAP_SCANID + " text";
 
     public static final String KEY_MAP_NAME = "name";
     public static final String DEF_MAP_NAME = KEY_MAP_NAME + " text not null";
@@ -90,8 +93,8 @@ public class TopoIndexDatabaseAdapter
     public static final String KEY_MAP_URL2 = "url2";                          // url: (reserved) not-used
     public static final String DEF_MAP_URL2 = KEY_MAP_URL2 + " text";
 
-    private static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
-    private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
+    private static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
+    private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
 
     /**
      * USGS HTMC (Historical Topo Collection)
@@ -102,6 +105,7 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_VERSION + ", "
             + DEF_MAP_GDAITEMID + ", "
             + DEF_MAP_CELLID + ", "
+            + DEF_MAP_SCANID + ", "
             + DEF_MAP_NAME + ", "
             + DEF_MAP_STATE + ", "
             + DEF_MAP_SCALE + ", "
@@ -126,6 +130,7 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_VERSION + ", "
             + DEF_MAP_GDAITEMID + ", "
             + DEF_MAP_CELLID + ", "
+            + DEF_MAP_SCANID + ", "
             + DEF_MAP_NAME + ", "
             + DEF_MAP_STATE + ", "
             + DEF_MAP_SCALE + ", "
@@ -150,6 +155,7 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_VERSION + ", "
             + DEF_MAP_GDAITEMID + ", "
             + DEF_MAP_CELLID + ", "
+            + DEF_MAP_SCANID + ", "
             + DEF_MAP_NAME + ", "
             + DEF_MAP_STATE + ", "
             + DEF_MAP_SCALE + ", "
@@ -226,14 +232,26 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
-    public Cursor getMaps_USGS_HTMC(int n, boolean fullEntry)
+    public Cursor getMaps_HTMC(int n, boolean fullEntry)
     {
         return getMaps(TABLE_MAPS_USGS_HTMC, n, fullEntry);
     }
 
-    public Cursor getMaps_USGS_USTopo(int n, boolean fullEntry)
+    public Cursor getMaps_USTopo(int n, boolean fullEntry)
     {
         return getMaps(TABLE_MAPS_USGS_USTOPO, n, fullEntry);
+    }
+
+    public Cursor getMap_HTMC(String table, @NonNull String scanID, boolean fullEntry)
+    {
+        String[] query = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
+        String selection = KEY_MAP_SCANID + " = ?";
+        String[] selectionArgs = new String[] { scanID };
+        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, "_id DESC" );
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+        return cursor;
     }
 
     public Cursor getMap(@NonNull String table, @NonNull String gdaItemID, boolean fullEntry)
@@ -248,9 +266,9 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
-    public boolean hasMap(@NonNull String table, String gdaItemID)
+    public boolean hasMap_HTMC(@NonNull String table, String scanID)
     {
-        Cursor cursor = getMap(table, gdaItemID, false);
+        Cursor cursor = getMap_HTMC(table, scanID, false);
         if (cursor != null) {
             return (cursor.getCount() > 0);
         }
@@ -273,17 +291,17 @@ public class TopoIndexDatabaseAdapter
         return lastRowId;
     }
 
-    public long updateMaps(String table, ContentValues... values)
+    public long updateMaps_HTMC(String table, ContentValues... values)
     {
         long lastRowId = -1;
         database.beginTransaction();
         for (ContentValues entry : values)
         {
-            String gdaItemID = entry.getAsString(KEY_MAP_GDAITEMID);
-            if (gdaItemID != null && !gdaItemID.isEmpty())
+            String scanID = entry.getAsString(KEY_MAP_SCANID);
+            if (scanID != null && !scanID.isEmpty())
             {
-                String where = KEY_MAP_GDAITEMID + " = ?";
-                String[] whereArgs = new String[] { gdaItemID };
+                String where = KEY_MAP_SCANID + " = ?";
+                String[] whereArgs = new String[] { scanID };
                 lastRowId = database.update(table, entry, where, whereArgs);
             }
         }
@@ -292,12 +310,12 @@ public class TopoIndexDatabaseAdapter
         return lastRowId;
     }
 
-    public long addMaps_USGS_HTMC(ContentValues... values)
+    public long addMaps_HTMC(ContentValues... values)
     {
         return addMaps(TABLE_MAPS_USGS_HTMC, values);
     }
 
-    public long addMaps_USGS_USTopo(ContentValues... values)
+    public long addMaps_USTopo(ContentValues... values)
     {
         return addMaps(TABLE_MAPS_USGS_USTOPO, values);
     }
@@ -324,6 +342,7 @@ public class TopoIndexDatabaseAdapter
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, fields[50].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL1, fields[58].replaceAll("\"",""));
 
+        values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCANID, fields[53].replaceAll("\"",""));
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, fields[54].replaceAll("\"",""));
     }
 
