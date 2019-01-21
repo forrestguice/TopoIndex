@@ -19,15 +19,20 @@
 package com.forrestguice.topoindex.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
+import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class StatesDialog extends DialogFragment
@@ -40,6 +45,8 @@ public class StatesDialog extends DialogFragment
     {
         super.onCreate(savedInstanceState);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setNeutralButton(getString(android.R.string.ok), null);
+        builder.setNeutralButtonIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_light));
 
         final String[] items = getItems();
         builder.setMultiChoiceItems(getItems(), getChecked(), new DialogInterface.OnMultiChoiceClickListener() {
@@ -52,13 +59,20 @@ public class StatesDialog extends DialogFragment
                 }
             }
         });
-
         return builder.create();
     }
 
     private String[] getItems()
     {
-        return states.keySet().toArray(new String[0]);
+        String[] items = states.keySet().toArray(new String[0]);
+        Arrays.sort(items, new Comparator<String>() {
+            @Override
+            public int compare(String s, String t1)
+            {
+                return s.compareTo(t1);
+            }
+        });
+        return items;
     }
 
     private boolean[] getChecked()

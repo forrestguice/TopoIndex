@@ -18,7 +18,6 @@
 
 package com.forrestguice.topoindex.dialogs;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,7 +28,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,11 +35,10 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.forrestguice.topoindex.R;
-
-import org.w3c.dom.Text;
 
 public class FilterDialog extends BottomSheetDialogFragment
 {
@@ -54,7 +51,11 @@ public class FilterDialog extends BottomSheetDialogFragment
     public static final String FILTER_SCALE = "scaleFilter";
 
     private EditText edit_filterName;
-    private TextView label_filterState, text_filterState;
+
+    private TextView label_filterState;
+    private EditText edit_filterState;
+
+    private ImageButton clear_filterName, clear_filterState;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -98,8 +99,8 @@ public class FilterDialog extends BottomSheetDialogFragment
             edit_filterName.setText(state.getString(FILTER_NAME, ""));
         }
         filterStates = state.getStringArray(FILTER_STATE);
-        if (text_filterState != null) {
-            text_filterState.setText(getFilter_stateDisplay());
+        if (edit_filterState != null) {
+            edit_filterState.setText(getFilter_stateDisplay());
         }
     }
 
@@ -123,16 +124,35 @@ public class FilterDialog extends BottomSheetDialogFragment
 
     public void initViews(final Context context, final View dialogContent)
     {
-        text_filterState = (TextView) dialogContent.findViewById(R.id.text_filter_state);
-        if (text_filterState != null)
+        edit_filterState = (EditText) dialogContent.findViewById(R.id.text_filter_state);
+        if (edit_filterState != null)
         {
-            text_filterState.setText(getFilter_stateDisplay());
-            text_filterState.setOnClickListener(onStatesFilterClicked);
+            edit_filterState.setText(getFilter_stateDisplay());
+            edit_filterState.setOnClickListener(onStatesFilterClicked);
         }
 
         label_filterState = (TextView) dialogContent.findViewById(R.id.label_filter_state);
         if (label_filterState != null) {
             label_filterState.setOnClickListener(onStatesFilterClicked);
+        }
+
+        clear_filterState = (ImageButton) dialogContent.findViewById(R.id.clear_filter_state);
+        if (clear_filterState != null)
+        {
+            clear_filterState.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    filterStates = new String[0];
+                    if (edit_filterState != null) {
+                        edit_filterState.setText(getFilter_stateDisplay());
+                    }
+                    if (dialogListener != null) {
+                        dialogListener.onFilterChanged(FilterDialog.this, FILTER_STATE);
+                    }
+                }
+            });
         }
 
         edit_filterName = (EditText) dialogContent.findViewById(R.id.edit_filter_name);
@@ -144,7 +164,7 @@ public class FilterDialog extends BottomSheetDialogFragment
                 @Override
                 public boolean onEditorAction(TextView textView, int action, KeyEvent keyEvent)
                 {
-                    if (action == EditorInfo.IME_ACTION_DONE)
+                    if (action == EditorInfo.IME_ACTION_DONE || action == EditorInfo.IME_ACTION_NEXT || action == EditorInfo.IME_ACTION_PREVIOUS || action == EditorInfo.IME_ACTION_SEARCH)
                     {
                         if (dialogListener != null) {
                             dialogListener.onFilterChanged(FilterDialog.this, FILTER_NAME);
@@ -157,6 +177,24 @@ public class FilterDialog extends BottomSheetDialogFragment
                         return true;
                     }
                     return false;
+                }
+            });
+        }
+
+        clear_filterName = (ImageButton) dialogContent.findViewById(R.id.clear_filter_name);
+        if (clear_filterName != null)
+        {
+            clear_filterName.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    if (edit_filterName != null) {
+                        edit_filterName.setText("");
+                    }
+                    if (dialogListener != null) {
+                        dialogListener.onFilterChanged(FilterDialog.this, FILTER_NAME);
+                    }
                 }
             });
         }
@@ -174,8 +212,8 @@ public class FilterDialog extends BottomSheetDialogFragment
                 public void onSelectionChanged(String[] selection)
                 {
                     filterStates = selection;
-                    if (text_filterState != null) {
-                        text_filterState.setText(getFilter_stateDisplay());
+                    if (edit_filterState != null) {
+                        edit_filterState.setText(getFilter_stateDisplay());
                     }
                     if (dialogListener != null) {
                         dialogListener.onFilterChanged(FilterDialog.this, FILTER_STATE);
@@ -214,15 +252,21 @@ public class FilterDialog extends BottomSheetDialogFragment
 
     public String getFilter_stateDisplay()
     {
-        StringBuilder statesDisplay = new StringBuilder();
-        for (int i=0; i<filterStates.length; i++)
+        if (filterStates.length > 0)
         {
-            statesDisplay.append(filterStates[i]);
-            if (i != filterStates.length-1) {
-                statesDisplay.append(", ");
+            StringBuilder statesDisplay = new StringBuilder();
+            for (int i=0; i<filterStates.length; i++)
+            {
+                statesDisplay.append(filterStates[i]);
+                if (i != filterStates.length-1) {
+                    statesDisplay.append(", ");
+                }
             }
+            return statesDisplay.toString();
+
+        } else {
+            return getString(R.string.filter_label_none);
         }
-        return statesDisplay.toString();
     }
 
     public void setFilter_scale(String value)
