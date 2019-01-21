@@ -51,14 +51,16 @@
     <string name="action_help">Help</string>
     <string name="action_scan">Scan Files</string>
     <string name="action_filters">Filters</string>
+    <string name="action_clear_filter">Clear Filter</string>
     <string name="action_settings">Settings</string>
     <string name="action_location">Location</string>
     <string name="action_location_auto">Current Location</string>
 
     <!-- Filters -->
-    <string name="filter_name">Map Name</string>
-    <string name="filter_state">State</string>
-    <string name="filter_scale">Scale</string>
+    <string name="filter_label_name">Map Name</string>
+    <string name="filter_label_state">State</string>
+    <string name="filter_label_scale">Scale</string>
+    <string name="filter_label_none">No Filter</string>
 
     <!-- General settings -->
     <string name="title_activity_settings">@string/action_settings</string>
