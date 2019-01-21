@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TopoIndexDatabaseAdapter
@@ -213,19 +214,49 @@ public class TopoIndexDatabaseAdapter
         return getMaps(table, n, fullEntry, null);
     }
 
-    public Cursor getMaps(@NonNull String table, int n, boolean fullEntry, String nameFilter)
+    public Cursor getMaps(@NonNull String table, int n, boolean fullEntry, FilterValues filter)
     {
         String[] query = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
-        String selection = null;
-        String[] selectionArgs = null;
+        StringBuilder selection = new StringBuilder();
+        ArrayList<String> selectionArgs = new ArrayList<>();
+        String groupBy = null;
+        boolean firstFilter = true;
 
-        if (nameFilter != null) {
-            selection = KEY_MAP_NAME + " LIKE ?";
-            selectionArgs = new String[] {"%" + nameFilter + "%"};
+        String nameFilter = filter.getNameFilter();
+        if (nameFilter != null && !nameFilter.isEmpty())
+        {
+            selection.append(KEY_MAP_NAME + " LIKE ?");
+            selectionArgs.add("%" + nameFilter + "%");
+            firstFilter = false;
         }
 
-        Cursor cursor =  (n > 0) ? database.query( table, query, selection, selectionArgs, null, null, "_id DESC", n+"" )
-                                 : database.query( table, query, selection, selectionArgs, null, null, "_id DESC" );
+        String[] stateFilters = filter.getStatesFilter();
+        if (stateFilters != null && stateFilters.length > 0)
+        {
+            if (!firstFilter) {
+                selection.append(" AND ");
+            }
+
+            for (int i=0; i<stateFilters.length; i++)
+            {
+                selection.append(KEY_MAP_STATE + " = ?");
+                selectionArgs.add(stateFilters[i]);
+
+                if (i != stateFilters.length - 1) {
+                    selection.append(" OR ");
+                }
+            }
+        }
+
+        /**String selectionArgsDebug = "";
+        String[] selectionArgsArray = selectionArgs.toArray(new String[0]);
+        for (int i=0; i<selectionArgsArray.length; i++) {
+            selectionArgsDebug += selectionArgsArray[i] + ", ";
+        }
+        Log.d("DEBUG", "selection: " + selection.toString() + " :: args: " + selectionArgsDebug);*/
+
+        Cursor cursor =  (n > 0) ? database.query( table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id DESC", n+"" )
+                                 : database.query( table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id DESC" );
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -427,6 +458,41 @@ public class TopoIndexDatabaseAdapter
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
         {
             /* EMPTY */
+        }
+    }
+
+    /**
+     * FilterValues
+     */
+    public static final class FilterValues
+    {
+        protected String filter_name;
+        protected String[] filter_states;
+
+        public FilterValues(String nameFilter, String[] statesFilter)
+        {
+            filter_name = nameFilter;
+            filter_states = statesFilter;
+        }
+
+        public String getNameFilter()
+        {
+            return filter_name;
+        }
+
+        public String[] getStatesFilter()
+        {
+            return filter_states;
+        }
+
+        public String toString()
+        {
+            StringBuilder statesFilter = new StringBuilder();
+            for (String state : filter_states) {
+                statesFilter.append(state);
+                statesFilter.append(" ");
+            }
+            return filter_name + " : " + statesFilter.toString().trim();
         }
     }
 

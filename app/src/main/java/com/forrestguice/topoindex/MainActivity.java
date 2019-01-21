@@ -350,8 +350,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (tables.length > 0 && tables[0] != null)
             {
                 table = tables[0];
-                String nameFilter = AppSettings.getFilter_byName(MainActivity.this);
-                return database.getMaps(table, 0, false, nameFilter);
+                return database.getMaps(table, 0, false, AppSettings.getFilters(MainActivity.this));
 
             } else {
                 table = TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC;

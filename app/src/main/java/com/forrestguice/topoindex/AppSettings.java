@@ -24,6 +24,8 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -100,6 +102,13 @@ public class AppSettings
         String nameFilter = getFilter_byName(context);
         String[] stateFilter = getFilter_byState(context);
         return (nameFilter == null || nameFilter.isEmpty()) && (stateFilter.length == 0);
+    }
+
+    public static TopoIndexDatabaseAdapter.FilterValues getFilters(Context context)
+    {
+        String nameFilter = getFilter_byName(context);
+        String[] statesFilter = getFilter_byState(context);
+        return new TopoIndexDatabaseAdapter.FilterValues(nameFilter, statesFilter);
     }
 
     public static String getFilter_byName(Context context)
