@@ -19,7 +19,6 @@
 package com.forrestguice.topoindex.dialogs;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,7 +36,7 @@ import java.util.HashMap;
 
 public class StatesDialog extends DialogFragment
 {
-    public static final String TAG = "TopoIndex";
+    public static final String TAG = "TopoIndexStates";
 
     @NonNull
     @Override

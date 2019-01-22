@@ -520,9 +520,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener()
     {
-        public void onViewItem(ContentValues values, String[] urls) {
-            Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
-
+        public void onViewItem(ContentValues values, String[] urls)
+        {
             if (currentTable.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
             {
                 String url = urls[0];
