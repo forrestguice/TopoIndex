@@ -35,6 +35,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String currentTable = TopoIndexDatabaseAdapter.TABLE_MAPS;
 
     private FloatingActionButton fabFilters, fabFiltersClear;
+    private FloatingActionButton[] fabs = new FloatingActionButton[0];
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -185,6 +187,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        fabs = new FloatingActionButton[] { fabFilters, fabFiltersClear };
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -193,6 +197,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void showFabs(boolean withDelay)
+    {
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                fabFilters.setEnabled(true);
+                if (!fabFilters.isShown()) {
+                    fabFilters.show();
+                }
+            }
+        }, withDelay ? 750 : 0);
+
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                fabFiltersClear.setEnabled(true);
+                if (AppSettings.hasNoFilters(MainActivity.this))
+                    fabFiltersClear.hide();
+                else fabFiltersClear.show();
+            }
+        }, withDelay ? 1250 : 0);
+    }
+
+    private void hideFabs()
+    {
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                for (FloatingActionButton fab : fabs) {
+                    fab.setEnabled(false);
+                    fab.hide();
+                }
+            }
+        }, 350);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (database == null) {
             database = new TopoIndexDatabaseAdapter(MainActivity.this);
+            database.open();
         }
         initEmptyView(context, table);
         initListTitle(context, table);
@@ -274,14 +312,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else emptyListTitle.setText(getString(R.string.list_empty_index));
         }
 
-        final TextView emptyListMessage = findViewById(R.id.list_maps_empty_message);
-        if (emptyListMessage != null)
+        final TextView emptyListMessage0 = findViewById(R.id.list_maps_empty_message);
+        if (emptyListMessage0 != null)
         {
-            if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
-                emptyListMessage.setText(AboutDialog.fromHtml("<a href=''>Scan</a> for files now."));   // TODO
-            else emptyListMessage.setText(AboutDialog.fromHtml("<a href=''>Update</a> the database now."));   // TODO
+            if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS)) {
+                emptyListMessage0.setText(AboutDialog.fromHtml("<a href=''>Scan for files</a>"));   // TODO
+            } else {
+                emptyListMessage0.setText(AboutDialog.fromHtml("<a href=''>Update the database</a>"));   // TODO
+            }
 
-            emptyListMessage.setOnClickListener(new View.OnClickListener()
+            emptyListMessage0.setVisibility(database.hasMaps(table) ? View.GONE : View.VISIBLE);
+            emptyListMessage0.setOnClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(View view)
@@ -289,6 +330,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
                         scanCollection();
                     else initDatabase();
+                }
+            });
+        }
+
+        final TextView emptyListMessage1 = findViewById(R.id.list_maps_empty_message1);
+        if (emptyListMessage1 != null)
+        {
+            emptyListMessage1.setVisibility(AppSettings.hasNoFilters(MainActivity.this) ? View.GONE : View.VISIBLE);
+            emptyListMessage1.setText(AboutDialog.fromHtml("<a href=''>Clear search filters</a>"));   // TODO
+            emptyListMessage1.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view) {
+                    clearFilters();
                 }
             });
         }
@@ -303,7 +358,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected void onPreExecute()
         {
-            database.open();
             progressBar.setVisibility(View.VISIBLE);
         }
 
@@ -330,6 +384,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (listView != null) {
                 listView.setAdapter(adapter);
             }
+            showFabs(false);
         }
     }
 
@@ -338,10 +393,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AppSettings.Location location = AppSettings.getLocation(MainActivity.this);
         toolbar.setSubtitle(getString(R.string.location_format, location.getLatitudeDisplay(), location.getLongitudeDisplay()));
         updateMenus();
-
-        if (AppSettings.hasNoFilters(MainActivity.this))
-            fabFiltersClear.hide();
-        else fabFiltersClear.show();
     }
 
     private void updateMenus()
@@ -921,6 +972,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (progressSnackbar != null) {
                     progressSnackbar.dismiss();
                 }
+                showFabs(true);
+                updateViews();
 
             } else {
                 if (progressSnackbar != null){
@@ -930,6 +983,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (lastProgress != null) {
                     onProgress(lastProgress);
                 }
+                hideFabs();
             }
         }
 
