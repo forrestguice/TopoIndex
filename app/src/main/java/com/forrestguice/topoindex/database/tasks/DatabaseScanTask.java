@@ -177,10 +177,14 @@ public class DatabaseScanTask extends DatabaseTask
                             Log.d(TAG, "updateValuesFromDB_HTMC: " + scanID);
                             cursor.moveToFirst();
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCANID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_SCANID)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_CELLID)));
+                            values.put(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID)));
+
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST)));
+
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATUM, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_DATUM)));
                             values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_VERSION)));
