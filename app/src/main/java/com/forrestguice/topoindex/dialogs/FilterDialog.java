@@ -290,7 +290,7 @@ public class FilterDialog extends BottomSheetDialogFragment
         else return "";
     }
 
-    private String[] filterStates;                 // TODO: preserve on orientation change
+    private String[] filterStates;
     public void setFilter_state(String[] states)
     {
         filterStates = states;

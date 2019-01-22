@@ -47,6 +47,10 @@ public class StatesDialog extends DialogFragment
         builder.setNeutralButton(getString(android.R.string.ok), null);
         builder.setNeutralButtonIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_light));
 
+        if (savedInstanceState != null) {
+            restoreDialogState(savedInstanceState);
+        }
+
         final String[] items = getItems();
         builder.setMultiChoiceItems(getItems(), getChecked(), new DialogInterface.OnMultiChoiceClickListener() {
             @Override
@@ -58,7 +62,20 @@ public class StatesDialog extends DialogFragment
                 }
             }
         });
+
         return builder.create();
+    }
+
+    @Override
+    public void onSaveInstanceState( @NonNull Bundle state )
+    {
+        state.putStringArray(FilterDialog.FILTER_STATE, getSelection());
+        super.onSaveInstanceState(state);
+    }
+
+    private void restoreDialogState( @NonNull Bundle state )
+    {
+        setSelection(state.getStringArray(FilterDialog.FILTER_STATE));
     }
 
     private String[] getItems()
