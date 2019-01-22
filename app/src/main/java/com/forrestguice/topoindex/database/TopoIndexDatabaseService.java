@@ -293,7 +293,11 @@ public class TopoIndexDatabaseService extends Service
                     percentFormatter.setMinimumFractionDigits(0);
                     percentFormatter.setMaximumFractionDigits(0);
                 }
-                String percentString = percentFormatter.format((double)progress[0].itemNumber() / (double)progress[0].numItems());
+                double percentDone = (double)progress[0].itemNumber() / (double)progress[0].numItems();
+                if (percentDone >= 1) {
+                    percentDone = 0.999999;
+                }
+                String percentString = percentFormatter.format(percentDone);
                 progress[0].setMessage(context.getString(R.string.database_update_progress, percentString));
                 signalOnProgress(progress[0]);
 
