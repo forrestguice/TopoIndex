@@ -959,11 +959,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStop() {
+    protected void onStop()
         super.onStop();
         databaseService.removeServiceListener(serviceListener);
         unbindService(databaseServiceConnection);
         boundToService = false;
+
+        if (database != null) {
+            database.close();
+        }
     }
 
     private ServiceConnection databaseServiceConnection = new ServiceConnection()
