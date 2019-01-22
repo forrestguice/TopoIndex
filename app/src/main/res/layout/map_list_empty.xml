@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -25,6 +26,14 @@
             android:id="@+id/list_maps_empty_message"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginTop="16dp" android:gravity="center"
+            tools:text="message0"
+            style="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            android:id="@+id/list_maps_empty_message1"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:gravity="center"
+            tools:text="message1"
             style="@style/TextAppearance.AppCompat.Medium" />
 
     </LinearLayout>

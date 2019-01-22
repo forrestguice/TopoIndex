@@ -59,11 +59,18 @@
         android:id="@+id/progress_list_maps"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:visibility="gone" android:elevation="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/guideline_hmid"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_hmid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent=".5"
+        android:orientation="horizontal" />
+
     <LinearLayout
         android:id="@+id/list_maps_empty"
         android:layout_width="wrap_content" android:layout_height="wrap_content"

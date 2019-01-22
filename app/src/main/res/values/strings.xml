@@ -32,7 +32,7 @@
 
     <!-- List -->
     <string name="list_empty_maps">No Maps</string>
-    <string name="list_empty_index">No Index</string>
+    <string name="list_empty_index">No Maps</string>
 
     <!-- Navigation -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
