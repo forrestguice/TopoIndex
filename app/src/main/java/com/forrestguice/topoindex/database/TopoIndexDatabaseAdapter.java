@@ -309,6 +309,16 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
+    public boolean hasMaps(String table)
+    {
+        Cursor cursor = database.rawQuery("SELECT * FROM " + table + " LIMIT 1", null);
+        boolean retValue = (cursor != null && cursor.getCount() == 1);
+        if (cursor != null) {
+            cursor.close();
+        }
+        return retValue;
+    }
+
     public boolean hasMap_HTMC(@NonNull String table, String scanID)
     {
         Cursor cursor = getMap_HTMC(table, scanID, false);
