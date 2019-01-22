@@ -172,8 +172,10 @@ public class MapItemDialog extends BottomSheetDialogFragment
                 String[] urls = new String[] { contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_URL),
                                                contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_URL1),
                                                contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_URL2) };
-                Toast.makeText(getActivity(), "url: " + urls[0], Toast.LENGTH_SHORT).show();
-                // TODO
+
+                if (dialogListener != null) {
+                    dialogListener.onViewItem(contentValues, urls);
+                }
             }
         }
     };
@@ -195,7 +197,7 @@ public class MapItemDialog extends BottomSheetDialogFragment
      */
     public static abstract class MapItemDialogListener
     {
-        // TODO
+        public void onViewItem(ContentValues values, String[] urls) {}
     }
 
 }

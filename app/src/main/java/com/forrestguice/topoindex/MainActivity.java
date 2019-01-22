@@ -60,9 +60,11 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
+import com.forrestguice.topoindex.database.tasks.DatabaseScanTask;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskListener;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskResult;
@@ -72,6 +74,7 @@ import com.forrestguice.topoindex.dialogs.FilterDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
 import com.forrestguice.topoindex.dialogs.MapItemDialog;
 
+import java.io.File;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
@@ -515,9 +518,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener() {
-        // TODO
+    private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener()
+    {
+        public void onViewItem(ContentValues values, String[] urls) {
+            Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
+
+            if (currentTable.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
+            {
+                String url = urls[0];
+                if (url != null && url.endsWith(DatabaseScanTask.EXT_GEOPDF))
+                {
+                    Uri uri = Uri.fromFile(new File(urls[0]));
+                    openGeoPDF(uri);
+
+                } else {
+                    Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
+            }
+        }
     };
+
+    private void openGeoPDF(Uri uri)
+    {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "application/pdf");
+        startActivity(intent);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Filters
