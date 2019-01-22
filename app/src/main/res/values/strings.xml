@@ -41,7 +41,7 @@
     <string name="nav_header_subtitle">TODO</string>
     <string name="nav_header_desc">Navigation header</string>
 
-    <string name="nav_item_nearest9">Nearby</string>
+    <string name="nav_item_nearest9">@string/action_nearby</string>
     <string name="nav_item_locallist">My Collection</string>
     <string name="nav_group_usgs">USGS Index</string>
     <string name="nav_item_usgs_htmc">Historical Topo</string>
@@ -51,6 +51,7 @@
     <string name="action_help">Help</string>
     <string name="action_scan">Scan Files</string>
     <string name="action_view">View Map</string>
+    <string name="action_nearby">Nearby</string>
     <string name="action_filters">Filters</string>
     <string name="action_clear_filter">Clear Filter</string>
     <string name="action_settings">Settings</string>

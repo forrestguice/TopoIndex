@@ -116,13 +116,24 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/view_button"
+        <LinearLayout
             android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mapItem_secorner"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:text="@string/action_view" />
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <Button
+                android:id="@+id/nearby_button"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/action_nearby" />
+
+            <Button
+                android:id="@+id/view_button"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/action_view" />
+
+        </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

@@ -568,6 +568,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private void dismissMapItemDialog()
+    {
+        MapItemDialog dialog = (MapItemDialog) getSupportFragmentManager().findFragmentByTag(TAG_DIALOG_MAPITEM);
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
     private void restoreMapItemDialog(FragmentManager fragments)
     {
         MapItemDialog dialog = (MapItemDialog) fragments.findFragmentByTag(TAG_DIALOG_MAPITEM);
@@ -578,6 +586,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener()
     {
+        @Override
+        public void onNearbyItem(ContentValues values)
+        {
+            initGridAdapter(MainActivity.this);  // TODO: nearby from values
+            dismissMapItemDialog();
+        }
+
+        @Override
         public void onViewItem(ContentValues values, String[] urls)
         {
             if (currentTable.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))

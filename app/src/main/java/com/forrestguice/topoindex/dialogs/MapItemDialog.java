@@ -45,7 +45,7 @@ public class MapItemDialog extends BottomSheetDialogFragment
     public static final String KEY_CONTENTVALUES = "contentvalues";
 
     private TextView text_name, text_series, text_state, text_date, text_scale, text_nwcorner, text_secorner, text_gdaid, text_scanid, text_cellid;
-    private Button button_view;
+    private Button button_view, button_nearby;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -111,6 +111,9 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
         button_view = (Button)dialogContent.findViewById(R.id.view_button);
         button_view.setOnClickListener(onViewButtonClick);
+
+        button_nearby = (Button)dialogContent.findViewById(R.id.nearby_button);
+        button_nearby.setOnClickListener(onNearbyButtonClick);
     }
 
     private void updateViews(Context context)
@@ -179,6 +182,20 @@ public class MapItemDialog extends BottomSheetDialogFragment
         }
     };
 
+    private View.OnClickListener onNearbyButtonClick = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View view)
+        {
+            if (contentValues != null)
+            {
+                if (dialogListener != null) {
+                    dialogListener.onNearbyItem(contentValues);
+                }
+            }
+        }
+    };
+
     private ContentValues contentValues;
     public void setContentValues(ContentValues values)
     {
@@ -197,6 +214,7 @@ public class MapItemDialog extends BottomSheetDialogFragment
     public static abstract class MapItemDialogListener
     {
         public void onViewItem(ContentValues values, String[] urls) {}
+        public void onNearbyItem(ContentValues values) {}
     }
 
 }
