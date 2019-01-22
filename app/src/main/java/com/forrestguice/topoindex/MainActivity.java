@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view)
             {
                 clearFilters();
+                fabFiltersClear.hide();
             }
         });
 

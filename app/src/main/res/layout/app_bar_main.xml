@@ -35,6 +35,7 @@
         android:id="@+id/fab_filters_clear"
         app:srcCompat="@drawable/ic_backspace_white_24dp"
         android:contentDescription="@string/action_filters"
+        android:visibility="gone"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         app:layout_anchor="@+id/fab_filters"
         android:layout_gravity="bottom|end"
