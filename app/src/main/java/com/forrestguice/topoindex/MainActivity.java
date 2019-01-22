@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedState != null) {
             currentTable = savedState.getString(KEY_TABLE_CURRENT, currentTable);
         }
-        initListAdapter(this, currentTable, true);
     }
 
     @Override
@@ -259,10 +258,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             flipper.setDisplayedChild(0);
         }
 
-        if (database == null) {
-            database = new TopoIndexDatabaseAdapter(MainActivity.this);
-            database.open();
-        }
         initEmptyView(context, table);
         initListTitle(context, table);
         initListClick(context, table);
@@ -351,7 +346,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private TopoIndexDatabaseAdapter database;
     private TopoIndexDatabaseCursorAdapter adapter;
     private class ListAdapterTask extends AsyncTask<String, Void, Cursor>
     {
@@ -946,6 +940,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // DatabaseService
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    private TopoIndexDatabaseAdapter database;
     private static TopoIndexDatabaseService databaseService;
     boolean boundToService = false;
 
@@ -955,6 +950,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         bindService(new Intent(this, TopoIndexDatabaseService.class),
                 databaseServiceConnection, Context.BIND_AUTO_CREATE);
+
+        database = new TopoIndexDatabaseAdapter(MainActivity.this);
+        database.open();
+        initListAdapter(this, currentTable, true);
     }
 
     @Override
