@@ -5,5 +5,7 @@
     <attr name="icPosition" format="reference" />
     <attr name="icPositionOff" format="reference" />
     <attr name="icHelp" format="reference" />
+
     <attr name="hrColor" format="reference" />
+    <attr name="listTitleTextColor" format="reference" />
 </resources>
