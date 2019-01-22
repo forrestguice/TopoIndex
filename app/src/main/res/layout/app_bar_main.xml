@@ -38,6 +38,6 @@
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         app:layout_anchor="@+id/fab_filters"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="82dp" android:layout_marginRight="72dp"/>
+        android:layout_marginEnd="82dp" android:layout_marginRight="82dp"/>
 
 </android.support.design.widget.CoordinatorLayout>
