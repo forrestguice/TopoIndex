@@ -76,6 +76,7 @@ import com.forrestguice.topoindex.dialogs.LocationDialog;
 import com.forrestguice.topoindex.dialogs.MapItemDialog;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
@@ -97,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Snackbar progressSnackbar;
     private ProgressBar progressSnackbarProgress;
     private String currentTable = TopoIndexDatabaseAdapter.TABLE_MAPS;
+
+    private TextView listCount;
 
     private FloatingActionButton fabFilters, fabFiltersClear;
     private FloatingActionButton[] fabs = new FloatingActionButton[0];
@@ -154,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         gridView = (GridView) findViewById(R.id.grid_maps);
         listView = (ListView) findViewById(R.id.list_maps);
 
+        listCount = (TextView) findViewById(R.id.text_resultcount);
         View emptyView = findViewById(R.id.list_maps_empty);
         if (emptyView != null) {
             listView.setEmptyView(emptyView);
@@ -293,7 +297,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView listTitle = findViewById(R.id.title_maps);
         if (listTitle != null)
         {
-            listTitle.setVisibility(View.GONE);  // TODO: fix vertical text
             if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC))
                 listTitle.setText(getString(R.string.nav_item_usgs_htmc));
             else if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO))
@@ -359,6 +362,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onPreExecute()
         {
             progressBar.setVisibility(View.VISIBLE);
+            listCount.setText("");
         }
 
         @Override
@@ -379,7 +383,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onPostExecute(Cursor cursor)
         {
             progressBar.setVisibility(View.GONE);
+
             adapter = new TopoIndexDatabaseCursorAdapter(MainActivity.this, cursor);
+            listCount.setText( new DecimalFormat("#,###,###").format(adapter.getCount()) );
+
             currentTable = table;
             if (listView != null) {
                 listView.setAdapter(adapter);
