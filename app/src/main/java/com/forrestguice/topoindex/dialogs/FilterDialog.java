@@ -126,6 +126,8 @@ public class FilterDialog extends BottomSheetDialogFragment
         }
     };
 
+    private int selectedScalePosition = -1;
+
     public void initViews(final Context context, final View dialogContent)
     {
         // filter by scale
@@ -141,9 +143,10 @@ public class FilterDialog extends BottomSheetDialogFragment
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
                 {
-                    if (dialogListener != null) {
+                    if (dialogListener != null && selectedScalePosition != -1) {
                         dialogListener.onFilterChanged(FilterDialog.this, FILTER_SCALE);
                     }
+                    selectedScalePosition = i;
                 }
 
                 @Override
