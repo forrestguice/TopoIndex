@@ -105,12 +105,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FloatingActionButton[] fabs = new FloatingActionButton[0];
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    protected void onCreate(Bundle savedState)
     {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedState);
         setContentView(R.layout.activity_main);
         initViews(this);
         initLocation(this);
+
+        if (savedState != null) {
+            currentTable = savedState.getString(KEY_TABLE_CURRENT, currentTable);
+        }
         initListAdapter(this, currentTable, true);
     }
 
@@ -138,12 +142,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onRestoreInstanceState( Bundle savedState )
     {
         flipper.setDisplayedChild(savedState.getInt(KEY_FLIPPER_INDEX, 0));
-
-        String table = savedState.getString(KEY_TABLE_CURRENT, currentTable);
-        if (!table.equals(currentTable)) {
-            initListAdapter(this, table, true);
-        }
-
         super.onRestoreInstanceState(savedState);
     }
 
@@ -961,7 +959,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onStop()
+    {
         super.onStop();
+
         databaseService.removeServiceListener(serviceListener);
         unbindService(databaseServiceConnection);
         boundToService = false;
