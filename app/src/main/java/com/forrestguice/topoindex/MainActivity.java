@@ -347,6 +347,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private TopoIndexDatabaseCursorAdapter adapter;
+    private Cursor adapterCursor;
     private class ListAdapterTask extends AsyncTask<String, Void, Cursor>
     {
         private String table;
@@ -376,6 +377,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onPostExecute(Cursor cursor)
         {
             progressBar.setVisibility(View.GONE);
+
+            if (adapterCursor != null) {
+                adapterCursor.close();
+            }
+            adapterCursor = cursor;
 
             adapter = new TopoIndexDatabaseCursorAdapter(MainActivity.this, cursor);
             listCount.setText( new DecimalFormat("#,###,###").format(adapter.getCount()) );
@@ -965,7 +971,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         unbindService(databaseServiceConnection);
         boundToService = false;
 
-        if (database != null) {
+        if (database != null)
+        {
+            if (adapterCursor != null) {
+                adapterCursor.close();
+            }
             database.close();
         }
     }
