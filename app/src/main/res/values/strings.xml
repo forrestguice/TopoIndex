@@ -34,6 +34,10 @@
     <string name="list_empty_maps">No Maps</string>
     <string name="list_empty_index">No Maps</string>
 
+    <string name="list_empty_message_clear"><![CDATA[<a href="">Clear search filters</a>]]></string>
+    <string name="list_empty_message_scan"><![CDATA[<a href="">Scan for files</a>]]></string>
+    <string name="list_empty_message_update"><![CDATA[<a href="">Update the database</a>]]></string>
+
     <!-- Navigation -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

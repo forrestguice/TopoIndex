@@ -313,9 +313,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (emptyListMessage0 != null)
         {
             if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS)) {
-                emptyListMessage0.setText(AboutDialog.fromHtml("<a href=''>Scan for files</a>"));   // TODO
+                emptyListMessage0.setText(AboutDialog.fromHtml(getString(R.string.list_empty_message_scan)));
             } else {
-                emptyListMessage0.setText(AboutDialog.fromHtml("<a href=''>Update the database</a>"));   // TODO
+                emptyListMessage0.setText(AboutDialog.fromHtml(getString(R.string.list_empty_message_update)));
             }
 
             emptyListMessage0.setVisibility(database.hasMaps(table) ? View.GONE : View.VISIBLE);
@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (emptyListMessage1 != null)
         {
             emptyListMessage1.setVisibility(AppSettings.hasNoFilters(MainActivity.this) ? View.GONE : View.VISIBLE);
-            emptyListMessage1.setText(AboutDialog.fromHtml("<a href=''>Clear search filters</a>"));   // TODO
+            emptyListMessage1.setText(AboutDialog.fromHtml(getString(R.string.list_empty_message_clear)));
             emptyListMessage1.setOnClickListener(new View.OnClickListener()
             {
                 @Override
