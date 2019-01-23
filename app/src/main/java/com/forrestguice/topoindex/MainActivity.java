@@ -57,12 +57,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 import com.forrestguice.topoindex.database.tasks.DatabaseScanTask;
@@ -74,6 +72,7 @@ import com.forrestguice.topoindex.dialogs.AboutDialog;
 import com.forrestguice.topoindex.dialogs.FilterDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
 import com.forrestguice.topoindex.dialogs.MapItemDialog;
+import com.forrestguice.topoindex.dialogs.QuadItemDialog;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -85,15 +84,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_FILTERS = "filters";
     public static final String TAG_DIALOG_MAPITEM = "mapitem";
+    public static final String TAG_DIALOG_QUADITEM = "quaditem";
     public static final String TAG_DIALOG_ABOUT = "about";
 
-    public static final String KEY_FLIPPER_INDEX = "flipperIndex";
     public static final String KEY_TABLE_CURRENT = "currentTable";
 
     private Toolbar toolbar;
     private ListView listView;
-    private GridView gridView;
-    private ViewFlipper flipper;
     private ProgressBar progressBar;
     private Snackbar progressSnackbar;
     private ProgressBar progressSnackbarProgress;
@@ -127,20 +124,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         restoreLocationDialog(fragments);
         restoreFilterDialog(fragments);
         restoreMapItemDialog(fragments);
+        restoreQuadItemDialog(fragments);
     }
 
     @Override
     protected void onSaveInstanceState( Bundle outState)
     {
         outState.putString(KEY_TABLE_CURRENT, currentTable);
-        outState.putInt(KEY_FLIPPER_INDEX, flipper.getDisplayedChild());
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState( Bundle savedState )
     {
-        flipper.setDisplayedChild(savedState.getInt(KEY_FLIPPER_INDEX, 0));
         super.onRestoreInstanceState(savedState);
     }
 
@@ -150,15 +146,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        flipper = (ViewFlipper) findViewById(R.id.flipper_maps);
-        gridView = (GridView) findViewById(R.id.grid_maps);
         listView = (ListView) findViewById(R.id.list_maps);
-
         listCount = (TextView) findViewById(R.id.text_resultcount);
         View emptyView = findViewById(R.id.list_maps_empty);
         if (emptyView != null) {
             listView.setEmptyView(emptyView);
-            gridView.setEmptyView(emptyView);
         }
 
         progressBar = (ProgressBar) findViewById(R.id.progress_list_maps);
@@ -235,18 +227,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Lists / Grids
+    // Lists
     ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private void initGridAdapter(Context context)
-    {
-        if (flipper != null) {
-            flipper.setDisplayedChild(1);
-        }
-
-        // TODO: 9x9 quad view centered on location
-        // TODO: setNavItemChecked
-    }
 
     private void initListAdapter(Context context, final String table)
     {
@@ -254,10 +236,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     private void initListAdapter(Context context, final String table, boolean updateNavMenu)
     {
-        if (flipper != null) {
-            flipper.setDisplayedChild(0);
-        }
-
         initEmptyView(context, table);
         initListTitle(context, table);
         initListClick(context, table);
@@ -495,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (id)
         {
             case R.id.nav_nearest9:
-                initGridAdapter(this);
+                showQuadItemDialog(MainActivity.this);
                 break;
 
             case R.id.nav_local_list:
@@ -516,20 +494,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private int getNavItemForTable(String table, int flipperPosition)
+    private int getNavItemForTable(String table)
     {
-        if (flipperPosition == 0)
-        {
-            if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC)) {
-                return R.id.nav_index_usgs_htmc;
+        if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC)) {
+            return R.id.nav_index_usgs_htmc;
 
-            } else if (table.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO)) {
-                return R.id.nav_index_usgs_ustopo;
+        } else if (table.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO)) {
+            return R.id.nav_index_usgs_ustopo;
 
-            } else {
-                return R.id.nav_local_list;
-            }
-        } else return R.id.nav_nearest9;
+        } else {
+            return R.id.nav_local_list;
+        }
     }
 
     private void setNavItemChecked(String table)
@@ -540,13 +515,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Menu navMenu = navView.getMenu();
             if (navMenu != null)
             {
-                MenuItem menuItem = navMenu.findItem(getNavItemForTable(table, flipper.getDisplayedChild()));
+                MenuItem menuItem = navMenu.findItem(getNavItemForTable(table));
                 if (menuItem != null) {
                     menuItem.setChecked(true);
                 }
             }
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Quad Item
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    private void showQuadItemDialog(Context context)
+    {
+        QuadItemDialog itemDialog = new QuadItemDialog();
+        itemDialog.setQuadItemDialogListener(onQuadItem);
+        itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_QUADITEM);
+    }
+
+    private void dismissQuadItemDialog()
+    {
+        QuadItemDialog dialog = (QuadItemDialog) getSupportFragmentManager().findFragmentByTag(TAG_DIALOG_QUADITEM);
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
+    private void restoreQuadItemDialog(FragmentManager fragments)
+    {
+        QuadItemDialog dialog = (QuadItemDialog) fragments.findFragmentByTag(TAG_DIALOG_QUADITEM);
+        if (dialog != null) {
+            dialog.setQuadItemDialogListener(onQuadItem);
+        }
+    }
+
+    private QuadItemDialog.QuadItemDialogListener onQuadItem = new QuadItemDialog.QuadItemDialogListener()
+    {
+        @Override
+        public void onViewItem(ContentValues values, String[] urls)
+        {
+            openMapURL(urls);
+        }
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Map Item
@@ -588,29 +598,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onNearbyItem(ContentValues values)
         {
-            initGridAdapter(MainActivity.this);  // TODO: nearby from values
-            dismissMapItemDialog();
+            showQuadItemDialog(MainActivity.this);  // TODO: from values
         }
 
         @Override
         public void onViewItem(ContentValues values, String[] urls)
         {
-            if (currentTable.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
-            {
-                String url = urls[0];
-                if (url != null && url.endsWith(DatabaseScanTask.EXT_GEOPDF))
-                {
-                    Uri uri = Uri.fromFile(new File(urls[0]));
-                    openGeoPDF(uri);
+            openMapURL(urls);
+        }
+    };
 
-                } else {
-                    Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
-                }
+    private void openMapURL(String[] urls)
+    {
+        if (currentTable.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
+        {
+            String url = urls[0];
+            if (url != null && url.endsWith(DatabaseScanTask.EXT_GEOPDF))
+            {
+                Uri uri = Uri.fromFile(new File(urls[0]));
+                openGeoPDF(uri);
+
             } else {
                 Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
             }
+        } else {
+            Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
         }
-    };
+    }
 
     private void openGeoPDF(Uri uri)
     {
