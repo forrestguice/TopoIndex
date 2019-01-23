@@ -32,15 +32,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.forrestguice.topoindex.R;
+import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
 public class QuadItemDialog extends BottomSheetDialogFragment
 {
     public static final String TAG = "TopoIndexItem";
 
-    private TextView[] textViews = new TextView[9];
+    public static final String KEY_CONTENTVALUES = "contentvalues";
+
+    public static final int GRID_NORTHWEST = 0;
+    public static final int GRID_NORTH = 1;
+    public static final int GRID_NORTHEAST = 2;
+    public static final int GRID_WEST = 3;
+    public static final int GRID_CENTER = 4;
+    public static final int GRID_EAST = 5;
+    public static final int GRID_SOUTHWEST = 6;
+    public static final int GRID_SOUTH = 7;
+    public static final int GRID_SOUTHEAST = 8;
+
+    private TextView[] gridTitles = new TextView[9];
+    private TextView[] gridLines = new TextView[4];
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -81,13 +94,13 @@ public class QuadItemDialog extends BottomSheetDialogFragment
 
     private void restoreFromState(Bundle state)
     {
-        // TODO
+        contentValues = (ContentValues[])state.getParcelableArray(KEY_CONTENTVALUES);
     }
 
     @Override
     public void onSaveInstanceState( @NonNull Bundle state )
     {
-        // TODO
+        state.putParcelableArray(KEY_CONTENTVALUES, contentValues);
         super.onSaveInstanceState(state);
     }
 
@@ -96,27 +109,68 @@ public class QuadItemDialog extends BottomSheetDialogFragment
         int[] gridIDs = new int[] { R.id.grid1, R.id.grid2, R.id.grid3, R.id.grid4, R.id.grid5, R.id.grid6, R.id.grid7, R.id.grid8, R.id.grid9 };
         for (int i=0; i<gridIDs.length; i++)
         {
-            final int j = (i+1);
+            final int j = i;
             View grid = dialogContent.findViewById(gridIDs[i]);
             grid.setOnClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(View view)
                 {
-                    // TODO
-                    Toast.makeText(getActivity(), j + "", Toast.LENGTH_SHORT).show();
+                    if (dialogListener != null && contentValues[j] != null)
+                    {
+                        if (j == GRID_CENTER)
+                            dialogListener.onViewItem(contentValues[j]);
+                        else dialogListener.onBrowseItem(contentValues[j]);
+                    }
                 }
             });
 
-            textViews[i] = (TextView)grid.findViewById(R.id.mapItem_name);
+            gridTitles[i] = (TextView)grid.findViewById(R.id.mapItem_name);
+        }
+
+        int[] gridLineIDs = new int[] { R.id.guide1_label, R.id.guide2_label, R.id.guide3_label, R.id.guide4_label };
+        for (int i=0; i<gridLineIDs.length; i++) {
+            gridLines[i] = dialogContent.findViewById(gridLineIDs[i]);
         }
     }
 
     private void updateViews(Context context)
     {
-        for (int i=0; i<textViews.length; i++)
+        if (contentValues != null)
         {
-            textViews[i].setText((i+1) + "");
+            for (int i = 0; i < gridTitles.length; i++)
+            {
+                gridTitles[i].setText( (contentValues[i] != null) ? contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME) : "");
+            }
+
+            if (contentValues[GRID_CENTER] != null)
+            {
+                gridLines[0].setText(contentValues[GRID_CENTER].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST));
+                gridLines[1].setText(contentValues[GRID_CENTER].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST));
+                gridLines[2].setText(contentValues[GRID_CENTER].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH));
+                gridLines[3].setText(contentValues[GRID_CENTER].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH));
+
+            } else {
+                for (int i = 0; i < gridLines.length; i++) {
+                    gridLines[i].setText("");
+                }
+            }
+
+        } else {
+            for (int i = 0; i < gridTitles.length; i++) {
+                gridTitles[i].setText("");
+            }
+            for (int i = 0; i < gridLines.length; i++) {
+                gridLines[i].setText("");
+            }
+        }
+    }
+
+    private ContentValues[] contentValues;
+    public void setContentValues( ContentValues[] values )
+    {
+        if (values.length == 9) {
+            this.contentValues = values;
         }
     }
 
@@ -132,6 +186,7 @@ public class QuadItemDialog extends BottomSheetDialogFragment
     public static abstract class QuadItemDialogListener
     {
         public void onViewItem(ContentValues values) {}
+        public void onBrowseItem(ContentValues values) {}
     }
 
 }

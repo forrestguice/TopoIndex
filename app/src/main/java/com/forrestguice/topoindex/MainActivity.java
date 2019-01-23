@@ -472,10 +472,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id)
         {
-            case R.id.nav_nearest9:
-                showQuadItemDialog(MainActivity.this);
-                break;
-
             case R.id.nav_local_list:
                 initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS);
                 break;
@@ -526,9 +522,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Quad Item
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    private void showQuadItemDialog(Context context)
+    private void showQuadItemDialog(Context context, ContentValues[] values)
     {
         QuadItemDialog itemDialog = new QuadItemDialog();
+        itemDialog.setContentValues(values);
         itemDialog.setQuadItemDialogListener(onQuadItem);
         itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_QUADITEM);
     }
@@ -598,7 +595,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onNearbyItem(ContentValues values)
         {
-            showQuadItemDialog(MainActivity.this);  // TODO: from values
+            showQuadItemDialog(MainActivity.this, new ContentValues[] {null, null, null, null, values, null, null, null, null});  // TODO: load values
         }
 
         @Override
