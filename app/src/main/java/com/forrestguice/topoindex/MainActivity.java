@@ -552,9 +552,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private QuadItemDialog.QuadItemDialogListener onQuadItem = new QuadItemDialog.QuadItemDialogListener()
     {
         @Override
-        public void onViewItem(ContentValues values, String[] urls)
+        public void onViewItem(ContentValues values)
         {
-            openMapURL(urls);
+            openMapURL(TopoIndexDatabaseAdapter.getUrls(values));
         }
     };
 
@@ -602,9 +602,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public void onViewItem(ContentValues values, String[] urls)
+        public void onViewItem(ContentValues values)
         {
-            openMapURL(urls);
+            openMapURL(TopoIndexDatabaseAdapter.getUrls(values));
         }
     };
 

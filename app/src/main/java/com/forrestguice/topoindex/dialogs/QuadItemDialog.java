@@ -131,7 +131,7 @@ public class QuadItemDialog extends BottomSheetDialogFragment
      */
     public static abstract class QuadItemDialogListener
     {
-        public void onViewItem(ContentValues values, String[] urls) {}
+        public void onViewItem(ContentValues values) {}
     }
 
 }

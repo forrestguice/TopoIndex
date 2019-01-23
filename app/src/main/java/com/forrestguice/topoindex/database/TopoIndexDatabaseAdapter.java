@@ -427,6 +427,11 @@ public class TopoIndexDatabaseAdapter
         values.put(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, fields[54].replaceAll("\"",""));
     }
 
+    public static String[] getUrls(ContentValues values)
+    {
+        return new String[] { values.getAsString(KEY_MAP_URL), values.getAsString(KEY_MAP_URL1), values.getAsString(KEY_MAP_URL2) };
+    }
+
     /**
      * Clear Maps
      */
