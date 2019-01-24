@@ -176,7 +176,7 @@ public class DatabaseScanTask extends DatabaseTask
                 String gdaItemID = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
                 if (gdaItemID != null && !gdaItemID.isEmpty())
                 {
-                    Cursor cursor = database.getMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO,gdaItemID, true);
+                    Cursor cursor = database.getMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO,gdaItemID, true);
                     updateValuesFromDB(values, cursor, gdaItemID);
 
                 } else Log.w(TAG, "updateValuesFromDB: missing GDA Item ID; skipping");
@@ -196,7 +196,7 @@ public class DatabaseScanTask extends DatabaseTask
                 String scanID = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
                 if (scanID != null && !scanID.isEmpty())
                 {
-                    Cursor cursor = database.getMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC, scanID, true);
+                    Cursor cursor = database.getMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, scanID, true);
                     updateValuesFromDB(values, cursor, scanID);
 
                 } else Log.w(TAG, "updateValuesFromDB: missing Scan ID; skipping");

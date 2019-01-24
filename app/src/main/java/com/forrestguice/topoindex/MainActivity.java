@@ -33,7 +33,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -41,11 +40,14 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.LayoutInflater;
+
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -57,9 +59,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+
 import android.widget.Toast;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
@@ -72,10 +73,10 @@ import com.forrestguice.topoindex.dialogs.AboutDialog;
 import com.forrestguice.topoindex.dialogs.FilterDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
 import com.forrestguice.topoindex.dialogs.MapItemDialog;
-import com.forrestguice.topoindex.dialogs.QuadItemDialog;
+import com.forrestguice.topoindex.fragments.ListViewFragment;
+import com.forrestguice.topoindex.fragments.QuadViewFragment;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
@@ -84,19 +85,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_FILTERS = "filters";
     public static final String TAG_DIALOG_MAPITEM = "mapitem";
-    public static final String TAG_DIALOG_QUADITEM = "quaditem";
     public static final String TAG_DIALOG_ABOUT = "about";
 
-    public static final String KEY_TABLE_CURRENT = "currentTable";
-
     private Toolbar toolbar;
-    private ListView listView;
-    private ProgressBar progressBar;
+
+    private ViewPager pager;
+    private TopoIndexPagerAdapter pagerAdapter;
+
     private Snackbar progressSnackbar;
     private ProgressBar progressSnackbarProgress;
-    private String currentTable = TopoIndexDatabaseAdapter.TABLE_MAPS;
-
-    private TextView listCount;
 
     private FloatingActionButton fabFilters, fabFiltersClear;
     private FloatingActionButton[] fabs = new FloatingActionButton[0];
@@ -108,10 +105,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         initViews(this);
         initLocation(this);
-
-        if (savedState != null) {
-            currentTable = savedState.getString(KEY_TABLE_CURRENT, currentTable);
-        }
     }
 
     @Override
@@ -124,13 +117,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         restoreLocationDialog(fragments);
         restoreFilterDialog(fragments);
         restoreMapItemDialog(fragments);
-        restoreQuadItemDialog(fragments);
     }
 
     @Override
     protected void onSaveInstanceState( Bundle outState)
     {
-        outState.putString(KEY_TABLE_CURRENT, currentTable);
         super.onSaveInstanceState(outState);
     }
 
@@ -146,15 +137,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        listView = (ListView) findViewById(R.id.list_maps);
-        listCount = (TextView) findViewById(R.id.text_resultcount);
-        View emptyView = findViewById(R.id.list_maps_empty);
-        if (emptyView != null) {
-            listView.setEmptyView(emptyView);
-        }
+        pager = (ViewPager) findViewById(R.id.pager);
+        pagerAdapter = new TopoIndexPagerAdapter(getSupportFragmentManager());
+        pager.setAdapter(pagerAdapter);
 
-        progressBar = (ProgressBar) findViewById(R.id.progress_list_maps);
-        progressSnackbar = Snackbar.make(listView, getString(R.string.database_update_progress, ""), Snackbar.LENGTH_INDEFINITE);
+        progressSnackbar = Snackbar.make(pager, getString(R.string.database_update_progress, ""), Snackbar.LENGTH_INDEFINITE);
 
         ViewGroup snackbarContent = (ViewGroup) progressSnackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         if (snackbarContent != null) {
@@ -176,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view)
             {
-                clearFilters();
+                clearFilters(MainActivity.this);
                 fabFiltersClear.hide();
             }
         });
@@ -224,152 +211,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         }, 350);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Lists
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private void initListAdapter(Context context, final String table)
-    {
-        initListAdapter(context, table, false);
-    }
-    private void initListAdapter(Context context, final String table, boolean updateNavMenu)
-    {
-        initEmptyView(context, table);
-        initListTitle(context, table);
-        initListClick(context, table);
-        updateViews();
-
-        ListAdapterTask task = new ListAdapterTask();
-        task.execute(table);
-
-        if (updateNavMenu) {
-            setNavItemChecked(table);
-        }
-    }
-
-    private void initListClick(final Context context, final String table)
-    {
-        if (listView != null)
-        {
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-            {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int position, long rowID)
-                {
-                    showMapItemDialog(context, adapterView, position);
-                }
-            });
-        }
-    }
-
-    private void initListTitle(Context context, String table)
-    {
-        TextView listTitle = findViewById(R.id.title_maps);
-        if (listTitle != null)
-        {
-            if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC))
-                listTitle.setText(getString(R.string.nav_item_usgs_htmc));
-            else if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO))
-                listTitle.setText(getString(R.string.nav_item_usgs_ustopo));
-            else listTitle.setText(getString(R.string.nav_item_locallist));
-        }
-    }
-
-    private void initEmptyView(Context context, final String table)
-    {
-        TextView emptyListTitle = findViewById(R.id.list_maps_empty_title);
-        if (emptyListTitle != null)
-        {
-            if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
-                emptyListTitle.setText(getString(R.string.list_empty_maps));
-            else emptyListTitle.setText(getString(R.string.list_empty_index));
-        }
-
-        final TextView emptyListMessage0 = findViewById(R.id.list_maps_empty_message);
-        if (emptyListMessage0 != null)
-        {
-            if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS)) {
-                emptyListMessage0.setText(AboutDialog.fromHtml(getString(R.string.list_empty_message_scan)));
-            } else {
-                emptyListMessage0.setText(AboutDialog.fromHtml(getString(R.string.list_empty_message_update)));
-            }
-
-            emptyListMessage0.setVisibility(database.hasMaps(table) ? View.GONE : View.VISIBLE);
-            emptyListMessage0.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
-                {
-                    if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
-                        scanCollection();
-                    else initDatabase();
-                }
-            });
-        }
-
-        final TextView emptyListMessage1 = findViewById(R.id.list_maps_empty_message1);
-        if (emptyListMessage1 != null)
-        {
-            emptyListMessage1.setVisibility(AppSettings.hasNoFilters(MainActivity.this) ? View.GONE : View.VISIBLE);
-            emptyListMessage1.setText(AboutDialog.fromHtml(getString(R.string.list_empty_message_clear)));
-            emptyListMessage1.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view) {
-                    clearFilters();
-                }
-            });
-        }
-    }
-
-    private TopoIndexDatabaseCursorAdapter adapter;
-    private Cursor adapterCursor;
-    private class ListAdapterTask extends AsyncTask<String, Void, Cursor>
-    {
-        private String table;
-
-        @Override
-        protected void onPreExecute()
-        {
-            progressBar.setVisibility(View.VISIBLE);
-            listCount.setText("");
-        }
-
-        @Override
-        protected Cursor doInBackground(String... tables)
-        {
-            if (tables.length > 0 && tables[0] != null)
-            {
-                table = tables[0];
-                return database.getMaps(table, 0, false, AppSettings.getFilters(MainActivity.this));
-
-            } else {
-                table = TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC;
-                return database.getMaps_HTMC(0, false);
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Cursor cursor)
-        {
-            progressBar.setVisibility(View.GONE);
-
-            if (adapterCursor != null) {
-                adapterCursor.close();
-            }
-            adapterCursor = cursor;
-
-            adapter = new TopoIndexDatabaseCursorAdapter(MainActivity.this, cursor);
-            listCount.setText( new DecimalFormat("#,###,###").format(adapter.getCount()) );
-
-            currentTable = table;
-            if (listView != null) {
-                listView.setAdapter(adapter);
-            }
-            showFabs(false);
-        }
     }
 
     private void updateViews()
@@ -477,11 +318,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_index_usgs_htmc:
-                initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC);
+                initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC);
                 break;
 
             case R.id.nav_index_usgs_ustopo:
-                initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_USTOPO);
+                initListAdapter(this, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO);
                 break;
         }
 
@@ -492,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private int getNavItemForTable(String table)
     {
-        if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USGS_HTMC)) {
+        if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC)) {
             return R.id.nav_index_usgs_htmc;
 
         } else if (table.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO)) {
@@ -518,42 +359,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Quad Item
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    private void showQuadItemDialog(Context context, ContentValues[] values)
-    {
-        QuadItemDialog itemDialog = new QuadItemDialog();
-        itemDialog.setContentValues(values);
-        itemDialog.setQuadItemDialogListener(onQuadItem);
-        itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_QUADITEM);
-    }
-
-    private void dismissQuadItemDialog()
-    {
-        QuadItemDialog dialog = (QuadItemDialog) getSupportFragmentManager().findFragmentByTag(TAG_DIALOG_QUADITEM);
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-    }
-
-    private void restoreQuadItemDialog(FragmentManager fragments)
-    {
-        QuadItemDialog dialog = (QuadItemDialog) fragments.findFragmentByTag(TAG_DIALOG_QUADITEM);
-        if (dialog != null) {
-            dialog.setQuadItemDialogListener(onQuadItem);
-        }
-    }
-
-    private QuadItemDialog.QuadItemDialogListener onQuadItem = new QuadItemDialog.QuadItemDialogListener()
-    {
-        @Override
-        public void onViewItem(ContentValues values)
-        {
-            openMapURL(TopoIndexDatabaseAdapter.getUrls(values));
-        }
-    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Map Item
@@ -595,17 +400,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onNearbyItem(ContentValues values)
         {
-            showQuadItemDialog(MainActivity.this, new ContentValues[] {null, null, null, null, values, null, null, null, null});  // TODO: load values
+            ContentValues[] nearbyMaps = database.findNearbyMaps(values, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
+            pagerAdapter.quadFragment.updateViews(MainActivity.this);
+            pager.setCurrentItem(1);
         }
 
         @Override
         public void onViewItem(ContentValues values)
         {
-            openMapURL(TopoIndexDatabaseAdapter.getUrls(values));
+            String currentTabl = TopoIndexDatabaseAdapter.TABLE_MAPS;  // TODO
+            openMapURL(currentTabl, TopoIndexDatabaseAdapter.getUrls(values));
         }
     };
 
-    private void openMapURL(String[] urls)
+    private void openMapURL(String currentTable, String[] urls)
     {
         if (currentTable.equals(TopoIndexDatabaseAdapter.TABLE_MAPS))
         {
@@ -654,14 +463,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void clearFilters()
-    {
-        AppSettings.setFilter_byName(MainActivity.this, "");
-        AppSettings.setFilter_byState(MainActivity.this, new String[0]);
-        AppSettings.setFilter_byScale(MainActivity.this, TopoIndexDatabaseAdapter.MapScale.SCALE_ANY.getValue());
-        initListAdapter(MainActivity.this, currentTable, false);
-    }
-
     FilterDialog.FilterDialogListener onFilterChanged = new FilterDialog.FilterDialogListener()
     {
         public void onFilterChanged( FilterDialog dialog, String filterName )
@@ -670,20 +471,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_name());
                 AppSettings.setFilter_byName(MainActivity.this, dialog.getFilter_name());
-                initListAdapter(MainActivity.this, currentTable, false);
+                initListAdapter(MainActivity.this, null, false);
 
             } else if (filterName.equals(FilterDialog.FILTER_STATE)) {
                 Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_stateDisplay());
                 AppSettings.setFilter_byState(MainActivity.this, dialog.getFilter_state());
-                initListAdapter(MainActivity.this, currentTable, false);
+                initListAdapter(MainActivity.this, null, false);
 
             } else if (filterName.equals(FilterDialog.FILTER_SCALE)) {
                 Log.d(TAG, "onFilterChanged: " + filterName + ": " + dialog.getFilter_scale());
                 AppSettings.setFilter_byScale(MainActivity.this, dialog.getFilter_scale());
-                initListAdapter(MainActivity.this, currentTable, false);
+                initListAdapter(MainActivity.this, null, false);
             }
         }
     };
+
+    public void clearFilters(Context context)
+    {
+        AppSettings.setFilter_byName(context, "");
+        AppSettings.setFilter_byState(context, new String[0]);
+        AppSettings.setFilter_byScale(context, TopoIndexDatabaseAdapter.MapScale.SCALE_ANY.getValue());
+        initListAdapter(context, null);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Location
@@ -949,7 +758,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void onFinished(DatabaseTaskResult result)
         {
             progressSnackbar.dismiss();
-            initListAdapter(MainActivity.this, currentTable, true);
+            initListAdapter(MainActivity.this, null, true);
         }
     };
 
@@ -970,7 +779,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         database = new TopoIndexDatabaseAdapter(MainActivity.this);
         database.open();
-        initListAdapter(this, currentTable, true);
     }
 
     @Override
@@ -982,11 +790,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         unbindService(databaseServiceConnection);
         boundToService = false;
 
-        if (database != null)
-        {
-            if (adapterCursor != null) {
-                adapterCursor.close();
-            }
+        if (database != null) {
             database.close();
         }
     }
@@ -1055,51 +859,106 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public class TopoIndexDatabaseCursorAdapter extends CursorAdapter
+    private class TopoIndexPagerAdapter extends FragmentPagerAdapter
     {
-        private LayoutInflater layoutInflater = null;
+        protected ListViewFragment listFragment = null;   // 0
+        protected QuadViewFragment quadFragment = null;   // 1
 
-        public TopoIndexDatabaseCursorAdapter(Context context, Cursor c)
+        public TopoIndexPagerAdapter(FragmentManager fragments)
         {
-            super(context, c);
+            super(fragments);
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup viewGroup)
+        public Fragment getItem(int position)
         {
-            if (layoutInflater == null) {
-                layoutInflater = LayoutInflater.from(context);
+            Bundle args = new Bundle();
+            switch (position)
+            {
+                case 1:
+                    if (quadFragment == null) {
+                        quadFragment = new QuadViewFragment();
+                        quadFragment.setQuadViewFragmentListener(quadFragmentListener);
+                        quadFragment.setArguments(args);
+                    }
+                    return quadFragment;
+
+                case 0:
+                default:
+                    if (listFragment == null) {
+                        listFragment = new ListViewFragment();
+                        listFragment.setListViewFragmentListener(listFragmentListener);
+                        listFragment.setArguments(args);
+                    }
+                    return listFragment;
             }
-            return layoutInflater.inflate(R.layout.map_list_item0, viewGroup, false);
+
         }
 
         @Override
-        public void bindView(View view, Context context, Cursor cursor)
+        public int getCount()
         {
-            TextView itemName = (TextView)view.findViewById(android.R.id.text1);
-            itemName.setText(cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_NAME)));
+            return 2;
+        }
+    }
 
-            TextView itemScale = (TextView)view.findViewById(R.id.mapItem_scale);
-            setText(itemScale, TopoIndexDatabaseAdapter.KEY_MAP_SCALE, cursor);
-
-            TextView itemState = (TextView)view.findViewById(R.id.mapItem_state);
-            setText(itemState, TopoIndexDatabaseAdapter.KEY_MAP_STATE, cursor);
-
-            TextView itemDate = (TextView)view.findViewById(R.id.mapItem_date);
-            setText(itemDate, TopoIndexDatabaseAdapter.KEY_MAP_DATE, cursor);
-
-            TextView itemSeries = (TextView)view.findViewById(R.id.mapItem_series);
-            setText(itemSeries, TopoIndexDatabaseAdapter.KEY_MAP_SERIES, cursor);
+    private QuadViewFragment.QuadViewFragmentListener quadFragmentListener = new QuadViewFragment.QuadViewFragmentListener()
+    {
+        @Override
+        public void onViewItem(ContentValues values)
+        {
+            // TODO
         }
 
-        private void setText(TextView item, String columnName, Cursor cursor)
+        @Override
+        public void onBrowseItem(ContentValues values)
         {
-            if (item != null) {
-                int index = cursor.getColumnIndex(columnName);
-                if (index != -1) {
-                    item.setText(cursor.getString(index));
-                }
-            }
+            // TODO
+        }
+
+        @Override
+        public void onScanCollection() {
+            scanCollection();
+        }
+
+        @Override
+        public void onInitDatabase() {
+            initDatabase();
+        }
+    };
+
+    private ListViewFragment.ListViewFragmentListener listFragmentListener = new ListViewFragment.ListViewFragmentListener()
+    {
+        @Override
+        public void onListItemClick(AdapterView<?> adapterView, View view, int position, long rowID) {
+            showMapItemDialog(MainActivity.this, adapterView, position);
+        }
+
+        @Override
+        public void onClearFilters() {
+            clearFilters(MainActivity.this);
+        }
+
+        @Override
+        public void onScanCollection() {
+            scanCollection();
+        }
+
+        @Override
+        public void onInitDatabase() {
+            initDatabase();
+        }
+    };
+
+    protected void initListAdapter(Context context, String table)
+    {
+        initListAdapter(context, table, true);
+    }
+    protected void initListAdapter(Context context, String table, boolean updateNav)
+    {
+        if (pagerAdapter.listFragment != null)
+        {
+            pagerAdapter.listFragment.setCurrentTable(table);
         }
     }
 }

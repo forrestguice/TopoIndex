@@ -82,7 +82,7 @@
         android:padding="4dp" android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/guide1"
-        tools:text="-112.5" />
+        tools:text="-112.15" />
 
     <TextView
         android:id="@+id/guide2_label"
@@ -97,16 +97,16 @@
         android:id="@+id/guide3_label"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         style="@style/TextAppearance.AppCompat.Small"
-        android:padding="4dp" android:textSize="12sp"
+        android:padding="8dp" android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/guide3"
-        tools:text="35.5" />
+        tools:text="35.15" />
 
     <TextView
         android:id="@+id/guide4_label"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         style="@style/TextAppearance.AppCompat.Small"
-        android:padding="4dp" android:textSize="12sp"
+        android:padding="8dp" android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/guide4"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:text="35" />

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/title_maps_layout"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark">
+
+            <TextView
+                android:id="@+id/title_maps"
+                android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:textStyle="bold" android:textColor="?attr/listTitleTextColor"
+                android:paddingTop="6dp" android:paddingBottom="6dp" android:paddingStart="8dp" android:paddingEnd="8dp"
+                android:layout_gravity="center" android:elevation="5dp"
+                tools:text="List Title" />
+
+            <TextView
+                android:id="@+id/text_resultcount"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textStyle="bold" android:textColor="?attr/listTitleTextColor"
+                android:paddingTop="4dp" android:paddingBottom="4dp" android:paddingStart="8dp" android:paddingEnd="8dp"
+                tools:text="0" />
+
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/list_maps"
+            android:layout_width="match_parent" android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_list_maps"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone" android:elevation="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/guideline_hmid"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_hmid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent=".5"
+        android:orientation="horizontal" />
+
+    <LinearLayout
+        android:id="@+id/list_maps_empty"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="vertical" android:visibility="gone"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include layout="@layout/map_list_empty" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
