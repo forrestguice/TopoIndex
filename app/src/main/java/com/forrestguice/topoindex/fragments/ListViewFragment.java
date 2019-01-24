@@ -224,10 +224,12 @@ public class ListViewFragment extends TopoIndexFragment
     /**
      * ListViewFragmentListener
      */
-    public static abstract class ListViewFragmentListener extends TopoIndexFragmentListener
+    public static abstract class ListViewFragmentListener
     {
         public void onListItemClick(AdapterView<?> adapterView, View view, int position, long rowID) {}
         public void onClearFilters() {}
+        public void onScanCollection() {}
+        public void onInitDatabase() {}
     }
 
     private ListViewFragmentListener fragmentListener;
