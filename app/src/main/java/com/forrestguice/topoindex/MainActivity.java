@@ -75,9 +75,11 @@ import com.forrestguice.topoindex.dialogs.LocationDialog;
 import com.forrestguice.topoindex.dialogs.MapItemDialog;
 import com.forrestguice.topoindex.fragments.ListViewFragment;
 import com.forrestguice.topoindex.fragments.QuadViewFragment;
+import com.forrestguice.topoindex.fragments.TopoIndexFragment;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -870,28 +872,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
+        public Object instantiateItem(ViewGroup container, int position)
+        {
+            TopoIndexFragment fragment = (TopoIndexFragment) super.instantiateItem(container, position);
+            if (position == 1) {
+                quadFragment = (QuadViewFragment) fragment;
+                quadFragment.setQuadViewFragmentListener(quadFragmentListener);
+
+            } else {
+                listFragment = (ListViewFragment) fragment;
+                listFragment.setListViewFragmentListener(listFragmentListener);
+            }
+            return fragment;
+        }
+
+        @Override
         public Fragment getItem(int position)
         {
+            TopoIndexFragment fragment;
             Bundle args = new Bundle();
             switch (position)
             {
                 case 1:
-                    if (quadFragment == null) {
-                        quadFragment = new QuadViewFragment();
-                        quadFragment.setQuadViewFragmentListener(quadFragmentListener);
-                        quadFragment.setArguments(args);
-                    }
-                    return quadFragment;
+                    fragment = new QuadViewFragment();
+                    break;
 
                 case 0:
                 default:
-                    if (listFragment == null) {
-                        listFragment = new ListViewFragment();
-                        listFragment.setListViewFragmentListener(listFragmentListener);
-                        listFragment.setArguments(args);
-                    }
-                    return listFragment;
+                    fragment = new ListViewFragment();
+                    break;
             }
+            fragment.setArguments(args);
+            return fragment;
 
         }
 
@@ -956,9 +968,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     protected void initListAdapter(Context context, String table, boolean updateNav)
     {
-        if (pagerAdapter.listFragment != null)
-        {
+        if (pagerAdapter.listFragment != null) {
             pagerAdapter.listFragment.setCurrentTable(table);
-        }
+        } else Log.w(TAG, "initListAdapter: List Fragment is null!");
     }
 }
