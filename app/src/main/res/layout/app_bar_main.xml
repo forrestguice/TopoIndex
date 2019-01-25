@@ -22,23 +22,4 @@
 
     <include layout="@layout/content_main" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_filters"
-        app:srcCompat="@drawable/ic_search_white_24dp"
-        android:contentDescription="@string/action_filters"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:useCompatPadding="true" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_filters_clear"
-        app:srcCompat="@drawable/ic_backspace_white_24dp"
-        android:contentDescription="@string/action_filters"
-        android:visibility="gone"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        app:layout_anchor="@+id/fab_filters"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="82dp" android:layout_marginRight="82dp"/>
-
 </android.support.design.widget.CoordinatorLayout>
