@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -56,6 +57,8 @@ import java.util.List;
 public class SettingsActivity extends AppCompatPreferenceActivity
 {
     public static final String TAG = "TopoIndexSettings";
+
+    public static final int REQUEST_UPDATEURI= 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -237,6 +240,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         };
 
         @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            super.onActivityResult(requestCode, resultCode, data);
+            switch (requestCode)
+            {
+                case REQUEST_UPDATEURI:
+                    showUpdateConfirmDialog(data.getData());
+                    break;
+            }
+        }
+
+        @Override
         public void onStart()
         {
             super.onStart();
@@ -277,31 +292,68 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                     @Override
                     public boolean onPreferenceClick(Preference preference)
                     {
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-                        dialog.setTitle(getString(R.string.database_update_confirm_title));
-                        dialog.setMessage(getString(R.string.database_update_confirm_message));
-
-                        dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i)
-                            {
-                                if (databaseService != null) {
-                                    databaseService.runDatabaseInitTask(getActivity(), null, null, null);
-                                }
-                            }
-                        });
-                        dialog.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                /* EMPTY */
-                            }
-                        });
-
-                        dialog.show();
+                        showUpdateChoiceDialog();
                         return false;
                     }
                 });
             }
+        }
+
+        private void showUpdateConfirmDialog(final Uri uri)
+        {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            dialog.setTitle(getString(R.string.database_update_confirm_title));
+            dialog.setMessage(getString(R.string.database_update_confirm_message));
+            dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (databaseService != null) {
+                        databaseService.runDatabaseInitTask(getActivity(), null, uri, null);
+                    }
+                }
+            });
+            dialog.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    /* EMPTY */
+                }
+            });
+            dialog.show();
+        }
+
+        private int selectedUpdateOption = 0;
+        private void showUpdateChoiceDialog()
+        {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            String[] updateChoices = new String[] { getString(R.string.action_update_from_assets), getString(R.string.action_update_from_file) };
+            dialog.setSingleChoiceItems(updateChoices, selectedUpdateOption, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    selectedUpdateOption = i;
+                }
+            });
+            dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i)
+                {
+                    if (selectedUpdateOption == 1)
+                    {
+                        Intent intent = new Intent((Build.VERSION.SDK_INT >= 19 ? Intent.ACTION_OPEN_DOCUMENT : Intent.ACTION_GET_CONTENT));
+                        intent.setType("application/zip");
+                        startActivityForResult(intent, REQUEST_UPDATEURI);
+
+                    } else {
+                        showUpdateConfirmDialog(null);
+                    }
+                }
+            });
+            dialog.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    /* EMPTY */
+                }
+            });
+            dialog.show();
         }
 
         private void updateDateFields()
