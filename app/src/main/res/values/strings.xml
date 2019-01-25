@@ -54,7 +54,8 @@
     <string name="action_about">About</string>
     <string name="action_help">Help</string>
     <string name="action_scan">Scan Files</string>
-    <string name="action_view">View Map</string>
+    <string name="action_view">View</string>
+    <string name="action_download">Download</string>
     <string name="action_nearby">Nearby</string>
     <string name="action_filters">Filters</string>
     <string name="action_clear_filter">Clear Filter</string>
