@@ -131,7 +131,8 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_HTMC + "0" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_EAST + ");",
             "create index " + INDEX_MAPS_HTMC + "1" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_WEST + ");",
             "create index " + INDEX_MAPS_HTMC + "2" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
-            "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ");"
+            "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ");",
+            "create index " + INDEX_MAPS_HTMC + "4" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCANID + ");"
     };
 
     /**
@@ -146,7 +147,8 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_USTOPO + "0" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_EAST + ");",
             "create index " + INDEX_MAPS_USTOPO + "1" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_WEST + ");",
             "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
-            "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ");"
+            "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ");",
+            "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_GDAITEMID + ");"
     };
 
     /**
