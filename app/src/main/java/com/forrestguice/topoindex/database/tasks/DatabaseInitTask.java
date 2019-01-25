@@ -112,13 +112,16 @@ public class DatabaseInitTask extends DatabaseTask
                         String[] entry;
                         DatabaseTaskProgress progressObj = new DatabaseTaskProgress("", 0, n);
 
+                        String val_htmc = "\"" + TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC + "\"";
+                        String val_ustopo = "\"" + TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO + "\"";
+
                         while ((line = reader.readLine()) != null)
                         {
                             entry = line.split(",");
                             if (entry.length == columns.length)
                             {
                                 series = entry[0];
-                                if (series.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC))
+                                if (series.equals(val_htmc))
                                 {
                                     ContentValues values = new ContentValues();
                                     TopoIndexDatabaseAdapter.toContentValues(values, entry);
@@ -132,7 +135,7 @@ public class DatabaseInitTask extends DatabaseTask
                                     }
                                     c++;
 
-                                } else if (series.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO)) {
+                                } else if (series.equals(val_ustopo)) {
                                     ContentValues values = new ContentValues();
                                     TopoIndexDatabaseAdapter.toContentValues(values, entry);
                                     ustopoValues.add(values);
