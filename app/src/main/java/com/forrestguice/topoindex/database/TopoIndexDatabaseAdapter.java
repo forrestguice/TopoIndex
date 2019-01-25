@@ -565,55 +565,6 @@ public class TopoIndexDatabaseAdapter
     }
 
     /**
-     * Clear Maps
-     */
-
-    public boolean clearMaps(String... tables)
-    {
-        if (tables.length > 0)
-        {
-            database.beginTransactionNonExclusive();
-            deleteMaps(database, tables);
-            createTables(database, tables);
-            database.endTransaction();
-            return true;
-
-        } else return false;
-    }
-
-    private static void deleteMaps(SQLiteDatabase database, String... tables)
-    {
-        for (int i=0; i<tables.length; i++) {
-            database.execSQL("DROP TABLE IF EXISTS " + tables[i] + ";");
-        }
-    }
-
-    private static void createTables(SQLiteDatabase database, String... tables)
-    {
-        for (int i=0; i<tables.length; i++)
-        {
-            if (tables[i].equals(TABLE_MAPS_HTMC)) {
-                database.execSQL(TABLE_MAPS_HTMC_CREATE);
-                for (String createIndexStatement : INDEX_MAPS_HTMC_CREATE) {
-                    database.execSQL(createIndexStatement);
-                }
-
-            } else if (tables[i].equals(TABLE_MAPS_USTOPO)) {
-                database.execSQL(TABLE_MAPS_USTOPO_CREATE);
-                for (String createIndexStatement : INDEX_MAPS_USTOPO_CREATE) {
-                    database.execSQL(createIndexStatement);
-                }
-
-            } else if (tables[i].equals(TABLE_MAPS)) {
-                database.execSQL(TABLE_MAPS_CREATE);
-                for (String createIndexStatement : INDEX_MAPS_CREATE) {
-                    database.execSQL(createIndexStatement);
-                }
-            }
-        }
-    }
-
-    /**
      * DatabaseHelper
      */
     private static class DatabaseHelper extends SQLiteOpenHelper
@@ -631,9 +582,20 @@ public class TopoIndexDatabaseAdapter
                 //noinspection ConstantConditions
                 case 0:
                 default:
-                    db.beginTransaction();
-                    createTables(db, INDEX_MAPS, INDEX_MAPS_HTMC, INDEX_MAPS_USTOPO);
-                    db.endTransaction();
+                    db.execSQL(TABLE_MAPS_CREATE);
+                    for (String createIndexStatement : INDEX_MAPS_CREATE) {
+                        db.execSQL(createIndexStatement);
+                    }
+
+                    db.execSQL(TABLE_MAPS_USTOPO_CREATE);
+                    for (String createIndexStatement : INDEX_MAPS_USTOPO_CREATE) {
+                        db.execSQL(createIndexStatement);
+                    }
+
+                    db.execSQL(TABLE_MAPS_HTMC_CREATE);
+                    for (String createIndexStatement : INDEX_MAPS_HTMC_CREATE) {
+                        db.execSQL(createIndexStatement);
+                    }
                     break;
             }
         }
