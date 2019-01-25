@@ -302,6 +302,11 @@ public class FilterDialog extends BottomSheetDialogFragment
 
     public String getFilter_stateDisplay()
     {
+        return getStateDisplay(filterStates, getString(R.string.filter_label_none));
+    }
+
+    public static String getStateDisplay(String[] filterStates, String stringNone )
+    {
         if (filterStates.length > 0)
         {
             StringBuilder statesDisplay = new StringBuilder();
@@ -315,7 +320,7 @@ public class FilterDialog extends BottomSheetDialogFragment
             return statesDisplay.toString();
 
         } else {
-            return getString(R.string.filter_label_none);
+            return stringNone;
         }
     }
 

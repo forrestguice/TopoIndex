@@ -22,26 +22,27 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
+import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.forrestguice.topoindex.AppSettings;
 
-import com.forrestguice.topoindex.MainActivity;
 import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 import com.forrestguice.topoindex.dialogs.AboutDialog;
-import com.forrestguice.topoindex.dialogs.MapItemDialog;
+import com.forrestguice.topoindex.dialogs.FilterDialog;
+import com.forrestguice.topoindex.dialogs.StatesDialog;
 
 import java.text.DecimalFormat;
 
@@ -51,9 +52,6 @@ import java.text.DecimalFormat;
 public class ListViewFragment extends TopoIndexFragment
 {
     public static final String TAG = "TopoIndexList";
-
-    public static final String TAG_DIALOG_MAPITEM = "mapitem";
-
     public static final String KEY_TABLE_CURRENT = "currentTable";
 
     protected ListView listView;
@@ -63,6 +61,11 @@ public class ListViewFragment extends TopoIndexFragment
     protected ProgressBar progressBar;
     protected TextView listCount, listTitle;
     protected TextView emptyListTitle, emptyListMessage0, emptyListMessage1;
+    protected TextView filterDesc, filterDescState, filterDescScale;
+    protected View filterDescLayout;
+
+    private FloatingActionButton fabFilters;
+    private FloatingActionButton[] fabs = new FloatingActionButton[0];
 
     private TopoIndexDatabaseAdapter database;
     private String currentTable = TopoIndexDatabaseAdapter.TABLE_MAPS;
@@ -108,8 +111,6 @@ public class ListViewFragment extends TopoIndexFragment
     public void onResume()
     {
         super.onResume();
-        FragmentManager fragments = getChildFragmentManager();
-        restoreMapItemDialog(fragments);
     }
 
     @Override
@@ -146,12 +147,45 @@ public class ListViewFragment extends TopoIndexFragment
         emptyListMessage0 = (TextView) content.findViewById(R.id.list_maps_empty_message);
         emptyListMessage1 = (TextView) content.findViewById(R.id.list_maps_empty_message1);
 
+        filterDesc = (TextView) content.findViewById(R.id.filterdesc_name);
+        filterDescState = (TextView) content.findViewById(R.id.filterdesc_states);
+        filterDescScale = (TextView) content.findViewById(R.id.filterdesc_scale);
+        filterDescLayout = content.findViewById(R.id.footer_maps_layout);
+
         View emptyView = content.findViewById(R.id.list_maps_empty);
         if (emptyView != null) {
             listView.setEmptyView(emptyView);
         }
 
         progressBar = (ProgressBar) content.findViewById(R.id.progress_list_maps);
+
+        fabFilters = (FloatingActionButton) content.findViewById(R.id.fab_filters);
+        fabFilters.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                if (fragmentListener != null) {
+                    fragmentListener.onShowFilters();
+                }
+            }
+        });
+
+        /**fabFiltersClear = (FloatingActionButton) content.findViewById(R.id.fab_filters_clear);
+        fabFiltersClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                boolean cleared = false;
+                if (fragmentListener != null) {
+                    cleared = fragmentListener.onClearFilters();
+                }
+                if (cleared) {
+                    fabFiltersClear.hide();
+                }
+            }
+        });*/
+
+        fabs = new FloatingActionButton[] { fabFilters };
     }
 
     private void initListAdapter(Context context, final String table)
@@ -159,6 +193,7 @@ public class ListViewFragment extends TopoIndexFragment
         initEmptyView(context, table);
         initListTitle(context, table);
         initListClick(context, table);
+        initListFooter(context, table);
 
         ListAdapterTask task = new ListAdapterTask();
         task.execute(table);
@@ -173,12 +208,8 @@ public class ListViewFragment extends TopoIndexFragment
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long rowID)
                 {
-                    boolean clickHandled = false;
                     if (fragmentListener != null) {
-                        clickHandled = fragmentListener.onListItemClick(adapterView, view, position, rowID);
-                    }
-                    if (!clickHandled) {
-                        showMapItemDialog(context, adapterView, position);
+                        fragmentListener.onListItemClick(adapterView, view, position, rowID);
                     }
                 }
             });
@@ -194,6 +225,33 @@ public class ListViewFragment extends TopoIndexFragment
             else if (table.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO))
                 listTitle.setText(getString(R.string.nav_item_usgs_ustopo));
             else listTitle.setText(getString(R.string.nav_item_locallist));
+        }
+    }
+
+    private void initListFooter(Context context, String table)
+    {
+        if (filterDescScale != null)
+        {
+            String filterByScale = AppSettings.getFilter_byScale(context);
+            filterDescScale.setText(filterByScale);
+            filterDescScale.setVisibility( filterByScale.isEmpty() ? View.GONE : View.VISIBLE );
+        }
+
+        if (filterDescState != null)
+        {
+            String[] filterByState = AppSettings.getFilter_byState(context);
+            filterDescState.setText(FilterDialog.getStateDisplay(filterByState, ""));
+            filterDescState.setVisibility( filterByState.length == 0 ? View.GONE : View.VISIBLE );
+        }
+
+        if (filterDesc != null)
+        {
+            String filterByName = AppSettings.getFilter_byName(context);
+            filterDesc.setText(filterByName);
+        }
+
+        if (filterDescLayout != null) {
+            filterDescLayout.setVisibility( AppSettings.hasNoFilters(context) ? View.GONE : View.VISIBLE );
         }
     }
 
@@ -255,9 +313,10 @@ public class ListViewFragment extends TopoIndexFragment
          */
         public boolean onListItemClick(AdapterView<?> adapterView, View view, int position, long rowID) { return false; }
 
-        public void onClearFilters() {}
+        public boolean onShowFilters() { return false; }
+        public boolean onClearFilters() { return false; }
         public void onNearbyItem( ContentValues item ) {}
-        public void onViewItem(ContentValues item) {}
+        public boolean onViewItem(ContentValues item) { return false; }
     }
 
     private ListViewFragmentListener fragmentListener;
@@ -265,61 +324,42 @@ public class ListViewFragment extends TopoIndexFragment
         fragmentListener = listener;
     }
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Map Item
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Floating Action Buttons
+    /////////////////////////////////////////////////////////////////////
 
-    private void showMapItemDialog(Context context, AdapterView<?> adapterView, int position)
+    public void showFabs(boolean withDelay)
     {
-        Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
-        if (cursor != null)
-        {
-            ContentValues contentValues = new ContentValues();
-            DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
-
-            MapItemDialog itemDialog = new MapItemDialog();
-            itemDialog.setContentValues( contentValues );
-            itemDialog.setMapItemDialogListener(onMapItem);
-            itemDialog.show(getChildFragmentManager(), TAG_DIALOG_MAPITEM);
-        }
-    }
-
-    private void dismissMapItemDialog()
-    {
-        MapItemDialog dialog = (MapItemDialog) getChildFragmentManager().findFragmentByTag(TAG_DIALOG_MAPITEM);
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-    }
-
-    private void restoreMapItemDialog(FragmentManager fragments)
-    {
-        MapItemDialog dialog = (MapItemDialog) fragments.findFragmentByTag(TAG_DIALOG_MAPITEM);
-        if (dialog != null) {
-            dialog.setMapItemDialogListener(onMapItem);
-        }
-    }
-
-    private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener()
-    {
-        @Override
-        public void onNearbyItem(ContentValues item)
-        {
-            if (fragmentListener != null) {
-                fragmentListener.onNearbyItem(item);
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                fabFilters.setEnabled(true);
+                if (!fabFilters.isShown()) {
+                    fabFilters.show();
+                }
             }
-            dismissMapItemDialog();
-        }
+        }, withDelay ? 750 : 0);
 
-        @Override
-        public void onViewItem(ContentValues item)
-        {
-            if (fragmentListener != null) {
-                fragmentListener.onViewItem(item);
+        /**new Handler().postDelayed(new Runnable() {
+            public void run() {
+                fabFiltersClear.setEnabled(true);
+                if (AppSettings.hasNoFilters(getActivity()))
+                    fabFiltersClear.hide();
+                else fabFiltersClear.show();
             }
-        }
-    };
+        }, withDelay ? 1250 : 0);*/
+    }
+
+    public void hideFabs()
+    {
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                for (FloatingActionButton fab : fabs) {
+                    fab.setEnabled(false);
+                    fab.hide();
+                }
+            }
+        }, 350);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////

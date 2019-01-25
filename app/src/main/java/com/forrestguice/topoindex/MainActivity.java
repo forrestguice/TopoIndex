@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TAG = "TopoIndexActivity";
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_FILTERS = "filters";
+    public static final String TAG_DIALOG_MAPITEM = "mapitem";
     public static final String TAG_DIALOG_ABOUT = "about";
 
     private Toolbar toolbar;
@@ -93,9 +94,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Snackbar progressSnackbar;
     private ProgressBar progressSnackbarProgress;
-
-    private FloatingActionButton fabFilters, fabFiltersClear;
-    private FloatingActionButton[] fabs = new FloatingActionButton[0];
 
     @Override
     protected void onCreate(Bundle savedState)
@@ -115,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fragments = getSupportFragmentManager();
         restoreLocationDialog(fragments);
         restoreFilterDialog(fragments);
+        restoreMapItemDialog(fragments);
     }
 
     @Override
@@ -148,26 +147,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             snackbarContent.addView(progressSnackbarProgress);
         } else Log.w(TAG, "initViews: android.support.design.R.id.snackbar_text not found!");
 
-        fabFilters = (FloatingActionButton) findViewById(R.id.fab_filters);
-        fabFilters.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showFilterDialog();
-            }
-        });
-
-        fabFiltersClear = (FloatingActionButton) findViewById(R.id.fab_filters_clear);
-        fabFiltersClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                clearFilters(MainActivity.this);
-                fabFiltersClear.hide();
-            }
-        });
-
-        fabs = new FloatingActionButton[] { fabFilters, fabFiltersClear };
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -176,39 +155,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-    }
-
-    private void showFabs(boolean withDelay)
-    {
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                fabFilters.setEnabled(true);
-                if (!fabFilters.isShown()) {
-                    fabFilters.show();
-                }
-            }
-        }, withDelay ? 750 : 0);
-
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                fabFiltersClear.setEnabled(true);
-                if (AppSettings.hasNoFilters(MainActivity.this))
-                    fabFiltersClear.hide();
-                else fabFiltersClear.show();
-            }
-        }, withDelay ? 1250 : 0);
-    }
-
-    private void hideFabs()
-    {
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                for (FloatingActionButton fab : fabs) {
-                    fab.setEnabled(false);
-                    fab.hide();
-                }
-            }
-        }, 350);
     }
 
     private void updateViews()
@@ -641,6 +587,74 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Map Item
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void showMapItemDialog(Context context, AdapterView<?> adapterView, int position)
+    {
+        Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
+        if (cursor != null)
+        {
+            final ContentValues item = new ContentValues();
+            DatabaseUtils.cursorRowToContentValues(cursor, item);
+
+            ContentValues[] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
+            pagerAdapter.quadFragment.updateViews(MainActivity.this);
+            pager.setCurrentItem(1);
+
+            new Handler().postDelayed(new Runnable() {
+                public void run() {showMapItemDialog(item);
+                }
+            }, 250);
+        }
+    }
+
+    private void showMapItemDialog(ContentValues contentValues)
+    {
+        ContentValues collectedValues = database.findInCollection(contentValues);
+        MapItemDialog itemDialog = new MapItemDialog();
+        itemDialog.setContentValues( collectedValues );
+        itemDialog.setMapItemDialogListener(onMapItem);
+        itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_MAPITEM);
+    }
+
+    private void dismissMapItemDialog()
+    {
+        MapItemDialog dialog = (MapItemDialog) getSupportFragmentManager().findFragmentByTag(TAG_DIALOG_MAPITEM);
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
+    private void restoreMapItemDialog(FragmentManager fragments)
+    {
+        MapItemDialog dialog = (MapItemDialog) fragments.findFragmentByTag(TAG_DIALOG_MAPITEM);
+        if (dialog != null) {
+            dialog.setMapItemDialogListener(onMapItem);
+        }
+    }
+
+    private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener()
+    {
+        @Override
+        public void onNearbyItem(ContentValues item)
+        {
+            if (listFragmentListener != null) {
+                listFragmentListener.onNearbyItem(item);
+            }
+            dismissMapItemDialog();
+        }
+
+        @Override
+        public void onViewItem(ContentValues item)
+        {
+            if (listFragmentListener != null) {
+                listFragmentListener.onViewItem(item);
+            }
+        }
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // initDatabase
@@ -768,7 +782,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (progressSnackbar != null) {
                     progressSnackbar.dismiss();
                 }
-                showFabs(true);
+                pagerAdapter.listFragment.showFabs(true);
                 updateViews();
 
             } else {
@@ -779,7 +793,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (lastProgress != null) {
                     onProgress(lastProgress);
                 }
-                hideFabs();
+                pagerAdapter.listFragment.hideFabs();
             }
         }
 
@@ -861,8 +875,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem(ContentValues item)
         {
-            String fromTable = (pagerAdapter.listFragment != null) ? pagerAdapter.listFragment.getCurrentTable() : TopoIndexDatabaseAdapter.TABLE_MAPS;
-            openMapURL(fromTable, TopoIndexDatabaseAdapter.getUrls(item));
+            showMapItemDialog(item);
         }
 
         @Override
@@ -872,6 +885,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
+            showMapItemDialog(item);
         }
 
         @Override
@@ -888,6 +902,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ListViewFragment.ListViewFragmentListener listFragmentListener = new ListViewFragment.ListViewFragmentListener()
     {
         @Override
+        public boolean onListItemClick(AdapterView<?> adapterView, View view, int position, long rowID)
+        {
+            showMapItemDialog(MainActivity.this, adapterView, position);
+            return true;
+        }
+
+        @Override
         public void onNearbyItem( ContentValues item )
         {
             ContentValues[] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
@@ -897,15 +918,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         @Override
-        public void onViewItem( ContentValues item )
+        public boolean onViewItem( ContentValues item )
         {
             String fromTable = (pagerAdapter.listFragment != null) ? pagerAdapter.listFragment.getCurrentTable() : TopoIndexDatabaseAdapter.TABLE_MAPS;
             openMapURL(fromTable, TopoIndexDatabaseAdapter.getUrls(item));
+            return true;
         }
 
         @Override
-        public void onClearFilters() {
+        public boolean onShowFilters()
+        {
+            showFilterDialog();
+            return true;
+        }
+
+        @Override
+        public boolean onClearFilters() {
             clearFilters(MainActivity.this);
+            return true;
         }
 
         @Override
@@ -925,6 +955,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     protected void initListAdapter(Context context, String table, boolean updateNav)
     {
+        pager.setCurrentItem(0, true);
         if (pagerAdapter.listFragment != null) {
             pagerAdapter.listFragment.setCurrentTable(table);
         } else Log.w(TAG, "initListAdapter: List Fragment is null!");
