@@ -81,14 +81,14 @@
     <string name="pref_title_database_lastupdate">Last Update</string>
 
     <string name="database_update_confirm_title">Update Index</string>
-    <string name="database_update_confirm_message">Are you sure you want update?\n\nUpdating takes several minutes.\n\nWhen completed the database will consume around 200 MB.</string>
+    <string name="database_update_confirm_message">Are you sure you want update?\n\nUpdating takes several minutes.\n\nWhen completed the app\'s database will consume several hundred MB.</string>
 
     <string name="action_update_from_assets">Update from assets</string>
     <string name="action_update_from_file">Update from file</string>
 
-    <string name="database_update_success">Database updated (%s items)</string>
-    <string name="database_update_failed">Failed to update database</string>
-    <string name="database_update_progress">Updating database … %s</string>
+    <string name="database_update_success">Index updated (%s items)</string>
+    <string name="database_update_failed">Failed to update index</string>
+    <string name="database_update_progress">Updating index … %s</string>
 
     <string name="database_scan_success">Collection scanned (%s items)</string>
     <string name="database_scan_failed">Failed to scan collection</string>
