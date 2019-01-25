@@ -73,6 +73,10 @@ public class ListViewFragment extends TopoIndexFragment
         }
         initListAdapter(getActivity(), currentTable);
     }
+    public String getCurrentTable()
+    {
+        return currentTable;
+    }
 
     @Override
     public void onCreate(Bundle savedState)
@@ -305,6 +309,7 @@ public class ListViewFragment extends TopoIndexFragment
             if (fragmentListener != null) {
                 fragmentListener.onNearbyItem(item);
             }
+            dismissMapItemDialog();
         }
 
         @Override

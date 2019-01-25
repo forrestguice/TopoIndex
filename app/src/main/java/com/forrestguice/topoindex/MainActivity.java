@@ -861,8 +861,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem(ContentValues item)
         {
-            String currentTabl = TopoIndexDatabaseAdapter.TABLE_MAPS;  // TODO
-            openMapURL(currentTabl, TopoIndexDatabaseAdapter.getUrls(item));
+            String fromTable = (pagerAdapter.listFragment != null) ? pagerAdapter.listFragment.getCurrentTable() : TopoIndexDatabaseAdapter.TABLE_MAPS;
+            openMapURL(fromTable, TopoIndexDatabaseAdapter.getUrls(item));
         }
 
         @Override
@@ -899,8 +899,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem( ContentValues item )
         {
-            String currentTabl = TopoIndexDatabaseAdapter.TABLE_MAPS;  // TODO
-            openMapURL(currentTabl, TopoIndexDatabaseAdapter.getUrls(item));
+            String fromTable = (pagerAdapter.listFragment != null) ? pagerAdapter.listFragment.getCurrentTable() : TopoIndexDatabaseAdapter.TABLE_MAPS;
+            openMapURL(fromTable, TopoIndexDatabaseAdapter.getUrls(item));
         }
 
         @Override
