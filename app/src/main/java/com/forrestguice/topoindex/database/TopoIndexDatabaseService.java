@@ -121,9 +121,13 @@ public class TopoIndexDatabaseService extends Service
     ///////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static final int NOTIFICATION_PROGRESS = 10;
-    public static final int NOTIFICATION_COMPLETE = 20;
-    public static final int NOTIFICATION_FAILED = 30;
+    public static final int NOTIFICATION_PROGRESS_INIT = 10;
+    public static final int NOTIFICATION_COMPLETE_INIT = 20;
+    public static final int NOTIFICATION_FAILED_INIT = 30;
+
+    public static final int NOTIFICATION_PROGRESS_SCAN = 40;
+    public static final int NOTIFICATION_COMPLETE_SCAN = 50;
+    public static final int NOTIFICATION_FAILED_SCAN = 60;
 
     private static DatabaseTask databaseTask = null;
     private static DatabaseTaskListener databaseTaskListener;
@@ -156,11 +160,11 @@ public class TopoIndexDatabaseService extends Service
 
                 progressNotification = createProgressNotificationBuilder(context, message);
                 startService(new Intent( context, TopoIndexDatabaseService.class));  // bind the service to itself (to keep things running if the activity unbinds)
-                startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
+                startForeground(NOTIFICATION_PROGRESS_SCAN, progressNotification.build());
 
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                notificationManager.cancel(NOTIFICATION_COMPLETE);
-                notificationManager.cancel(NOTIFICATION_FAILED);
+                notificationManager.cancel(NOTIFICATION_COMPLETE_SCAN);
+                notificationManager.cancel(NOTIFICATION_FAILED_SCAN);
             }
 
             @Override
@@ -168,7 +172,7 @@ public class TopoIndexDatabaseService extends Service
             {
                 if (progressNotification != null) {
                     progressNotification.setProgress(progress[0].numItems(), progress[0].itemNumber(), false);
-                    startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
+                    startForeground(NOTIFICATION_PROGRESS_SCAN, progressNotification.build());
                 }
 
                 progress[0].setMessage(context.getString(R.string.database_scan_progress));
@@ -187,7 +191,7 @@ public class TopoIndexDatabaseService extends Service
                     String message = context.getString(R.string.database_scan_success, result.numItems() + "");
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                    notificationManager.notify(NOTIFICATION_COMPLETE, createSuccessNotificationBuilder(context, message).build());
+                    notificationManager.notify(NOTIFICATION_COMPLETE_SCAN, createSuccessNotificationBuilder(context, message).build());
                     signalOnStatusChanged(STATUS_READY);
                     stopForeground(true);
                     stopSelf();
@@ -195,7 +199,7 @@ public class TopoIndexDatabaseService extends Service
                 } else {
                     String message = context.getString(R.string.database_update_failed);
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                    notificationManager.notify(NOTIFICATION_FAILED, createFailedNotificationBuilder(context, message).build());
+                    notificationManager.notify(NOTIFICATION_FAILED_SCAN, createFailedNotificationBuilder(context, message).build());
                     signalOnStatusChanged(STATUS_READY);
                     stopForeground(true);
                     stopSelf();
@@ -275,11 +279,11 @@ public class TopoIndexDatabaseService extends Service
 
                 progressNotification = createProgressNotificationBuilder(context, message);
                 startService(new Intent( context, TopoIndexDatabaseService.class));  // bind the service to itself (to keep things running if the activity unbinds)
-                startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
+                startForeground(NOTIFICATION_PROGRESS_INIT, progressNotification.build());
 
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                notificationManager.cancel(NOTIFICATION_COMPLETE);
-                notificationManager.cancel(NOTIFICATION_FAILED);
+                notificationManager.cancel(NOTIFICATION_COMPLETE_INIT);
+                notificationManager.cancel(NOTIFICATION_FAILED_INIT);
             }
 
             private NotificationCompat.Builder progressNotification;
@@ -295,7 +299,7 @@ public class TopoIndexDatabaseService extends Service
                 }
                 double percentDone = (double)progress[0].itemNumber() / (double)progress[0].numItems();
                 if (percentDone >= 1) {
-                    percentDone = 0.999999;
+                    percentDone = 0.990;
                 }
                 String percentString = percentFormatter.format(percentDone);
                 progress[0].setMessage(context.getString(R.string.database_update_progress, percentString));
@@ -304,7 +308,7 @@ public class TopoIndexDatabaseService extends Service
                 if (progressNotification != null) {
                     progressNotification.setContentText(progress[0].getMessage());
                     progressNotification.setProgress(progress[0].numItems(), progress[0].itemNumber(), false);
-                    startForeground(NOTIFICATION_PROGRESS, progressNotification.build());
+                    startForeground(NOTIFICATION_PROGRESS_INIT, progressNotification.build());
                 }
             }
 
@@ -325,7 +329,7 @@ public class TopoIndexDatabaseService extends Service
                     String message = context.getString(R.string.database_update_success, result.numItems() + "");
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                    notificationManager.notify(NOTIFICATION_COMPLETE, createSuccessNotificationBuilder(context, message).build());
+                    notificationManager.notify(NOTIFICATION_COMPLETE_INIT, createSuccessNotificationBuilder(context, message).build());
                     signalOnStatusChanged(STATUS_READY);
                     stopForeground(true);
                     stopSelf();
@@ -333,7 +337,7 @@ public class TopoIndexDatabaseService extends Service
                 } else {
                     String message = context.getString(R.string.database_update_failed);
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                    notificationManager.notify(NOTIFICATION_FAILED, createFailedNotificationBuilder(context, message).build());
+                    notificationManager.notify(NOTIFICATION_FAILED_INIT, createFailedNotificationBuilder(context, message).build());
                     signalOnStatusChanged(STATUS_READY);
                     stopForeground(true);
                     stopSelf();
