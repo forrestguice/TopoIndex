@@ -47,13 +47,13 @@ public class TopoIndexDatabaseAdapter
     public static final String DEF_MAP_VERSION = KEY_MAP_VERSION + " text";
 
     public static final String KEY_MAP_GDAITEMID = "gdaitemid";
-    public static final String DEF_MAP_GDAITEMID = KEY_MAP_GDAITEMID + " text";
+    public static final String DEF_MAP_GDAITEMID = KEY_MAP_GDAITEMID + " integer";
 
     public static final String KEY_MAP_CELLID = "cellid";
-    public static final String DEF_MAP_CELLID = KEY_MAP_CELLID + " text";
+    public static final String DEF_MAP_CELLID = KEY_MAP_CELLID + " integer";
 
     public static final String KEY_MAP_SCANID = "scanid";
-    public static final String DEF_MAP_SCANID = KEY_MAP_SCANID + " text";
+    public static final String DEF_MAP_SCANID = KEY_MAP_SCANID + " integer";
 
     public static final String KEY_MAP_NAME = "name";
     public static final String DEF_MAP_NAME = KEY_MAP_NAME + " text not null";
@@ -99,7 +99,77 @@ public class TopoIndexDatabaseAdapter
     private static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
     private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
 
-    private static final String CREATE_COLS_DEFAULT = DEF_ROWID + ", "
+    /**
+     * USGS HTMC (Historical Topo Collection)
+     */
+    public static final String TABLE_MAPS_HTMC = "usgs_htmc";
+    private static final String TABLE_MAPS_HTMC_CREATE_COLS = KEY_MAP_SCANID + " integer primary key" + ", "
+            + DEF_MAP_SERIES + ", "
+            + DEF_MAP_VERSION + ", "
+            + DEF_MAP_GDAITEMID + ", "
+            + DEF_MAP_CELLID + ", "
+            + DEF_MAP_NAME + ", "
+            + DEF_MAP_STATE + ", "
+            + DEF_MAP_SCALE + ", "
+            + DEF_MAP_DATE + ", "
+            + DEF_MAP_DATUM + ", "
+            + DEF_MAP_PROJECTION + ", "
+            + DEF_MAP_LATITUDE_NORTH + ", "
+            + DEF_MAP_LONGITUDE_WEST + ", "
+            + DEF_MAP_LATITUDE_SOUTH + ", "
+            + DEF_MAP_LONGITUDE_EAST + ", "
+            + DEF_MAP_URL + ", "
+            + DEF_MAP_URL1 + ", "
+            + DEF_MAP_URL2;
+    private static final String TABLE_MAPS_HTMC_CREATE = "create table " + TABLE_MAPS_HTMC + " (" + TABLE_MAPS_HTMC_CREATE_COLS + ");";
+
+    public static final String INDEX_MAPS_HTMC = "usgs_htmc_index";
+    private static final String[] INDEX_MAPS_HTMC_CREATE = new String[] {
+            "create index " + INDEX_MAPS_HTMC + "0" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_EAST + ");",
+            "create index " + INDEX_MAPS_HTMC + "1" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_WEST + ");",
+            "create index " + INDEX_MAPS_HTMC + "2" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
+            "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ");",
+            "create index " + INDEX_MAPS_HTMC + "4" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_CELLID + ");"
+    };
+
+    /**
+     * USGS US Topo (Current quadrangles; 2010 and later)
+     */
+    public static final String TABLE_MAPS_USTOPO = "usgs_ustopo";
+    private static final String TABLE_MAPS_USTOPO_CREATE_COLS = KEY_MAP_GDAITEMID + " integer primary key" + ", "
+            + DEF_MAP_SERIES + ", "
+            + DEF_MAP_VERSION + ", "
+            + DEF_MAP_CELLID + ", "
+            + DEF_MAP_SCANID + ", "
+            + DEF_MAP_NAME + ", "
+            + DEF_MAP_STATE + ", "
+            + DEF_MAP_SCALE + ", "
+            + DEF_MAP_DATE + ", "
+            + DEF_MAP_DATUM + ", "
+            + DEF_MAP_PROJECTION + ", "
+            + DEF_MAP_LATITUDE_NORTH + ", "
+            + DEF_MAP_LONGITUDE_WEST + ", "
+            + DEF_MAP_LATITUDE_SOUTH + ", "
+            + DEF_MAP_LONGITUDE_EAST + ", "
+            + DEF_MAP_URL + ", "
+            + DEF_MAP_URL1 + ", "
+            + DEF_MAP_URL2;
+    private static final String TABLE_MAPS_USTOPO_CREATE = "create table " + TABLE_MAPS_USTOPO + " (" + TABLE_MAPS_USTOPO_CREATE_COLS + ");";
+
+    public static final String INDEX_MAPS_USTOPO = "usgs_ustopo_index";
+    private static final String[] INDEX_MAPS_USTOPO_CREATE = new String[] {
+            "create index " + INDEX_MAPS_USTOPO + "0" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_EAST + ");",
+            "create index " + INDEX_MAPS_USTOPO + "1" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_WEST + ");",
+            "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
+            "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ");",
+            "create index " + INDEX_MAPS_USTOPO + "4" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_CELLID + ");"
+    };
+
+    /**
+     * Local Topo (files on the local drive)
+     */
+    public static final String TABLE_MAPS = "maps";
+    private static final String TABLE_MAPS_CREATE_COLS = DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
             + DEF_MAP_GDAITEMID + ", "
@@ -118,44 +188,6 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_URL + ", "
             + DEF_MAP_URL1 + ", "
             + DEF_MAP_URL2;
-
-    /**
-     * USGS HTMC (Historical Topo Collection)
-     */
-    public static final String TABLE_MAPS_HTMC = "usgs_htmc";
-    private static final String TABLE_MAPS_HTMC_CREATE_COLS = CREATE_COLS_DEFAULT;
-    private static final String TABLE_MAPS_HTMC_CREATE = "create table " + TABLE_MAPS_HTMC + " (" + TABLE_MAPS_HTMC_CREATE_COLS + ");";
-
-    public static final String INDEX_MAPS_HTMC = "usgs_htmc_index";
-    private static final String[] INDEX_MAPS_HTMC_CREATE = new String[] {
-            "create index " + INDEX_MAPS_HTMC + "0" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_EAST + ");",
-            "create index " + INDEX_MAPS_HTMC + "1" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_WEST + ");",
-            "create index " + INDEX_MAPS_HTMC + "2" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
-            "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ");",
-            "create index " + INDEX_MAPS_HTMC + "4" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCANID + ");"
-    };
-
-    /**
-     * USGS US Topo (Current quadrangles; 2010 and later)
-     */
-    public static final String TABLE_MAPS_USTOPO = "usgs_ustopo";
-    private static final String TABLE_MAPS_USTOPO_CREATE_COLS = CREATE_COLS_DEFAULT;
-    private static final String TABLE_MAPS_USTOPO_CREATE = "create table " + TABLE_MAPS_USTOPO + " (" + TABLE_MAPS_USTOPO_CREATE_COLS + ");";
-
-    public static final String INDEX_MAPS_USTOPO = "usgs_ustopo_index";
-    private static final String[] INDEX_MAPS_USTOPO_CREATE = new String[] {
-            "create index " + INDEX_MAPS_USTOPO + "0" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_EAST + ");",
-            "create index " + INDEX_MAPS_USTOPO + "1" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_WEST + ");",
-            "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
-            "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ");",
-            "create index " + INDEX_MAPS_USTOPO + "4" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_GDAITEMID + ");"
-    };
-
-    /**
-     * Local Topo (files on the local drive)
-     */
-    public static final String TABLE_MAPS = "maps";
-    private static final String TABLE_MAPS_CREATE_COLS = CREATE_COLS_DEFAULT;
     private static final String TABLE_MAPS_CREATE = "create table " + TABLE_MAPS + " (" + TABLE_MAPS_CREATE_COLS + ");";
 
     public static final String INDEX_MAPS = "maps_index";
@@ -165,7 +197,8 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS + "2" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
             "create index " + INDEX_MAPS + "3" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_NORTH + ");",
             "create index " + INDEX_MAPS + "4" + " on " + TABLE_MAPS + " (" + KEY_MAP_SCANID + ");",
-            "create index " + INDEX_MAPS + "5" + " on " + TABLE_MAPS + " (" + KEY_MAP_GDAITEMID + ");"
+            "create index " + INDEX_MAPS + "5" + " on " + TABLE_MAPS + " (" + KEY_MAP_GDAITEMID + ");",
+            "create index " + INDEX_MAPS + "6" + " on " + TABLE_MAPS + " (" + KEY_MAP_CELLID + ");"
     };
 
     /**
@@ -468,7 +501,7 @@ public class TopoIndexDatabaseAdapter
         long lastRowId = -1;
         database.beginTransaction();
         for (ContentValues entry : values) {
-            lastRowId = database.insert(table, null, entry);
+            lastRowId = database.replace(table, null, entry);
         }
         database.setTransactionSuccessful();
         database.endTransaction();
@@ -571,7 +604,7 @@ public class TopoIndexDatabaseAdapter
     public boolean clearMaps(String... tables)
     {
         if (tables.length > 0) {
-            database.beginTransaction();
+            database.beginTransactionNonExclusive();
             for (String table : tables) {
                 database.execSQL("delete from " + table);
             }
