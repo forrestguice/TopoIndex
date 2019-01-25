@@ -102,6 +102,10 @@ public class AppSettings
 
     public static boolean hasNoFilters(Context context)
     {
+        if (context == null) {
+            return true;
+        }
+
         String nameFilter = getFilter_byName(context);
         String[] stateFilter = getFilter_byState(context);
         String scaleFilter = getFilter_byScale(context);
