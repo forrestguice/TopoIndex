@@ -99,6 +99,9 @@ public class DatabaseInitTask extends DatabaseTask
                         Log.d(TAG, "initDB: columns: " + columnsLine);
 
                         database.open();
+                        database.clearMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC);
+                        database.clearMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO);
+                        Log.d(TAG, "initDB: existing index cleared");
 
                         ArrayList<ContentValues> htmcValues = new ArrayList<>();
                         ArrayList<ContentValues> ustopoValues = new ArrayList<>();
@@ -173,7 +176,7 @@ public class DatabaseInitTask extends DatabaseTask
                         zipInput.close();
 
                         long bench_end = System.nanoTime();
-                        Log.d(TAG, "initDB: took " + ((bench_end - bench_start) / 1000000.0) + " ms; " + c + " rows.");
+                        Log.d(TAG, "initDB: took " + ((bench_end - bench_start) / 1000000.0 / 1000.0 / 60.0) + " min; " + c + " rows.");
                         return new DatabaseTaskResult(true, c, Calendar.getInstance().getTimeInMillis());
 
                     } else {
