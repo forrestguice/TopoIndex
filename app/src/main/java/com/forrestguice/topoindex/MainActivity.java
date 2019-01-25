@@ -782,7 +782,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (progressSnackbar != null) {
                     progressSnackbar.dismiss();
                 }
-                pagerAdapter.listFragment.showFabs(true);
+                showFabs(true);
                 updateViews();
 
             } else {
@@ -793,7 +793,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (lastProgress != null) {
                     onProgress(lastProgress);
                 }
-                pagerAdapter.listFragment.hideFabs();
+                hideFabs();
             }
         }
 
@@ -813,6 +813,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     };
+
+    private void showFabs(boolean withDelay)
+    {
+        if (pagerAdapter != null) {
+            if (pagerAdapter.listFragment != null) {
+                pagerAdapter.listFragment.showFabs(withDelay);
+            }
+        }
+    }
+
+    private void hideFabs()
+    {
+        if (pagerAdapter != null) {
+            if (pagerAdapter.listFragment != null) {
+                pagerAdapter.listFragment.hideFabs();
+            }
+        }
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
