@@ -185,6 +185,7 @@ public class TopoIndexDatabaseAdapter
         }
         databaseHelper = new DatabaseHelper(context);
         database = databaseHelper.getWritableDatabase();
+        database.enableWriteAheadLogging();
         return this;
     }
 
