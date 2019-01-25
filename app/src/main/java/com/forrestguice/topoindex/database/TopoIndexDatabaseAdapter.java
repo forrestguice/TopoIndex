@@ -148,7 +148,7 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_USTOPO + "1" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_WEST + ");",
             "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
             "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ");",
-            "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_GDAITEMID + ");"
+            "create index " + INDEX_MAPS_USTOPO + "4" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_GDAITEMID + ");"
     };
 
     /**
@@ -163,7 +163,9 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS + "0" + " on " + TABLE_MAPS + " (" + KEY_MAP_LONGITUDE_EAST + ");",
             "create index " + INDEX_MAPS + "1" + " on " + TABLE_MAPS + " (" + KEY_MAP_LONGITUDE_WEST + ");",
             "create index " + INDEX_MAPS + "2" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
-            "create index " + INDEX_MAPS + "3" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_NORTH + ");"
+            "create index " + INDEX_MAPS + "3" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_NORTH + ");",
+            "create index " + INDEX_MAPS + "4" + " on " + TABLE_MAPS + " (" + KEY_MAP_SCANID + ");",
+            "create index " + INDEX_MAPS + "5" + " on " + TABLE_MAPS + " (" + KEY_MAP_GDAITEMID + ");"
     };
 
     /**
@@ -386,6 +388,11 @@ public class TopoIndexDatabaseAdapter
         return retValue;
     }
 
+    /**
+     * findInCollection
+     * @param contentValues a database item (unspecified table)
+     * @return a matching entry from the local collection (or `contentValues` if not found)
+     */
     public ContentValues findInCollection(ContentValues contentValues)
     {
         String mapSeries = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);
@@ -398,12 +405,12 @@ public class TopoIndexDatabaseAdapter
         {
             //noinspection UnnecessaryLocalVariable
             String gdaItemID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
-            cursor = getMap_USTopo(TABLE_MAPS, gdaItemID, false);
+            cursor = getMap_USTopo(TABLE_MAPS, gdaItemID, true);
 
         } else {
             //noinspection UnnecessaryLocalVariable
             String scanID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
-            cursor = getMap_HTMC(TABLE_MAPS, scanID, false);
+            cursor = getMap_HTMC(TABLE_MAPS, scanID, true);
         }
 
         ContentValues retValue = null;
@@ -424,20 +431,32 @@ public class TopoIndexDatabaseAdapter
 
     public boolean hasMap_HTMC(@NonNull String table, String scanID)
     {
-        Cursor cursor = getMap_HTMC(table, scanID, false);
+        String[] query = new String[] { KEY_MAP_SCANID };
+        String selection = KEY_MAP_SCANID + " = ?";
+        String[] selectionArgs = new String[] { scanID };
+        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, null );
+
+        boolean retValue = false;
         if (cursor != null) {
-            return (cursor.getCount() > 0);
+            retValue = (cursor.getCount() > 0);
+            cursor.close();
         }
-        return false;
+        return retValue;
     }
 
     public boolean hasMap_USTopo(@NonNull String table, String gdaItemID)
     {
-        Cursor cursor = getMap_USTopo(table, gdaItemID, false);
+        String[] query = new String[] { KEY_MAP_GDAITEMID };
+        String selection = KEY_MAP_GDAITEMID + " = ?";
+        String[] selectionArgs = new String[] { gdaItemID };
+        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, null );
+
+        boolean retValue = false;
         if (cursor != null) {
-            return (cursor.getCount() > 0);
+            retValue = (cursor.getCount() > 0);
+            cursor.close();
         }
-        return false;
+        return retValue;
     }
 
     /**
@@ -762,6 +781,9 @@ public class TopoIndexDatabaseAdapter
         assert (size() == 59);
     }};
 
+    /**
+     * GRID (3x3)
+     */
     public static final int GRID_NORTHWEST = 0;
     public static final int GRID_NORTH = 1;
     public static final int GRID_NORTHEAST = 2;
