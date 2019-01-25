@@ -29,6 +29,7 @@ public class TopoIndexDatabaseSettings
     public static final String KEY_DATABASE_DATE = "database_date";                     // these keys should match those in pref_database.xml
     public static final String KEY_DATABASE_LASTUPDATE = "database_lastupdate";
     public static final String KEY_DATABASE_UPDATENOW = "database_update";
+    public static final String KEY_DATABASE_LASTSCAN = "database_lastscan";
 
     public static long getDatabaseDate(Context context)
     {
@@ -51,6 +52,18 @@ public class TopoIndexDatabaseSettings
     {
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
         prefs.putLong(KEY_DATABASE_LASTUPDATE, datetime);
+        prefs.apply();
+    }
+
+    public static long getDatabaseLastScan(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getLong(KEY_DATABASE_LASTSCAN, -1);
+    }
+    public static void setDatabaseLastScan(Context context, long datetime)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putLong(KEY_DATABASE_LASTSCAN, datetime);
         prefs.apply();
     }
 

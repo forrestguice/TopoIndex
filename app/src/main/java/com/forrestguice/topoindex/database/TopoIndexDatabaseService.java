@@ -188,6 +188,7 @@ public class TopoIndexDatabaseService extends Service
 
                 if (result.getResult())
                 {
+                    TopoIndexDatabaseSettings.setDatabaseLastScan(context, Calendar.getInstance().getTimeInMillis());
                     String message = context.getString(R.string.database_scan_success, result.numItems() + "");
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
