@@ -43,12 +43,11 @@ public class DatabaseClearTask extends DatabaseTask
         for (Uri uri : uris)
         {
             String table = uri.getLastPathSegment();
-            // TODO
-            /**if (database.clearMaps(table))
+            if (database.clearMaps(table))
             {
                 Log.i(TAG, "clearTable: cleared " + table);
                 count++;
-            } else result = false;*/
+            } else result = false;
         }
         database.close();
 

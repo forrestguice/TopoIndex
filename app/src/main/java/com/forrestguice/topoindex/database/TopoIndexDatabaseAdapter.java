@@ -565,6 +565,22 @@ public class TopoIndexDatabaseAdapter
     }
 
     /**
+     * Clear Maps
+     */
+
+    public boolean clearMaps(String... tables)
+    {
+        if (tables.length > 0) {
+            database.beginTransaction();
+            for (String table : tables) {
+                database.execSQL("delete from " + table);
+            }
+            database.endTransaction();
+            return true;
+        } else return false;
+    }
+
+    /**
      * DatabaseHelper
      */
     private static class DatabaseHelper extends SQLiteOpenHelper
