@@ -135,6 +135,9 @@ public class MapItemDialog extends BottomSheetDialogFragment
             text_gdaid.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID));
             text_scanid.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID));
             text_cellid.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_CELLID));
+
+            Boolean hasMap = contentValues.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+            button_view.setText(context.getString(hasMap != null && hasMap ? R.string.action_view : R.string.action_download));
         }
     }
 

@@ -94,6 +94,8 @@ public class TopoIndexDatabaseAdapter
     public static final String KEY_MAP_URL2 = "url2";                          // url: (reserved) not-used
     public static final String DEF_MAP_URL2 = KEY_MAP_URL2 + " text";
 
+    public static final String KEY_MAP_ISCOLLECTED = "iscollected";
+
     private static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
     private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
 
@@ -379,6 +381,42 @@ public class TopoIndexDatabaseAdapter
             cursor.close();
         }
         return retValue;
+    }
+
+    public ContentValues findInCollection(ContentValues contentValues)
+    {
+        String mapSeries = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);
+        if (mapSeries == null) {
+            mapSeries = VAL_MAP_SERIES_HTMC;
+        }
+
+        Cursor cursor;
+        if (mapSeries.equals(VAL_MAP_SERIES_USTOPO))
+        {
+            //noinspection UnnecessaryLocalVariable
+            String gdaItemID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
+            cursor = getMap_USTopo(TABLE_MAPS, gdaItemID, false);
+
+        } else {
+            //noinspection UnnecessaryLocalVariable
+            String scanID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
+            cursor = getMap_HTMC(TABLE_MAPS, scanID, false);
+        }
+
+        ContentValues retValue = null;
+        if (cursor != null) {
+            if (cursor.getCount() >= 1) {
+                retValue = new ContentValues();
+                DatabaseUtils.cursorRowToContentValues(cursor, retValue);
+                retValue.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
+            }
+            cursor.close();
+            if (retValue != null) {
+                return retValue;
+            }
+        }
+        contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, false);
+        return contentValues;
     }
 
     public boolean hasMap_HTMC(@NonNull String table, String scanID)
