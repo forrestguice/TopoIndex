@@ -19,10 +19,13 @@
 package com.forrestguice.topoindex.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,9 +37,11 @@ import android.widget.TextView;
 
 import com.forrestguice.topoindex.AppSettings;
 
+import com.forrestguice.topoindex.MainActivity;
 import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 import com.forrestguice.topoindex.dialogs.AboutDialog;
+import com.forrestguice.topoindex.dialogs.MapItemDialog;
 
 import java.text.DecimalFormat;
 
@@ -46,6 +51,9 @@ import java.text.DecimalFormat;
 public class ListViewFragment extends TopoIndexFragment
 {
     public static final String TAG = "TopoIndexList";
+
+    public static final String TAG_DIALOG_MAPITEM = "mapitem";
+
     public static final String KEY_TABLE_CURRENT = "currentTable";
 
     protected ListView listView;
@@ -90,6 +98,14 @@ public class ListViewFragment extends TopoIndexFragment
         database = new TopoIndexDatabaseAdapter(getActivity());
         database.open();
         initListAdapter(getActivity(), currentTable);
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        FragmentManager fragments = getChildFragmentManager();
+        restoreMapItemDialog(fragments);
     }
 
     @Override
@@ -153,8 +169,12 @@ public class ListViewFragment extends TopoIndexFragment
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long rowID)
                 {
+                    boolean clickHandled = false;
                     if (fragmentListener != null) {
-                        fragmentListener.onListItemClick(adapterView, view, position, rowID);
+                        clickHandled = fragmentListener.onListItemClick(adapterView, view, position, rowID);
+                    }
+                    if (!clickHandled) {
+                        showMapItemDialog(context, adapterView, position);
                     }
                 }
             });
@@ -224,18 +244,77 @@ public class ListViewFragment extends TopoIndexFragment
     /**
      * ListViewFragmentListener
      */
-    public static abstract class ListViewFragmentListener
+    public static abstract class ListViewFragmentListener extends TopoIndexFragmentListener
     {
-        public void onListItemClick(AdapterView<?> adapterView, View view, int position, long rowID) {}
+        /**
+         * @return true click consumed, false propagate click
+         */
+        public boolean onListItemClick(AdapterView<?> adapterView, View view, int position, long rowID) { return false; }
+
         public void onClearFilters() {}
-        public void onScanCollection() {}
-        public void onInitDatabase() {}
+        public void onNearbyItem( ContentValues item ) {}
+        public void onViewItem(ContentValues item) {}
     }
 
     private ListViewFragmentListener fragmentListener;
     public void setListViewFragmentListener( ListViewFragmentListener listener ) {
         fragmentListener = listener;
     }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Map Item
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void showMapItemDialog(Context context, AdapterView<?> adapterView, int position)
+    {
+        Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
+        if (cursor != null)
+        {
+            ContentValues contentValues = new ContentValues();
+            DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+
+            MapItemDialog itemDialog = new MapItemDialog();
+            itemDialog.setContentValues( contentValues );
+            itemDialog.setMapItemDialogListener(onMapItem);
+            itemDialog.show(getChildFragmentManager(), TAG_DIALOG_MAPITEM);
+        }
+    }
+
+    private void dismissMapItemDialog()
+    {
+        MapItemDialog dialog = (MapItemDialog) getChildFragmentManager().findFragmentByTag(TAG_DIALOG_MAPITEM);
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
+    private void restoreMapItemDialog(FragmentManager fragments)
+    {
+        MapItemDialog dialog = (MapItemDialog) fragments.findFragmentByTag(TAG_DIALOG_MAPITEM);
+        if (dialog != null) {
+            dialog.setMapItemDialogListener(onMapItem);
+        }
+    }
+
+    private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener()
+    {
+        @Override
+        public void onNearbyItem(ContentValues item)
+        {
+            if (fragmentListener != null) {
+                fragmentListener.onNearbyItem(item);
+            }
+        }
+
+        @Override
+        public void onViewItem(ContentValues item)
+        {
+            if (fragmentListener != null) {
+                fragmentListener.onViewItem(item);
+            }
+        }
+    };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -79,18 +79,15 @@ import com.forrestguice.topoindex.fragments.TopoIndexFragment;
 
 import java.io.File;
 import java.util.Calendar;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     public static final String TAG = "TopoIndexActivity";
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_FILTERS = "filters";
-    public static final String TAG_DIALOG_MAPITEM = "mapitem";
     public static final String TAG_DIALOG_ABOUT = "about";
 
     private Toolbar toolbar;
-
     private ViewPager pager;
     private TopoIndexPagerAdapter pagerAdapter;
 
@@ -118,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fragments = getSupportFragmentManager();
         restoreLocationDialog(fragments);
         restoreFilterDialog(fragments);
-        restoreMapItemDialog(fragments);
     }
 
     @Override
@@ -361,60 +357,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Map Item
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-
-    private void showMapItemDialog(Context context, AdapterView<?> adapterView, int position)
-    {
-        Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
-        if (cursor != null)
-        {
-            ContentValues contentValues = new ContentValues();
-            DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
-
-            MapItemDialog itemDialog = new MapItemDialog();
-            itemDialog.setContentValues( contentValues );
-            itemDialog.setMapItemDialogListener(onMapItem);
-            itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_MAPITEM);
-        }
-    }
-
-    private void dismissMapItemDialog()
-    {
-        MapItemDialog dialog = (MapItemDialog) getSupportFragmentManager().findFragmentByTag(TAG_DIALOG_MAPITEM);
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-    }
-
-    private void restoreMapItemDialog(FragmentManager fragments)
-    {
-        MapItemDialog dialog = (MapItemDialog) fragments.findFragmentByTag(TAG_DIALOG_MAPITEM);
-        if (dialog != null) {
-            dialog.setMapItemDialogListener(onMapItem);
-        }
-    }
-
-    private MapItemDialog.MapItemDialogListener onMapItem = new MapItemDialog.MapItemDialogListener()
-    {
-        @Override
-        public void onNearbyItem(ContentValues values)
-        {
-            ContentValues[] nearbyMaps = database.findNearbyMaps(values, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
-            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
-            pagerAdapter.quadFragment.updateViews(MainActivity.this);
-            pager.setCurrentItem(1);
-        }
-
-        @Override
-        public void onViewItem(ContentValues values)
-        {
-            String currentTabl = TopoIndexDatabaseAdapter.TABLE_MAPS;  // TODO
-            openMapURL(currentTabl, TopoIndexDatabaseAdapter.getUrls(values));
-        }
-    };
 
     private void openMapURL(String currentTable, String[] urls)
     {
@@ -917,15 +859,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private QuadViewFragment.QuadViewFragmentListener quadFragmentListener = new QuadViewFragment.QuadViewFragmentListener()
     {
         @Override
-        public void onViewItem(ContentValues values)
+        public void onViewItem(ContentValues item)
         {
-            // TODO
+            String currentTabl = TopoIndexDatabaseAdapter.TABLE_MAPS;  // TODO
+            openMapURL(currentTabl, TopoIndexDatabaseAdapter.getUrls(item));
         }
 
         @Override
-        public void onBrowseItem(ContentValues values)
+        public void onBrowseItem(ContentValues item)
         {
-            // TODO
+            ContentValues[] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
+            pagerAdapter.quadFragment.updateViews(MainActivity.this);
+            pager.setCurrentItem(1);
         }
 
         @Override
@@ -942,8 +888,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ListViewFragment.ListViewFragmentListener listFragmentListener = new ListViewFragment.ListViewFragmentListener()
     {
         @Override
-        public void onListItemClick(AdapterView<?> adapterView, View view, int position, long rowID) {
-            showMapItemDialog(MainActivity.this, adapterView, position);
+        public void onNearbyItem( ContentValues item )
+        {
+            ContentValues[] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
+            pagerAdapter.quadFragment.updateViews(MainActivity.this);
+            pager.setCurrentItem(1);
+        }
+
+        @Override
+        public void onViewItem( ContentValues item )
+        {
+            String currentTabl = TopoIndexDatabaseAdapter.TABLE_MAPS;  // TODO
+            openMapURL(currentTabl, TopoIndexDatabaseAdapter.getUrls(item));
         }
 
         @Override
