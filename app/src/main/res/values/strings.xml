@@ -75,13 +75,16 @@
     <string name="pref_title_collectionPath0">Map Directory</string>
 
     <!-- Database settings -->
-    <string name="pref_header_database">Database</string>
-    <string name="pref_title_database_update">Update Database</string>
-    <string name="pref_title_database_date">Data Version</string>
+    <string name="pref_header_database">Index</string>
+    <string name="pref_title_database_update">Update Index</string>
+    <string name="pref_title_database_date">Index Version</string>
     <string name="pref_title_database_lastupdate">Last Update</string>
 
-    <string name="database_update_confirm_title">Update Database</string>
+    <string name="database_update_confirm_title">Update Index</string>
     <string name="database_update_confirm_message">Are you sure you want update?\n\nUpdating takes several minutes.\n\nWhen completed the database will consume around 200 MB.</string>
+
+    <string name="action_update_from_assets">Update from assets</string>
+    <string name="action_update_from_file">Update from file</string>
 
     <string name="database_update_success">Database updated (%s items)</string>
     <string name="database_update_failed">Failed to update database</string>
