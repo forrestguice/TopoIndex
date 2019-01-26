@@ -111,6 +111,8 @@ public class DatabaseInitTask extends DatabaseTask
                         String line;
                         String series;
                         String[] entry;
+                        ContentValues values = new ContentValues();
+                        ContentValues[] arrayType_contentValues = new ContentValues[0];
                         DatabaseTaskProgress progressObj = new DatabaseTaskProgress("", 0, n);
 
                         String val_htmc = "\"" + TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC + "\"";
@@ -124,12 +126,12 @@ public class DatabaseInitTask extends DatabaseTask
                                 series = entry[0];
                                 if (series.equals(val_htmc))
                                 {
-                                    ContentValues values = new ContentValues();
+                                    values.clear();
                                     TopoIndexDatabaseAdapter.toContentValues(values, entry);
                                     htmcValues.add(values);
 
                                     if (htmcValues.size() >= batchValuesNum) {
-                                        database.addMaps_HTMC(htmcValues.toArray(new ContentValues[0]));
+                                        database.addMaps_HTMC(htmcValues.toArray(arrayType_contentValues));
                                         htmcValues.clear();
                                         progressObj.count[0] = c;
                                         publishProgress(progressObj);
@@ -137,12 +139,12 @@ public class DatabaseInitTask extends DatabaseTask
                                     c++;
 
                                 } else if (series.equals(val_ustopo)) {
-                                    ContentValues values = new ContentValues();
+                                    values.clear();
                                     TopoIndexDatabaseAdapter.toContentValues(values, entry);
                                     ustopoValues.add(values);
 
                                     if (ustopoValues.size() >= batchValuesNum) {
-                                        database.addMaps_USTopo( ustopoValues.toArray(new ContentValues[0]) );
+                                        database.addMaps_USTopo( ustopoValues.toArray(arrayType_contentValues) );
                                         ustopoValues.clear();
                                         progressObj.count[0] = c;
                                         publishProgress(progressObj);
@@ -159,12 +161,12 @@ public class DatabaseInitTask extends DatabaseTask
                         }
 
                         if (htmcValues.size() >= 0) {
-                            database.addMaps_HTMC(htmcValues.toArray(new ContentValues[0]));
+                            database.addMaps_HTMC(htmcValues.toArray(arrayType_contentValues));
                             htmcValues.clear();
                         }
 
                         if (ustopoValues.size() >= 0) {
-                            database.addMaps_USTopo( ustopoValues.toArray(new ContentValues[0]) );
+                            database.addMaps_USTopo( ustopoValues.toArray(arrayType_contentValues) );
                             ustopoValues.clear();
                         }
 
