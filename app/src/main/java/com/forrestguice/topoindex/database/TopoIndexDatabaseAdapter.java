@@ -585,10 +585,25 @@ public class TopoIndexDatabaseAdapter
     public static double[] getCorners(ContentValues values)
     {
         double[] corners = new double[4];
-        corners[0] = values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH);
-        corners[1] = values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST);
-        corners[2] = values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH);
-        corners[3] = values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST);
+        if (values != null)
+        {
+            if (values.containsKey(KEY_MAP_LATITUDE_NORTH)) {
+                Double d = values.getAsDouble(KEY_MAP_LATITUDE_NORTH);
+                corners[0] = (d != null) ? d : 0;
+            }
+            if (values.containsKey(KEY_MAP_LONGITUDE_WEST)) {
+                Double d = values.getAsDouble(KEY_MAP_LONGITUDE_WEST);
+                corners[1] = (d != null) ? d : 0;
+            }
+            if (values.containsKey(KEY_MAP_LATITUDE_SOUTH)) {
+                Double d = values.getAsDouble(KEY_MAP_LATITUDE_SOUTH);
+                corners[2] = (d != null) ? d : 0;
+            }
+            if (values.containsKey(KEY_MAP_LONGITUDE_EAST)) {
+                Double d = values.getAsDouble(KEY_MAP_LONGITUDE_EAST);
+                corners[3] = (d != null) ? d : 0;
+            }
+        }
         return corners;
     }
 
