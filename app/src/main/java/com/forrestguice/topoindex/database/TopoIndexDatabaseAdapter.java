@@ -103,7 +103,8 @@ public class TopoIndexDatabaseAdapter
      * USGS HTMC (Historical Topo Collection)
      */
     public static final String TABLE_MAPS_HTMC = "usgs_htmc";
-    private static final String TABLE_MAPS_HTMC_CREATE_COLS = DEF_ROWID + ", " + DEF_MAP_SCANID + ", "
+    private static final String TABLE_MAPS_HTMC_CREATE_COLS = KEY_MAP_SCANID + " integer primary key, "
+            + DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
             + DEF_MAP_GDAITEMID + ", "
@@ -120,8 +121,7 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LONGITUDE_EAST + ", "
             + DEF_MAP_URL + ", "
             + DEF_MAP_URL1 + ", "
-            + DEF_MAP_URL2 + ", "
-            + "primary key (" + KEY_ROWID + "," + KEY_MAP_SCANID + ")";
+            + DEF_MAP_URL2;
     private static final String TABLE_MAPS_HTMC_CREATE = "create table " + TABLE_MAPS_HTMC + " (" + TABLE_MAPS_HTMC_CREATE_COLS + ");";
 
     public static final String INDEX_MAPS_HTMC = "usgs_htmc_index";
@@ -137,7 +137,8 @@ public class TopoIndexDatabaseAdapter
      * USGS US Topo (Current quadrangles; 2010 and later)
      */
     public static final String TABLE_MAPS_USTOPO = "usgs_ustopo";
-    private static final String TABLE_MAPS_USTOPO_CREATE_COLS = DEF_ROWID + ", " + DEF_MAP_GDAITEMID + ", "
+    private static final String TABLE_MAPS_USTOPO_CREATE_COLS = KEY_MAP_GDAITEMID + " integer primary key, "
+            + DEF_ROWID + ", "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
             + DEF_MAP_CELLID + ", "
@@ -154,8 +155,7 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LONGITUDE_EAST + ", "
             + DEF_MAP_URL + ", "
             + DEF_MAP_URL1 + ", "
-            + DEF_MAP_URL2 + ", "
-            + "primary key (" + KEY_ROWID + "," + KEY_MAP_GDAITEMID + ")";
+            + DEF_MAP_URL2;
     private static final String TABLE_MAPS_USTOPO_CREATE = "create table " + TABLE_MAPS_USTOPO + " (" + TABLE_MAPS_USTOPO_CREATE_COLS + ");";
 
     public static final String INDEX_MAPS_USTOPO = "usgs_ustopo_index";
@@ -171,7 +171,7 @@ public class TopoIndexDatabaseAdapter
      * Local Topo (files on the local drive)
      */
     public static final String TABLE_MAPS = "maps";
-    private static final String TABLE_MAPS_CREATE_COLS = KEY_ROWID + " integer primary key autoincrement" + ", "
+    private static final String TABLE_MAPS_CREATE_COLS = KEY_ROWID + " integer primary key autoincrement, "
             + DEF_MAP_SCANID + ", "
             + DEF_MAP_GDAITEMID + ", "
             + DEF_MAP_CELLID + ", "
