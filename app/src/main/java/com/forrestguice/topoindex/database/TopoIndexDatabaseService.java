@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -300,7 +301,7 @@ public class TopoIndexDatabaseService extends Service
                 }
                 double percentDone = (double)progress[0].itemNumber() / (double)progress[0].numItems();
                 if (percentDone >= 1) {
-                    percentDone = 0.990;
+                    percentDone = 0.999;
                 }
                 String percentString = percentFormatter.format(percentDone);
                 progress[0].setMessage(context.getString(R.string.database_update_progress, percentString));
@@ -331,7 +332,15 @@ public class TopoIndexDatabaseService extends Service
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
                     notificationManager.notify(NOTIFICATION_COMPLETE_INIT, createSuccessNotificationBuilder(context, message).build());
-                    signalOnStatusChanged(STATUS_READY);
+
+                    //signalOnStatusChanged(STATUS_READY);
+
+                    new Handler().postDelayed(new Runnable() {
+                        public void run() {
+                            runScanCollectionTask(context, null);
+                        }
+                    }, 0);
+
                     stopForeground(true);
                     stopSelf();
 
