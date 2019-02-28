@@ -1,6 +1,6 @@
 # TopoIndex
 
-An Android app for managing a personal collection of USGS maps.
+Android app for managing a personal collection of USGS maps.
 
 Status: **alpha!** use with care...
 
