@@ -126,7 +126,7 @@ public class DatabaseInitTask extends DatabaseTask
                                 series = entry[0];
                                 if (series.equals(val_htmc))
                                 {
-                                    values.clear();
+                                    values = new ContentValues();
                                     TopoIndexDatabaseAdapter.toContentValues(values, entry);
                                     htmcValues.add(values);
 
@@ -139,7 +139,7 @@ public class DatabaseInitTask extends DatabaseTask
                                     c++;
 
                                 } else if (series.equals(val_ustopo)) {
-                                    values.clear();
+                                    values = new ContentValues();
                                     TopoIndexDatabaseAdapter.toContentValues(values, entry);
                                     ustopoValues.add(values);
 

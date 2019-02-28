@@ -36,7 +36,7 @@ public class TopoIndexDatabaseAdapter
     private static final int DATABASE_VERSION = 1;
 
     public static final String KEY_ROWID = "_id";
-    public static final String DEF_ROWID = KEY_ROWID + " integer";   //" primary key autoincrement";
+    public static final String DEF_ROWID = KEY_ROWID + " integer primary key autoincrement";
 
     public static final String KEY_MAP_SERIES = "series";
     public static final String DEF_MAP_SERIES = KEY_MAP_SERIES + " text not null";
@@ -103,8 +103,8 @@ public class TopoIndexDatabaseAdapter
      * USGS HTMC (Historical Topo Collection)
      */
     public static final String TABLE_MAPS_HTMC = "usgs_htmc";
-    private static final String TABLE_MAPS_HTMC_CREATE_COLS = KEY_MAP_SCANID + " integer primary key, "
-            + DEF_ROWID + ", "
+    private static final String TABLE_MAPS_HTMC_CREATE_COLS = DEF_ROWID + ", "
+            + DEF_MAP_SCANID + " unique not null, "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
             + DEF_MAP_GDAITEMID + ", "
@@ -130,15 +130,16 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_HTMC + "1" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_WEST + ");",
             "create index " + INDEX_MAPS_HTMC + "2" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
             "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ");",
-            "create index " + INDEX_MAPS_HTMC + "4" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_CELLID + ");"
+            "create index " + INDEX_MAPS_HTMC + "4" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCANID + ");",
+            "create index " + INDEX_MAPS_HTMC + "5" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_CELLID + ");"
     };
 
     /**
      * USGS US Topo (Current quadrangles; 2010 and later)
      */
     public static final String TABLE_MAPS_USTOPO = "usgs_ustopo";
-    private static final String TABLE_MAPS_USTOPO_CREATE_COLS = KEY_MAP_GDAITEMID + " integer primary key, "
-            + DEF_ROWID + ", "
+    private static final String TABLE_MAPS_USTOPO_CREATE_COLS = DEF_ROWID + ", "
+            + DEF_MAP_GDAITEMID + " unique not null, "
             + DEF_MAP_SERIES + ", "
             + DEF_MAP_VERSION + ", "
             + DEF_MAP_CELLID + ", "
@@ -164,14 +165,15 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_USTOPO + "1" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_WEST + ");",
             "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
             "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ");",
-            "create index " + INDEX_MAPS_USTOPO + "4" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_CELLID + ");"
+            "create index " + INDEX_MAPS_USTOPO + "4" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_GDAITEMID + ");",
+            "create index " + INDEX_MAPS_USTOPO + "5" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_CELLID + ");"
     };
 
     /**
      * Local Topo (files on the local drive)
      */
     public static final String TABLE_MAPS = "maps";
-    private static final String TABLE_MAPS_CREATE_COLS = KEY_ROWID + " integer primary key autoincrement, "
+    private static final String TABLE_MAPS_CREATE_COLS = DEF_ROWID + ", "
             + DEF_MAP_SCANID + ", "
             + DEF_MAP_GDAITEMID + ", "
             + DEF_MAP_CELLID + ", "
