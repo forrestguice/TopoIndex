@@ -73,6 +73,7 @@ import com.forrestguice.topoindex.dialogs.AboutDialog;
 import com.forrestguice.topoindex.dialogs.FilterDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
 import com.forrestguice.topoindex.dialogs.MapItemDialog;
+import com.forrestguice.topoindex.dialogs.StatesDialog;
 import com.forrestguice.topoindex.fragments.ListViewFragment;
 import com.forrestguice.topoindex.fragments.QuadViewFragment;
 import com.forrestguice.topoindex.fragments.TopoIndexFragment;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String TAG = "TopoIndexActivity";
     public static final String TAG_DIALOG_LOCATION = "location";
     public static final String TAG_DIALOG_FILTERS = "filters";
+    public static final String TAG_DIALOG_STATES = "statesInitDialog";
     public static final String TAG_DIALOG_MAPITEM = "mapitem";
     public static final String TAG_DIALOG_ABOUT = "about";
 
@@ -681,8 +683,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
-                if (databaseService != null) {
-                    databaseService.runDatabaseInitTask(context, null, uri, initTaskListener);
+                if (databaseService != null)
+                {
+                    StatesDialog statesDialog = new StatesDialog();
+                    statesDialog.setShowCancelButton(true);
+                    statesDialog.setSelection(null);  // TODO
+                    statesDialog.setDialogListener(new StatesDialog.StatesDialogListener() {
+                        @Override
+                        public void onDialogAccepted(String[] selection) {
+                            Intent intent = new Intent();
+                            intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
+                            databaseService.runDatabaseInitTask(context, intent, uri, initTaskListener);
+                        }
+                    });
+                    statesDialog.show(getFragmentManager(), TAG_DIALOG_STATES);
                 }
             }
         });

@@ -271,7 +271,7 @@ public class FilterDialog extends BottomSheetDialogFragment
                 }
             });
 
-            statesDialog.show(activity.getSupportFragmentManager(), TAG_DIALOG_STATES);
+            statesDialog.show(activity.getFragmentManager(), TAG_DIALOG_STATES);
         }
     }
 

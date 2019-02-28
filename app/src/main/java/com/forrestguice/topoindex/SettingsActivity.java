@@ -46,9 +46,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.forrestguice.topoindex.database.tasks.DatabaseInitTask;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseSettings;
+import com.forrestguice.topoindex.dialogs.StatesDialog;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -57,6 +59,7 @@ import java.util.List;
 public class SettingsActivity extends AppCompatPreferenceActivity
 {
     public static final String TAG = "TopoIndexSettings";
+    public static final String TAG_DIALOG_STATES = "statesDialog";
 
     public static final int REQUEST_UPDATEURI= 10;
 
@@ -307,8 +310,20 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    if (databaseService != null) {
-                        databaseService.runDatabaseInitTask(getActivity(), null, uri, null);
+                    if (databaseService != null)
+                    {
+                        StatesDialog statesDialog = new StatesDialog();
+                        statesDialog.setShowCancelButton(true);
+                        statesDialog.setSelection(null);  // TODO
+                        statesDialog.setDialogListener(new StatesDialog.StatesDialogListener() {
+                            @Override
+                            public void onDialogAccepted(String[] selection) {
+                                Intent intent = new Intent();
+                                intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
+                                databaseService.runDatabaseInitTask(getActivity(), intent, uri, null);
+                            }
+                        });
+                        statesDialog.show(getFragmentManager(), TAG_DIALOG_STATES);
                     }
                 }
             });

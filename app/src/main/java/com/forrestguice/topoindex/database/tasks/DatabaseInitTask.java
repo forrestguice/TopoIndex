@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
+import com.forrestguice.topoindex.dialogs.StatesDialog;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -35,6 +36,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -51,6 +55,11 @@ public class DatabaseInitTask extends DatabaseTask
     protected DatabaseTaskResult doInBackground(Uri... uris)
     {
         long bench_start = System.nanoTime();
+
+        if (filterStates == null) {
+            setFilter_state(null);
+        }
+
         if (uris.length > 0)
         {
             Uri uri = uris[0];
@@ -103,13 +112,15 @@ public class DatabaseInitTask extends DatabaseTask
 
                         ArrayList<ContentValues> htmcValues = new ArrayList<>();
                         ArrayList<ContentValues> ustopoValues = new ArrayList<>();
-                        int batchValuesNum = 1000;
 
                         int i = 1;         // count lines
                         int c = 0;             // count items
-                        int n = 350000;  // rough estimate total items
+                        int n = 10000 * filterStates.size();  // rough estimate total items
+                        int batchValuesNum = n / 350;
+
                         String line;
                         String series;
+                        String state;
                         String[] entry;
                         ContentValues values = new ContentValues();
                         ContentValues[] arrayType_contentValues = new ContentValues[0];
@@ -123,37 +134,43 @@ public class DatabaseInitTask extends DatabaseTask
                             entry = line.split(",");
                             if (entry.length == columns.length)
                             {
-                                series = entry[0];
-                                if (series.equals(val_htmc))
+                                state = entry[4];
+                                if (filterStates.contains(state))
                                 {
-                                    values = new ContentValues();
-                                    TopoIndexDatabaseAdapter.toContentValues(values, entry);
-                                    htmcValues.add(values);
+                                    series = entry[0];
+                                    if (series.equals(val_htmc))
+                                    {
+                                        values = new ContentValues();
+                                        TopoIndexDatabaseAdapter.toContentValues(values, entry);
+                                        htmcValues.add(values);
 
-                                    if (htmcValues.size() >= batchValuesNum) {
-                                        database.addMaps_HTMC(htmcValues.toArray(arrayType_contentValues));
-                                        htmcValues.clear();
-                                        progressObj.count[0] = c;
-                                        publishProgress(progressObj);
+                                        if (htmcValues.size() >= batchValuesNum) {
+                                            database.addMaps_HTMC(htmcValues.toArray(arrayType_contentValues));
+                                            htmcValues.clear();
+                                            progressObj.count[0] = c;
+                                            publishProgress(progressObj);
+                                        }
+                                        c++;
+
+                                    } else if (series.equals(val_ustopo)) {
+                                        values = new ContentValues();
+                                        TopoIndexDatabaseAdapter.toContentValues(values, entry);
+                                        ustopoValues.add(values);
+
+                                        if (ustopoValues.size() >= batchValuesNum) {
+                                            database.addMaps_USTopo( ustopoValues.toArray(arrayType_contentValues) );
+                                            ustopoValues.clear();
+                                            progressObj.count[0] = c;
+                                            publishProgress(progressObj);
+                                        }
+                                        c++;
+
+                                    } else {
+                                        Log.w(TAG, "initDB: unrecognized series: " + entry[0] + " .. " + line + " .. ignoring this line...");
                                     }
-                                    c++;
-
-                                } else if (series.equals(val_ustopo)) {
-                                    values = new ContentValues();
-                                    TopoIndexDatabaseAdapter.toContentValues(values, entry);
-                                    ustopoValues.add(values);
-
-                                    if (ustopoValues.size() >= batchValuesNum) {
-                                        database.addMaps_USTopo( ustopoValues.toArray(arrayType_contentValues) );
-                                        ustopoValues.clear();
-                                        progressObj.count[0] = c;
-                                        publishProgress(progressObj);
-                                    }
-                                    c++;
-
-                                } else {
-                                    Log.w(TAG, "initDB: unrecognized series: " + entry[0] + " .. " + line + " .. ignoring this line...");
-                                }
+                                } /*else {
+                                    Log.w(TAG, "initDB: skipping state " + entry[4] + " .. ignoring this line...");
+                                }*/
                             } else {
                                 Log.w(TAG, "initDB: line " + i + " has the wrong number of columns; " + entry.length + " (expects " + columns.length + ") .. ignoring this line...");
                             }
@@ -201,6 +218,24 @@ public class DatabaseInitTask extends DatabaseTask
         } else {
             Log.e(TAG, "initDB: missing uri!");
             return new DatabaseTaskResult(false, 0, Calendar.getInstance().getTimeInMillis());
+        }
+    }
+
+    private Set<String> filterStates = null;
+    public void setFilter_state(String[] states)
+    {
+        filterStates = new HashSet<>();
+        if (states != null)
+        {
+            for (String state : states) {
+                filterStates.add("\"" + state + "\"");
+                Log.d(TAG, "added to list " + state);
+            }
+
+        } else {
+            for (String state : TopoIndexDatabaseAdapter.VAL_STATES.keySet()) {
+                filterStates.add("\"" + state + "\"");
+            }
         }
     }
 

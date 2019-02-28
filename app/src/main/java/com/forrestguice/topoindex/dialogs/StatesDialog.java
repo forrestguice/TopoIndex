@@ -19,10 +19,10 @@
 package com.forrestguice.topoindex.dialogs;
 
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
@@ -38,17 +38,34 @@ public class StatesDialog extends DialogFragment
 {
     public static final String TAG = "TopoIndexStates";
 
+    public static final String KEY_SHOWCANCEL = "showCancel";
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setNeutralButton(getString(android.R.string.ok), null);
-        builder.setNeutralButtonIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_light));
 
         if (savedInstanceState != null) {
             restoreDialogState(savedInstanceState);
+        }
+
+        if (showCancelButton)
+        {
+            builder.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (dialogListener != null) {
+                        dialogListener.onDialogAccepted(getSelection());
+                    }
+                }
+            });
+            builder.setNegativeButton(getString(android.R.string.cancel), null);
+
+        } else {
+            builder.setNeutralButton(getString(android.R.string.ok), null);
+            builder.setNeutralButtonIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_light));
         }
 
         final String[] items = getItems();
@@ -70,11 +87,13 @@ public class StatesDialog extends DialogFragment
     public void onSaveInstanceState( @NonNull Bundle state )
     {
         state.putStringArray(FilterDialog.FILTER_STATE, getSelection());
+        state.putBoolean(KEY_SHOWCANCEL, showCancelButton);
         super.onSaveInstanceState(state);
     }
 
     private void restoreDialogState( @NonNull Bundle state )
     {
+        showCancelButton = state.getBoolean(KEY_SHOWCANCEL, showCancelButton);
         setSelection(state.getStringArray(FilterDialog.FILTER_STATE));
     }
 
@@ -121,16 +140,24 @@ public class StatesDialog extends DialogFragment
         for (String state : TopoIndexDatabaseAdapter.VAL_STATES.keySet())
         {
             boolean isSelected = false;
-            for (String selected : selection)
+            if (selection != null)
             {
-                if (state.equals(selected))
+                for (String selected : selection)
                 {
-                    isSelected = true;
-                    break;
+                    if (state.equals(selected))
+                    {
+                        isSelected = true;
+                        break;
+                    }
                 }
             }
             states.put(state, isSelected);
         }
+    }
+
+    private boolean showCancelButton = false;
+    public void setShowCancelButton(boolean value) {
+        showCancelButton = value;
     }
 
     private StatesDialogListener dialogListener;
@@ -142,6 +169,7 @@ public class StatesDialog extends DialogFragment
     public static abstract class StatesDialogListener
     {
         public void onSelectionChanged( String[] selection ) {}
+        public void onDialogAccepted( String[] selection ) {}
     }
 
 }

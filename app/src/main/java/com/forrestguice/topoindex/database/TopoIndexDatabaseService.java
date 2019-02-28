@@ -63,6 +63,7 @@ public class TopoIndexDatabaseService extends Service
     public final static int STATUS_BUSY = 1;
 
     public static final String EXTRA_SERVICE_LISTENER = "service_listener";
+    public static final String EXTRA_FILTER_STATES = "filter_states";
 
     @Nullable
     @Override
@@ -264,7 +265,12 @@ public class TopoIndexDatabaseService extends Service
             return false;
         }
 
-        databaseTask = new DatabaseInitTask(context);
+        DatabaseInitTask task = new DatabaseInitTask(context);
+        databaseTask = task;
+
+        if (intent != null) {
+            task.setFilter_state(intent.getStringArrayExtra(EXTRA_FILTER_STATES));
+        }
 
         databaseTaskListener = new DatabaseTaskListener()
         {
