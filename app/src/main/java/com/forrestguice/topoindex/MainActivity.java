@@ -534,7 +534,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final ContentValues[] maps = database.findMapsContaining(currentLocation, 0.125);     // TODO: async task
         if (maps != null && maps.length > 0)
         {
-            ContentValues[] nearbyMaps = database.findNearbyMaps(maps[0], TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            ContentValues[][] nearbyMaps = database.findNearbyMaps(maps[0], TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
@@ -627,7 +627,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             final ContentValues item = new ContentValues();
             DatabaseUtils.cursorRowToContentValues(cursor, item);
 
-            ContentValues[] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            ContentValues[][] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
@@ -939,7 +939,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onBrowseItem(ContentValues item)
         {
-            ContentValues[] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            ContentValues[][] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
@@ -969,7 +969,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onNearbyItem( ContentValues item )
         {
-            ContentValues[] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            ContentValues[][] nearbyMaps = database.findNearbyMaps(item, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);

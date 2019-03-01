@@ -404,7 +404,7 @@ public class TopoIndexDatabaseAdapter
         return contentValues;
     }
 
-    public ContentValues[] findNearbyMaps(ContentValues values, MapScale mapScale)
+    public ContentValues[][] findNearbyMaps(ContentValues values, MapScale mapScale)
     {
         double[] corners = TopoIndexDatabaseAdapter.getCorners(values);         // bounding box: n, w, e, s
         double northLat = corners[0];
@@ -414,7 +414,7 @@ public class TopoIndexDatabaseAdapter
 
         String table = TABLE_MAPS_HTMC;
         String[] query = QUERY_MAPS_FULLENTRY;
-        ContentValues[] contentValues = new ContentValues[9];
+        ContentValues[][] contentValues = new ContentValues[9][];
 
         String selection = mapScale == null ? "" : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
 
@@ -438,7 +438,7 @@ public class TopoIndexDatabaseAdapter
         Cursor cursor3 = database.query( table, query, selection3, selectionArgs3, null, null, "_id DESC" );
         assignGridValue(contentValues, GRID_WEST, cursor3);
 
-        contentValues[GRID_CENTER] = values;
+        contentValues[GRID_CENTER] = new ContentValues[] { values };
 
         String selection5 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs5 = new String[] { Double.toString(northLat), Double.toString(eastLon) };
@@ -463,22 +463,31 @@ public class TopoIndexDatabaseAdapter
         for (int i=0; i<contentValues.length; i++)
         {
             if (contentValues[i] != null) {
-                contentValues[i] = findInCollection(contentValues[i]);
+                for (int j=0; j<contentValues[i].length; j++) {
+                    contentValues[i][j] = findInCollection(contentValues[i][j]);
+                }
             }
         }
         return contentValues;
     }
 
-    private void assignGridValue(ContentValues[] contentValues, int gridPos, Cursor cursor)
+    private void assignGridValue(ContentValues[][] contentValues, int gridPos, Cursor cursor)
     {
         if (cursor != null && cursor.getCount() > 0)
         {
+            ArrayList<ContentValues> values = new ArrayList<>();
             cursor.moveToFirst();
-            ContentValues gridValues = new ContentValues();
-            DatabaseUtils.cursorRowToContentValues(cursor, gridValues);
+            while (!cursor.isAfterLast())
+            {
+                ContentValues v = new ContentValues();
+                DatabaseUtils.cursorRowToContentValues(cursor, v);
+                values.add(v);
+                cursor.moveToNext();
+            }
             cursor.close();
-            contentValues[gridPos] = gridValues;
-        } else contentValues[gridPos] = null;
+            contentValues[gridPos] = values.toArray(new ContentValues[0]);
+
+        } else contentValues[gridPos] = new ContentValues[0];
     }
 
     public boolean hasMaps(String table)

@@ -52,13 +52,18 @@ public class QuadViewFragment extends TopoIndexFragment
     @Override
     public void onSaveInstanceState( @NonNull Bundle state )
     {
-        state.putParcelableArray(KEY_CONTENTVALUES, contentValues);
+        contentValues = new ContentValues[9][];
+        for (int i=0; i<contentValues.length; i++) {
+            state.putParcelableArray(KEY_CONTENTVALUES + i, contentValues[i]);
+        }
         super.onSaveInstanceState(state);
     }
 
     private void restoreFromState(Bundle state)
     {
-        contentValues = (ContentValues[])state.getParcelableArray(KEY_CONTENTVALUES);
+        for (int i=0; i<contentValues.length; i++) {
+            contentValues[i] = (ContentValues[])state.getParcelableArray(KEY_CONTENTVALUES + i);
+        }
     }
 
     @Override
@@ -85,8 +90,8 @@ public class QuadViewFragment extends TopoIndexFragment
                     if (fragmentListener != null && contentValues[j] != null)
                     {
                         if (j == TopoIndexDatabaseAdapter.GRID_CENTER)
-                            fragmentListener.onViewItem(contentValues[j]);
-                        else fragmentListener.onBrowseItem(contentValues[j]);
+                            fragmentListener.onViewItem(contentValues[j][0]);
+                        else fragmentListener.onBrowseItem(contentValues[j][0]);
                     }
                 }
             });
@@ -108,15 +113,15 @@ public class QuadViewFragment extends TopoIndexFragment
         {
             for (int i = 0; i < gridTitles.length; i++)
             {
-                gridTitles[i].setText( (contentValues[i] != null) ? contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME) : "");
+                gridTitles[i].setText( (contentValues[i] != null) ? contentValues[i][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME) : "");
             }
 
             if (contentValues[TopoIndexDatabaseAdapter.GRID_CENTER] != null)
             {
-                gridLines[0].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST));
-                gridLines[1].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST));
-                gridLines[2].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH));
-                gridLines[3].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH));
+                gridLines[0].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST));
+                gridLines[1].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST));
+                gridLines[2].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH));
+                gridLines[3].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH));
 
             } else {
                 for (int i = 0; i < gridLines.length; i++) {
@@ -126,12 +131,12 @@ public class QuadViewFragment extends TopoIndexFragment
 
             for (int i=0; i<contentValues.length; i++)
             {
-                ContentValues entry = contentValues[i];
                 View card = gridCards[i];
-                if (card != null && entry != null)
+                if (card != null)
                 {
-                    Boolean inCollection = entry.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
-                    if (inCollection == null || !inCollection) {    // TODO: check duplicate maps for collected
+                    if (quadIsCollected(contentValues[i])) {
+                        card.setBackgroundColor(Color.WHITE);  // TODO
+                    } else {
                         card.setBackgroundColor(Color.LTGRAY);  // TODO
                     }
                 }
@@ -147,8 +152,20 @@ public class QuadViewFragment extends TopoIndexFragment
         }
     }
 
-    private ContentValues[] contentValues;
-    public void setContentValues( ContentValues[] values )
+    private boolean quadIsCollected(ContentValues[] entries)
+    {
+        for (ContentValues entry : entries)
+        {
+            Boolean inCollection = entry.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+            if (inCollection != null && inCollection) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private ContentValues[][] contentValues;
+    public void setContentValues( ContentValues[][] values )
     {
         if (values.length == 9) {
             this.contentValues = values;
