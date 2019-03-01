@@ -73,6 +73,9 @@ public class AppSettings
     public static final String KEY_FILTER_PROXIMITY = "filterByProximity";
     public static final float DEF_FILTER_PROXIMITY = 0.0f;      // def no min
 
+    public static final String KEY_LASTUPDATE_SELECTION = "lastUpdateSelection";
+    public static final String[] DEF_LASTUPDATE_SELECTION = TopoIndexDatabaseAdapter.VAL_STATES.keySet().toArray(new String[0]);  // all states
+
     public static String[] getCollectionPath(Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -98,6 +101,19 @@ public class AppSettings
         SharedPreferences.Editor prefsEdit = PreferenceManager.getDefaultSharedPreferences(context).edit();
         prefsEdit.putStringSet(KEY_COLLECTION_PATH, paths);
         prefsEdit.apply();
+    }
+
+    public static String[] getLastUpdateSelection(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> filterSet = prefs.getStringSet(KEY_LASTUPDATE_SELECTION, new HashSet<String>(Arrays.asList(DEF_LASTUPDATE_SELECTION)));
+        return new ArrayList<String>(filterSet).toArray(new String[0]);
+    }
+    public static void setLastUpdateSelection(Context context, String[] filterSet)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putStringSet(KEY_LASTUPDATE_SELECTION, new HashSet<String>(Arrays.asList(filterSet)));
+        prefs.apply();
     }
 
     public static boolean hasNoFilters(Context context)
