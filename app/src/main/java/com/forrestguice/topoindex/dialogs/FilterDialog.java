@@ -255,6 +255,7 @@ public class FilterDialog extends BottomSheetDialogFragment
         if (activity != null)
         {
             StatesDialog statesDialog = new StatesDialog();
+            statesDialog.setShowClear(true);
             statesDialog.setSelection(filterStates);
 
             statesDialog.setDialogListener(new StatesDialog.StatesDialogListener() {

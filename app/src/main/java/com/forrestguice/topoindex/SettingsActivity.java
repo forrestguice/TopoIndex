@@ -325,6 +325,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         {
             StatesDialog statesDialog = new StatesDialog();
             statesDialog.setShowCancelButton(true);
+            statesDialog.setShowSelectAll(true);
             statesDialog.setRequireAtLeastOne(true);
             statesDialog.setSelection(AppSettings.getLastUpdateSelection(getActivity()));
             statesDialog.setUri(uri);

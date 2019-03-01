@@ -26,9 +26,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.forrestguice.topoindex.R;
@@ -45,6 +47,7 @@ public class StatesDialog extends DialogFragment
 
     public static final String KEY_URI = "param_uri";
     public static final String KEY_SHOWALL = "showSelectAll";
+    public static final String KEY_SHOWCLEAR = "showClear";
     public static final String KEY_SHOWCANCEL = "showCancel";
     public static final String KEY_ATLEASTONE = "atLeastOne";
 
@@ -59,11 +62,15 @@ public class StatesDialog extends DialogFragment
             restoreDialogState(savedInstanceState);
         }
 
-        if (showCancelButton)
+        if (showCancelButton || showSelectAll || showClear)
         {
             builder.setPositiveButton(getString(android.R.string.ok), null);
-            builder.setNegativeButton(getString(android.R.string.cancel), null);
-
+            if (showCancelButton) {
+                builder.setNegativeButton(getString(android.R.string.cancel), null);
+            }
+            if (showSelectAll || showClear) {
+                builder.setNeutralButton(getString(showSelectAll ? R.string.select_all : R.string.select_none), null);
+            }
         } else {
             builder.setNeutralButton(getString(android.R.string.ok), null);
             builder.setNeutralButtonIcon(ContextCompat.getDrawable(getActivity(), R.drawable.ic_back_light));
@@ -105,6 +112,21 @@ public class StatesDialog extends DialogFragment
                         }
                     }
                 });
+
+                if (showSelectAll || showClear)
+                {
+                    Button neutralButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
+                    neutralButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (showSelectAll) {
+                                selectAll();
+                            } else {
+                                clearSelection();
+                            }
+                        }
+                    });
+                }
             }
         });
 
@@ -120,6 +142,7 @@ public class StatesDialog extends DialogFragment
         state.putBoolean(KEY_ATLEASTONE, requireAtLeastOne);
         state.putStringArray(FilterDialog.FILTER_STATE, getSelection());
         state.putBoolean(KEY_SHOWCANCEL, showCancelButton);
+        state.putBoolean(KEY_SHOWCLEAR, showClear);
         state.putBoolean(KEY_SHOWALL, showSelectAll);
         super.onSaveInstanceState(state);
     }
@@ -132,6 +155,7 @@ public class StatesDialog extends DialogFragment
         }
         requireAtLeastOne = state.getBoolean(KEY_ATLEASTONE, requireAtLeastOne);
         showSelectAll = state.getBoolean(KEY_SHOWALL, showSelectAll);
+        showClear = state.getBoolean(KEY_SHOWCLEAR, showClear);
         showCancelButton = state.getBoolean(KEY_SHOWCANCEL, showCancelButton);
         setSelection(state.getStringArray(FilterDialog.FILTER_STATE));
     }
@@ -194,6 +218,32 @@ public class StatesDialog extends DialogFragment
         }
     }
 
+    public void selectAll()
+    {
+        setSelection(TopoIndexDatabaseAdapter.VAL_STATES.keySet().toArray(new String[0]));
+        if (dialogListener != null) {
+            dialogListener.onSelectionChanged(getSelection());
+        }
+
+        AlertDialog dialog = (AlertDialog)getDialog();
+        ListView listView = dialog.getListView();
+        if (listView != null)
+        {
+            for (int i=0; i<listView.getCount(); i++) {
+                listView.setItemChecked(i, true);
+            }
+        }
+    }
+
+    public void clearSelection()
+    {
+        setSelection(new String[0]);
+        if (dialogListener != null) {
+            dialogListener.onSelectionChanged(getSelection());
+        }
+        getDialog().dismiss();
+    }
+
     private Uri uri;
     public void setUri(Uri value)
     {
@@ -210,9 +260,14 @@ public class StatesDialog extends DialogFragment
         requireAtLeastOne = value;
     }
 
-    private boolean showSelectAll = true;
+    private boolean showSelectAll = false;
     public void setShowSelectAll(boolean value) {
         showSelectAll = value;
+    }
+
+    private boolean showClear = false;
+    public void setShowClear(boolean value) {
+        showClear = value;
     }
 
     private boolean showCancelButton = false;
