@@ -198,9 +198,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed()
     {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START))
-        {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+
+        } else if (pager.getCurrentItem() == 1) {
+            pager.setCurrentItem(0);
 
         } else {
             super.onBackPressed();
@@ -1019,4 +1021,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             pagerAdapter.listFragment.setCurrentTable(table);
         } else Log.w(TAG, "initListAdapter: List Fragment is null!");
     }
+
 }
