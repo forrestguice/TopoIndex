@@ -21,10 +21,15 @@ package com.forrestguice.topoindex.dialogs;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.Toast;
 
 import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
@@ -38,7 +43,10 @@ public class StatesDialog extends DialogFragment
 {
     public static final String TAG = "TopoIndexStates";
 
+    public static final String KEY_URI = "param_uri";
+    public static final String KEY_SHOWALL = "showSelectAll";
     public static final String KEY_SHOWCANCEL = "showCancel";
+    public static final String KEY_ATLEASTONE = "atLeastOne";
 
     @NonNull
     @Override
@@ -53,14 +61,7 @@ public class StatesDialog extends DialogFragment
 
         if (showCancelButton)
         {
-            builder.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (dialogListener != null) {
-                        dialogListener.onDialogAccepted(getSelection());
-                    }
-                }
-            });
+            builder.setPositiveButton(getString(android.R.string.ok), null);
             builder.setNegativeButton(getString(android.R.string.cancel), null);
 
         } else {
@@ -80,19 +81,57 @@ public class StatesDialog extends DialogFragment
             }
         });
 
-        return builder.create();
+        final Dialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener()
+        {
+            @Override
+            public void onShow(DialogInterface dialogInterface)
+            {
+                Button okButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                okButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        String[] selection = getSelection();
+                        if (requireAtLeastOne && selection.length == 0)
+                        {
+                            Toast.makeText(getActivity(), getString(R.string.select_at_least_one), Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            if (dialogListener != null) {
+                                dialogListener.onDialogAccepted(selection);
+                            }
+                            dialog.dismiss();
+                        }
+                    }
+                });
+            }
+        });
+
+        return dialog;
     }
 
     @Override
     public void onSaveInstanceState( @NonNull Bundle state )
     {
+        if (uri != null) {
+            state.putString(KEY_URI, uri.toString());
+        }
+        state.putBoolean(KEY_ATLEASTONE, requireAtLeastOne);
         state.putStringArray(FilterDialog.FILTER_STATE, getSelection());
         state.putBoolean(KEY_SHOWCANCEL, showCancelButton);
+        state.putBoolean(KEY_SHOWALL, showSelectAll);
         super.onSaveInstanceState(state);
     }
 
     private void restoreDialogState( @NonNull Bundle state )
     {
+        String uriString = state.getString(KEY_URI);
+        if (uriString != null) {
+            uri = Uri.parse(uriString);
+        }
+        requireAtLeastOne = state.getBoolean(KEY_ATLEASTONE, requireAtLeastOne);
+        showSelectAll = state.getBoolean(KEY_SHOWALL, showSelectAll);
         showCancelButton = state.getBoolean(KEY_SHOWCANCEL, showCancelButton);
         setSelection(state.getStringArray(FilterDialog.FILTER_STATE));
     }
@@ -153,6 +192,27 @@ public class StatesDialog extends DialogFragment
             }
             states.put(state, isSelected);
         }
+    }
+
+    private Uri uri;
+    public void setUri(Uri value)
+    {
+        uri = value;
+    }
+    public Uri getUri()
+    {
+        return uri;
+    }
+
+    public boolean requireAtLeastOne = false;
+    public void setRequireAtLeastOne(boolean value)
+    {
+        requireAtLeastOne = value;
+    }
+
+    private boolean showSelectAll = true;
+    public void setShowSelectAll(boolean value) {
+        showSelectAll = value;
     }
 
     private boolean showCancelButton = false;

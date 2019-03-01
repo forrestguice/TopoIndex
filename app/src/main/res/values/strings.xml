@@ -94,6 +94,10 @@
     <string name="database_scan_failed">Failed to scan collection</string>
     <string name="database_scan_progress">Scanning files …</string>
 
+    <string name="select_at_least_one">Select at least one entry.</string>
+    <string name="select_all">Select All</string>
+    <string name="select_none">Select None</string>
+
     <!-- Location -->
     <string name="location_dialog_title">@string/action_location</string>
 
