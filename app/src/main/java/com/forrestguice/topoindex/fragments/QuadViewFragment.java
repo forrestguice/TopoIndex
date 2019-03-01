@@ -20,6 +20,7 @@ package com.forrestguice.topoindex.fragments;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -35,6 +36,7 @@ public class QuadViewFragment extends TopoIndexFragment
     public static final String TAG = "TopoIndexQuads";
     public static final String KEY_CONTENTVALUES = "contentvalues";
 
+    private View[] gridCards = new View[9];
     private TextView[] gridTitles = new TextView[9];
     private TextView[] gridLines = new TextView[4];
 
@@ -89,6 +91,7 @@ public class QuadViewFragment extends TopoIndexFragment
                 }
             });
 
+            gridCards[i] = grid.findViewById(R.id.mapItem_card);
             gridTitles[i] = (TextView)grid.findViewById(R.id.mapItem_name);
         }
 
@@ -118,6 +121,19 @@ public class QuadViewFragment extends TopoIndexFragment
             } else {
                 for (int i = 0; i < gridLines.length; i++) {
                     gridLines[i].setText("");
+                }
+            }
+
+            for (int i=0; i<contentValues.length; i++)
+            {
+                ContentValues entry = contentValues[i];
+                View card = gridCards[i];
+                if (card != null && entry != null)
+                {
+                    Boolean inCollection = entry.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+                    if (inCollection == null || !inCollection) {    // TODO: check duplicate maps for collected
+                        card.setBackgroundColor(Color.LTGRAY);  // TODO
+                    }
                 }
             }
 

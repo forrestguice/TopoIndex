@@ -460,6 +460,12 @@ public class TopoIndexDatabaseAdapter
         Cursor cursor8 = database.query( table, query, selection8, selectionArgs8, null, null, "_id DESC" );
         assignGridValue(contentValues, GRID_SOUTHEAST, cursor8);
 
+        for (int i=0; i<contentValues.length; i++)
+        {
+            if (contentValues[i] != null) {
+                contentValues[i] = findInCollection(contentValues[i]);
+            }
+        }
         return contentValues;
     }
 
