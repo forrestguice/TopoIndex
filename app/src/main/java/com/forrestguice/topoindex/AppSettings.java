@@ -74,7 +74,7 @@ public class AppSettings
     public static final float DEF_FILTER_PROXIMITY = 0.0f;      // def no min
 
     public static final String KEY_LASTUPDATE_SELECTION = "lastUpdateSelection";
-    public static final String[] DEF_LASTUPDATE_SELECTION = TopoIndexDatabaseAdapter.VAL_STATES.keySet().toArray(new String[0]);  // all states
+    public static final String[] DEF_LASTUPDATE_SELECTION = new String[0];   // empty  // TopoIndexDatabaseAdapter.VAL_STATES.keySet().toArray(new String[0]);  // all states
 
     public static String[] getCollectionPath(Context context)
     {
