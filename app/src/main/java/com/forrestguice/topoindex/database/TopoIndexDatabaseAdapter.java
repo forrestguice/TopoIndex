@@ -27,6 +27,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 
+import com.forrestguice.topoindex.AppSettings;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -342,6 +344,64 @@ public class TopoIndexDatabaseAdapter
             cursor.moveToFirst();
         }
         return cursor;
+    }
+
+    public ContentValues[] findMapsContaining(@NonNull AppSettings.Location location, double radius)
+    {
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        double northLat = latitude + radius;
+        double westLon = longitude - radius;
+        double southLat = latitude - radius;
+        double eastLon = longitude + radius;
+        return findMapsWithin(northLat, westLon, southLat, eastLon);
+    }
+
+    public ContentValues[] findMapsWithin(ContentValues values)
+    {
+        double[] corners = new double[] { values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST),
+                                          values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST) };
+        return findMapsWithin(corners);
+    }
+
+    public ContentValues[] findMapsWithin(double... corners)
+    {
+        ContentValues[] contentValues = null;
+        if (corners == null || corners.length != 4) {
+            //noinspection ConstantConditions
+            return contentValues;
+        }
+
+        double northLat = corners[0];
+        double westLon = corners[1];
+        double southLat = corners[2];
+        double eastLon = corners[3];
+
+        String table = TABLE_MAPS_HTMC; // TODO: from ustopo too
+        String[] query = QUERY_MAPS_FULLENTRY;
+
+        String selection = KEY_MAP_LATITUDE_NORTH + " <= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " >= ?"
+                + " AND " + KEY_MAP_LONGITUDE_WEST + " >= ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " <= ?";
+        String[] selectionArgs = new String[] { Double.toString(northLat), Double.toString(southLat),
+                Double.toString(westLon), Double.toString(eastLon) };
+
+        Cursor cursor = database.query(table, query, selection, selectionArgs, null, null, "_id DESC");
+        if (cursor != null)
+        {
+            contentValues = new ContentValues[cursor.getCount()];
+            cursor.moveToFirst();
+            for (int i=0; i<contentValues.length; i++)
+            {
+                if (cursor.isAfterLast()) {
+                    break;
+                }
+                contentValues[i] = new ContentValues();
+                DatabaseUtils.cursorRowToContentValues(cursor, contentValues[i]);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        return contentValues;
     }
 
     public ContentValues[] findNearbyMaps(ContentValues values, MapScale mapScale)

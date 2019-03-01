@@ -172,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             boolean autoMode = AppSettings.getAutoLocation(MainActivity.this);
             MenuItem positionItem = mainMenu.findItem(R.id.action_location_auto);
-            positionItem.setVisible(autoMode);
 
             if (autoMode)
             {
@@ -182,6 +181,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     boolean locationServicesEnabled = (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
                     positionItem.setIcon( locationServicesEnabled ? R.drawable.ic_menu_mylocation : R.drawable.ic_menu_mylocation_disabled  );
                 }
+            } else {
+                positionItem.setIcon( R.drawable.ic_menu_location_searching );
             }
         }
     }
@@ -237,6 +238,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.action_location:
                 showLocationDialog();
+                return true;
+
+            case R.id.action_location_auto:
+                showCurrentLocation();
                 return true;
 
             case R.id.action_about:
@@ -520,6 +525,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             updateViews();
         }
     };
+
+    private void showCurrentLocation()
+    {
+        AppSettings.Location currentLocation = AppSettings.getLocation(this);
+        Toast.makeText(this, currentLocation.toString(), Toast.LENGTH_SHORT).show();
+
+        final ContentValues[] maps = database.findMapsContaining(currentLocation, 0.125);     // TODO: async task
+        if (maps != null && maps.length > 0)
+        {
+            ContentValues[] nearbyMaps = database.findNearbyMaps(maps[0], TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
+            pagerAdapter.quadFragment.updateViews(MainActivity.this);
+            pager.setCurrentItem(1);
+
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    showMapItemDialog(maps[0]);    // TODO: and the other maps in collection?
+                }
+            }, 250);
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // scanCollection
