@@ -475,9 +475,7 @@ public class TopoIndexDatabaseAdapter
         for (int i=0; i<contentValues.length; i++)
         {
             if (contentValues[i] != null) {
-                for (int j=0; j<contentValues[i].length; j++) {
-                    contentValues[i][j] = findInCollection(contentValues[i][j]);
-                }
+                contentValues[i] = findInCollection(contentValues[i]);
             }
         }
         return contentValues;
@@ -510,6 +508,17 @@ public class TopoIndexDatabaseAdapter
             cursor.close();
         }
         return retValue;
+    }
+
+    public ContentValues[] findInCollection(ContentValues[] contentValues)
+    {
+        for (int i=0; i<contentValues.length; i++)
+        {
+            if (contentValues[i] != null) {
+                contentValues[i] = findInCollection(contentValues[i]);
+            }
+        }
+        return contentValues;
     }
 
     /**
