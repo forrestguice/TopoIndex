@@ -52,15 +52,17 @@ public class QuadViewFragment extends TopoIndexFragment
     @Override
     public void onSaveInstanceState( @NonNull Bundle state )
     {
-        contentValues = new ContentValues[9][];
-        for (int i=0; i<contentValues.length; i++) {
-            state.putParcelableArray(KEY_CONTENTVALUES + i, contentValues[i]);
+        if (contentValues != null) {
+            for (int i = 0; i < contentValues.length; i++) {
+                state.putParcelableArray(KEY_CONTENTVALUES + i, contentValues[i]);
+            }
         }
         super.onSaveInstanceState(state);
     }
 
     private void restoreFromState(Bundle state)
     {
+        contentValues = new ContentValues[9][];
         for (int i=0; i<contentValues.length; i++) {
             contentValues[i] = (ContentValues[])state.getParcelableArray(KEY_CONTENTVALUES + i);
         }
@@ -111,9 +113,10 @@ public class QuadViewFragment extends TopoIndexFragment
     {
         if (contentValues != null)
         {
+            int j = 0;
             for (int i = 0; i < gridTitles.length; i++)
             {
-                gridTitles[i].setText( (contentValues[i] != null) ? contentValues[i][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME) : "");
+                gridTitles[i].setText( (contentValues[i] != null && contentValues[i].length > j) ? contentValues[i][j].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME) : "");
             }
 
             if (contentValues[TopoIndexDatabaseAdapter.GRID_CENTER] != null)
