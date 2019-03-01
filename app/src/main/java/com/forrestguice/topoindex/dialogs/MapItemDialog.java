@@ -18,10 +18,12 @@
 
 package com.forrestguice.topoindex.dialogs;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,20 +33,27 @@ import android.support.design.widget.BottomSheetDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
+import java.util.ArrayList;
+
 public class MapItemDialog extends BottomSheetDialogFragment
 {
     public static final String TAG = "TopoIndexItem";
 
     public static final String KEY_CONTENTVALUES = "contentvalues";
+    public static final String KEY_CONTENTVALUES_COUNT = "contentvalues_count";
 
-    private TextView text_name, text_series, text_state, text_date, text_scale, text_nwcorner, text_secorner, text_gdaid, text_scanid, text_cellid;
+    private Spinner header;
+    private TextView text_nwcorner, text_secorner, text_gdaid, text_scanid, text_cellid;
     private Button button_view, button_nearby;
 
     @Override
@@ -86,23 +95,36 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
     private void restoreFromState(Bundle state)
     {
-        contentValues = state.getParcelable(KEY_CONTENTVALUES);
+        contentValues = new ContentValues[state.getInt(KEY_CONTENTVALUES_COUNT)];
+        for (int i=0; i<contentValues.length; i++) {
+            contentValues[i] = state.getParcelable(KEY_CONTENTVALUES + i);
+        }
     }
 
     @Override
     public void onSaveInstanceState( @NonNull Bundle state )
     {
-        state.putParcelable(KEY_CONTENTVALUES, contentValues);
+        state.putInt(KEY_CONTENTVALUES_COUNT, contentValues.length);
+        for (int i=0; i<contentValues.length; i++) {
+            state.putParcelable(KEY_CONTENTVALUES + i, contentValues[i]);
+        }
         super.onSaveInstanceState(state);
     }
 
     private void initViews(final Context context, final View dialogContent)
     {
-        text_name = (TextView)dialogContent.findViewById(R.id.mapItem_name);
-        text_series = (TextView)dialogContent.findViewById(R.id.mapItem_series);
-        text_state = (TextView)dialogContent.findViewById(R.id.mapItem_state);
-        text_date = (TextView)dialogContent.findViewById(R.id.mapItem_date);
-        text_scale = (TextView)dialogContent.findViewById(R.id.mapItem_scale);
+        header = (Spinner)dialogContent.findViewById(R.id.mapItem_header);
+        header.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                updateViews(context);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
+
+        initHeaderAdapter(contentValues);
+
         text_nwcorner = (TextView)dialogContent.findViewById(R.id.mapItem_nwcorner);
         text_secorner = (TextView)dialogContent.findViewById(R.id.mapItem_secorner);
         text_gdaid = (TextView)dialogContent.findViewById(R.id.mapItem_gdaitemid);
@@ -118,25 +140,20 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
     private void updateViews(Context context)
     {
-        if (contentValues != null)
+        ContentValues selectedValues = (ContentValues)header.getSelectedItem();
+        if (selectedValues != null)
         {
-            text_name.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME));
-            text_series.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES));
-            text_state.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_STATE));
-            text_date.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_DATE));
-            text_scale.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE));
-
-            AppSettings.Location nwCorner = getNorthwestCorner(contentValues);
+            AppSettings.Location nwCorner = getNorthwestCorner(selectedValues);
             text_nwcorner.setText(nwCorner != null ? nwCorner.toString() : "");
 
-            AppSettings.Location seCorner = getSoutheastCorner(contentValues);
+            AppSettings.Location seCorner = getSoutheastCorner(selectedValues);
             text_secorner.setText(seCorner != null ? seCorner.toString() : "");
 
-            text_gdaid.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID));
-            text_scanid.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID));
-            text_cellid.setText(contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_CELLID));
+            text_gdaid.setText(selectedValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID));
+            text_scanid.setText(selectedValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID));
+            text_cellid.setText(selectedValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_CELLID));
 
-            Boolean hasMap = contentValues.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+            Boolean hasMap = selectedValues.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
             button_view.setText(context.getString(hasMap != null && hasMap ? R.string.action_view : R.string.action_download));
         }
     }
@@ -172,10 +189,11 @@ public class MapItemDialog extends BottomSheetDialogFragment
         @Override
         public void onClick(View view)
         {
-            if (contentValues != null)
+            ContentValues selectedValues = (ContentValues)header.getSelectedItem();
+            if (selectedValues != null)
             {
                 if (dialogListener != null) {
-                    dialogListener.onViewItem(contentValues);
+                    dialogListener.onViewItem(selectedValues);
                 }
             }
         }
@@ -186,17 +204,27 @@ public class MapItemDialog extends BottomSheetDialogFragment
         @Override
         public void onClick(View view)
         {
-            if (contentValues != null)
+            ContentValues selectedValues = (ContentValues)header.getSelectedItem();
+            if (selectedValues != null)
             {
                 if (dialogListener != null) {
-                    dialogListener.onNearbyItem(contentValues);
+                    dialogListener.onNearbyItem(selectedValues);
                 }
             }
         }
     };
 
-    private ContentValues contentValues;
-    public void setContentValues(ContentValues values)
+    private void initHeaderAdapter(ContentValues[] values)
+    {
+        Activity activity = getActivity();
+        if (header != null && activity != null) {
+            MapItemDialogHeaderAdapter adapter = new MapItemDialogHeaderAdapter(activity, R.layout.map_list_item1, values);
+            header.setAdapter(adapter);
+        }
+    }
+
+    private ContentValues[] contentValues;
+    public void setContentValues(ContentValues[] values)
     {
         contentValues = values;
     }
@@ -214,6 +242,83 @@ public class MapItemDialog extends BottomSheetDialogFragment
     {
         public void onViewItem(ContentValues values) {}
         public void onNearbyItem(ContentValues values) {}
+    }
+
+    /**
+     * MapItemDialogHeaderAdapter
+     */
+    public static class MapItemDialogHeaderAdapter extends ArrayAdapter<ContentValues>
+    {
+        private int layoutResID = R.layout.map_list_item1;
+        private ContentValues[] contentValues;
+
+        public MapItemDialogHeaderAdapter(@NonNull Context context, int resource)
+        {
+            super(context, resource);
+            layoutResID = resource;
+        }
+
+        public MapItemDialogHeaderAdapter(@NonNull Context context, int resource, ContentValues[] values)
+        {
+            super(context, resource, values);
+            layoutResID = resource;
+            contentValues = values;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent)
+        {
+            return getItemView(position, convertView, parent, true);
+        }
+
+        @Override
+        @NonNull
+        public View getView(int position, View convertView, @NonNull ViewGroup parent)
+        {
+            return getItemView(position, convertView, parent, false);
+        }
+
+        private View getItemView(int i, View convertView, @NonNull ViewGroup parent, boolean colorize)
+        {
+            LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+            View view = layoutInflater.inflate(layoutResID, parent, false);
+
+            View card = view.findViewById(R.id.mapItem_card);
+            TextView text_name = (TextView)view.findViewById(R.id.mapItem_name);
+            TextView text_series = (TextView)view.findViewById(R.id.mapItem_series);
+            TextView text_state = (TextView)view.findViewById(R.id.mapItem_state);
+            TextView text_date = (TextView)view.findViewById(R.id.mapItem_date);
+            TextView text_scale = (TextView)view.findViewById(R.id.mapItem_scale);
+
+            if (contentValues != null && contentValues.length > i)
+            {
+                text_name.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME));
+                text_series.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES));
+                text_state.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_STATE));
+                text_date.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_DATE));
+                text_scale.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE));
+
+                if (colorize)
+                {
+                    Boolean isCollected = contentValues[i].getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+                    if (isCollected != null && isCollected) {
+                        card.setBackgroundColor(Color.TRANSPARENT);  // TODO
+                    } else {
+                        card.setBackgroundColor(Color.LTGRAY);  // TODO
+                    }
+                }
+
+            } else {
+                text_name.setText("");
+                text_series.setText("");
+                text_state.setText("");
+                text_date.setText("");
+                text_scale.setText("");
+            }
+
+            return view;
+        }
+
     }
 
 }

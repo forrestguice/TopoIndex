@@ -541,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             new Handler().postDelayed(new Runnable() {
                 public void run() {
-                    showMapItemDialog(maps[0]);    // TODO: and the other maps in collection?
+                    showMapItemDialog(maps);
                 }
             }, 250);
         }
@@ -633,15 +633,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             pager.setCurrentItem(1);
 
             new Handler().postDelayed(new Runnable() {
-                public void run() {showMapItemDialog(item);
+                public void run() {
+                    showMapItemDialog(database.findMapsWithin(item));
                 }
             }, 250);
         }
     }
 
-    private void showMapItemDialog(ContentValues contentValues)
+    private void showMapItemDialog(ContentValues[] contentValues)
     {
-        ContentValues collectedValues = database.findInCollection(contentValues);
+        ContentValues[] collectedValues = database.findInCollection(contentValues);
         MapItemDialog itemDialog = new MapItemDialog();
         itemDialog.setContentValues( collectedValues );
         itemDialog.setMapItemDialogListener(onMapItem);
@@ -933,7 +934,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem(ContentValues item)
         {
-            showMapItemDialog(item);
+            showMapItemDialog(database.findMapsWithin(item));
         }
 
         @Override
@@ -943,7 +944,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
-            showMapItemDialog(item);
+            showMapItemDialog(database.findMapsWithin(item));
         }
 
         @Override
