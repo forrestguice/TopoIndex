@@ -157,6 +157,10 @@ public class QuadViewFragment extends TopoIndexFragment
 
     private boolean quadIsCollected(ContentValues[] entries)
     {
+        if (entries == null || entries.length == 0) {
+            return false;
+        }
+
         for (ContentValues entry : entries)
         {
             Boolean inCollection = entry.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
