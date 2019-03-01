@@ -301,8 +301,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             addPreferencesFromResource(R.xml.pref_database);
             setHasOptionsMenu(true);
 
-            //bindPreferenceSummaryToValue(findPreference("sync_frequency"));  // TODO
-
             info_date = findPreference(TopoIndexDatabaseSettings.KEY_DATABASE_DATE);
             info_lastupdate = findPreference(TopoIndexDatabaseSettings.KEY_DATABASE_LASTUPDATE);
             updateDateFields();
@@ -376,12 +374,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             long databaseDateMillis = TopoIndexDatabaseSettings.getDatabaseDate(getActivity());
             Calendar databaseDate = Calendar.getInstance();
             databaseDate.setTimeInMillis(databaseDateMillis);
-            info_date.setSummary( databaseDateMillis == -1 ? "none" : dateFormat.format(databaseDate.getTime()) );   // TODO: i18n
+            info_date.setSummary( databaseDateMillis == -1 ? getString(R.string.none) : dateFormat.format(databaseDate.getTime()) );
 
             long updateDateMillis = TopoIndexDatabaseSettings.getDatabaseLastUpdate(getActivity());
             Calendar updateDate = Calendar.getInstance();
             updateDate.setTimeInMillis(updateDateMillis);
-            info_lastupdate.setSummary( updateDateMillis == -1 ? "never" : dateFormat.format(updateDate.getTime()) );  // TODO: i18n
+            info_lastupdate.setSummary( updateDateMillis == -1 ? getString(R.string.never) : dateFormat.format(updateDate.getTime()) );
         }
 
         @Override

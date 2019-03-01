@@ -98,6 +98,9 @@
     <string name="select_all">Select All</string>
     <string name="select_none">Clear</string>
 
+    <string name="none">none</string>
+    <string name="never">never</string>
+
     <!-- Location -->
     <string name="location_dialog_title">@string/action_location</string>
 
