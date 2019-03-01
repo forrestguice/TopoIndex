@@ -46,10 +46,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.forrestguice.topoindex.database.tasks.DatabaseInitTask;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseSettings;
+import com.forrestguice.topoindex.dialogs.ConfirmUpdateDialog;
 import com.forrestguice.topoindex.dialogs.StatesDialog;
 
 import java.text.DateFormat;
@@ -60,6 +60,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
 {
     public static final String TAG = "TopoIndexSettings";
     public static final String TAG_DIALOG_STATES = "statesDialog";
+    public static final String TAG_DIALOG_CONFIRM = "confirmDialog";
 
     public static final int REQUEST_UPDATEURI= 10;
 
@@ -273,6 +274,24 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             Log.d(TAG, "Unbound from database service...");
         }
 
+
+        @Override
+        public void onResume()
+        {
+            super.onResume();
+
+            android.app.FragmentManager fragments = getFragmentManager();
+            StatesDialog statesDialog = (StatesDialog) fragments.findFragmentByTag(TAG_DIALOG_STATES);
+            if (statesDialog != null) {
+                statesDialog.setDialogListener(statesDialogListener(statesDialog.getUri()));
+            }
+
+            ConfirmUpdateDialog confirmDialog = (ConfirmUpdateDialog) fragments.findFragmentByTag(TAG_DIALOG_CONFIRM);
+            if (confirmDialog != null) {
+                confirmDialog.setDialogListener(confirmationDialogListener(getActivity(), confirmDialog.getUri(), confirmDialog.getFilter_states()));
+            }
+        }
+
         private Preference action_sync, info_date, info_lastupdate;
 
         @Override
@@ -304,36 +323,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity
 
         private void showUpdateConfirmDialog(final Uri uri)
         {
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog.setTitle(getString(R.string.database_update_confirm_title));
-            dialog.setMessage(getString(R.string.database_update_confirm_message));
-            dialog.setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (databaseService != null)
-                    {
-                        StatesDialog statesDialog = new StatesDialog();
-                        statesDialog.setShowCancelButton(true);
-                        statesDialog.setSelection(null);  // TODO
-                        statesDialog.setDialogListener(new StatesDialog.StatesDialogListener() {
-                            @Override
-                            public void onDialogAccepted(String[] selection) {
-                                Intent intent = new Intent();
-                                intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
-                                databaseService.runDatabaseInitTask(getActivity(), intent, uri, null);
-                            }
-                        });
-                        statesDialog.show(getFragmentManager(), TAG_DIALOG_STATES);
-                    }
-                }
-            });
-            dialog.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    /* EMPTY */
-                }
-            });
-            dialog.show();
+            StatesDialog statesDialog = new StatesDialog();
+            statesDialog.setShowCancelButton(true);
+            statesDialog.setRequireAtLeastOne(true);
+            statesDialog.setSelection(AppSettings.getLastUpdateSelection(getActivity()));
+            statesDialog.setUri(uri);
+            statesDialog.setDialogListener(statesDialogListener(uri));
+            statesDialog.show(getFragmentManager(), TAG_DIALOG_STATES);
         }
 
         private int selectedUpdateOption = 0;
@@ -396,6 +392,40 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 return true;
             }
             return super.onOptionsItemSelected(item);
+        }
+
+        protected StatesDialog.StatesDialogListener statesDialogListener(final Uri uri)
+        {
+            return new StatesDialog.StatesDialogListener()
+            {
+                @Override
+                public void onDialogAccepted(final String[] selection)
+                {
+                    ConfirmUpdateDialog confirmation = new ConfirmUpdateDialog();
+                    confirmation.setUri(uri);
+                    confirmation.setFilter_states(selection);
+                    confirmation.setDialogListener(confirmationDialogListener(getActivity(), uri, selection));
+                    confirmation.show(getFragmentManager(), TAG_DIALOG_CONFIRM);
+                }
+            };
+        }
+
+        protected ConfirmUpdateDialog.ConfirmDialogListener confirmationDialogListener(final Activity activity, final Uri uri, final String[] selection)
+        {
+            return new ConfirmUpdateDialog.ConfirmDialogListener()
+            {
+                @Override
+                public void onConfirmed()
+                {
+                    AppSettings.setLastUpdateSelection(getActivity(), selection);
+                    if (databaseService != null)
+                    {
+                        Intent intent = new Intent();
+                        intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
+                        databaseService.runDatabaseInitTask(activity, intent, uri, null);
+                    }
+                }
+            };
         }
     }
 
