@@ -75,42 +75,6 @@
         app:layout_constraintEnd_toEndOf="@+id/guide2"
         android:background="@color/colorPrimary"  />
 
-    <TextView
-        android:id="@+id/guide1_label"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Small"
-        android:padding="4dp" android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/guide1"
-        tools:text="-112.15" />
-
-    <TextView
-        android:id="@+id/guide2_label"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Small"
-        android:padding="4dp" android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/guide2"
-        tools:text="-112" />
-
-    <TextView
-        android:id="@+id/guide3_label"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Small"
-        android:padding="8dp" android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/guide3"
-        tools:text="35.15" />
-
-    <TextView
-        android:id="@+id/guide4_label"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Small"
-        android:padding="8dp" android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/guide4"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:text="35" />
-
     <!-- One -->
     <LinearLayout
         android:id="@+id/grid1"
@@ -243,5 +207,47 @@
         <include layout="@layout/layout_grid_item0" />
 
     </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/guide1_label"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/colorPrimary"
+        android:padding="4dp" android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/guide1"
+        tools:text="-112.15" />
+
+    <TextView
+        android:id="@+id/guide2_label"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/colorPrimary"
+        android:padding="4dp" android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/guide2"
+        tools:text="-112" />
+
+    <TextView
+        android:id="@+id/guide3_label"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/colorPrimary"
+        android:padding="8dp" android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/guide3"
+        tools:text="35.15" />
+
+    <TextView
+        android:id="@+id/guide4_label"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/colorPrimary"
+        android:padding="8dp" android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/guide4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="35" />
+
 
 </android.support.constraint.ConstraintLayout>
