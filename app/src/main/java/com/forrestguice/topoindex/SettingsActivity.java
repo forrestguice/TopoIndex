@@ -120,9 +120,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
 
-            EditTextPreference pathPref = (EditTextPreference) findPreference(AppSettings.KEY_COLLECTION_PATH + "0");
+            final EditTextPreference pathPref = (EditTextPreference) findPreference(AppSettings.KEY_COLLECTION_PATH + "0");
             if (pathPref != null)
             {
+                pathPref.setSummary(pathPref.getText());
                 pathPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
                 {
                     @Override
@@ -133,13 +134,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                         if (activity != null && stringValue != null) {
                             AppSettings.setCollectionPath(getActivity(), new String[] {stringValue});
                         }
+                        pathPref.setSummary(stringValue);
                         return true;
                     }
                 });
             }
-
-            //bindPreferenceSummaryToValue(findPreference("example_text"));  // TODO
-            //bindPreferenceSummaryToValue(findPreference("example_list"));
         }
 
         @Override
