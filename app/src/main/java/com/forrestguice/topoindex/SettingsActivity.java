@@ -250,7 +250,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             switch (requestCode)
             {
                 case REQUEST_UPDATEURI:
-                    showUpdateConfirmDialog(data.getData());
+                    if (data != null) {
+                        showUpdateConfirmDialog(data.getData());
+                    }
                     break;
             }
         }
