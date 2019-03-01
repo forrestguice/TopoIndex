@@ -404,6 +404,18 @@ public class TopoIndexDatabaseAdapter
         return contentValues;
     }
 
+    /**
+     * Finds nearby (adjacent) maps.
+     * Returns an array of ContentValues (maps) for each grid position.
+     *
+     *              0   1   2
+     *              3   4   5
+     *              6   7   8
+     *
+     * @param values the map entry that defines the center
+     * @param mapScale the MapScale
+     * @return an array[9] of ContentValues[], a list of maps for each grid position
+     */
     public ContentValues[][] findNearbyMaps(ContentValues values, MapScale mapScale)
     {
         double[] corners = TopoIndexDatabaseAdapter.getCorners(values);         // bounding box: n, w, e, s
@@ -438,7 +450,7 @@ public class TopoIndexDatabaseAdapter
         Cursor cursor3 = database.query( table, query, selection3, selectionArgs3, null, null, "_id DESC" );
         assignGridValue(contentValues, GRID_WEST, cursor3);
 
-        contentValues[GRID_CENTER] = new ContentValues[] { values };
+        contentValues[GRID_CENTER] = findMapsWithin(values);
 
         String selection5 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs5 = new String[] { Double.toString(northLat), Double.toString(eastLon) };
