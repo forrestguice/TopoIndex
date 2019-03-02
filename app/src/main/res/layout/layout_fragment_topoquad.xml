@@ -76,7 +76,7 @@
         android:background="@color/colorPrimary"  />
 
     <!-- One -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid1"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -87,10 +87,10 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Two -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid2"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -102,10 +102,10 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Three -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid3"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -117,10 +117,10 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Four -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid4"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -132,10 +132,10 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Five -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid5"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -147,10 +147,10 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Six -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid6"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -162,10 +162,10 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Seven -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid7"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -177,10 +177,10 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Eight -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid8"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -192,10 +192,10 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Nine -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/grid9"
         android:layout_width="0dp" android:layout_height="0dp"
         android:background="?android:attr/selectableItemBackground"
@@ -206,7 +206,7 @@
 
         <include layout="@layout/layout_grid_item0" />
 
-    </LinearLayout>
+    </FrameLayout>
 
 
     <TextView

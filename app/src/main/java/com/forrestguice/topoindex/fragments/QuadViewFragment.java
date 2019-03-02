@@ -38,6 +38,7 @@ public class QuadViewFragment extends TopoIndexFragment
 
     private View[] gridCards = new View[9];
     private TextView[] gridTitles = new TextView[9];
+    private TextView[] gridStates = new TextView[9];
     private TextView[] gridLines = new TextView[4];
 
     @Override
@@ -111,6 +112,7 @@ public class QuadViewFragment extends TopoIndexFragment
 
             gridCards[i] = grid.findViewById(R.id.mapItem_card);
             gridTitles[i] = (TextView)grid.findViewById(R.id.mapItem_name);
+            gridStates[i] = (TextView)grid.findViewById(R.id.mapItem_state);
         }
 
         int[] gridLineIDs = new int[] { R.id.guide1_label, R.id.guide2_label, R.id.guide3_label, R.id.guide4_label };
@@ -130,16 +132,33 @@ public class QuadViewFragment extends TopoIndexFragment
                 gridTitles[i].setText( (contentValues[i] != null && contentValues[i].length > j) ? contentValues[i][j].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME) : "");
             }
 
+            String stateAtCenter = null;
             if (contentValues[TopoIndexDatabaseAdapter.GRID_CENTER] != null)
             {
                 gridLines[0].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST));
                 gridLines[1].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST));
                 gridLines[2].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH));
                 gridLines[3].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH));
+                stateAtCenter = contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_STATE);
 
             } else {
                 for (int i = 0; i < gridLines.length; i++) {
                     gridLines[i].setText("");
+                }
+            }
+
+            for (int i=0; i<gridStates.length; i++)
+            {
+                if (contentValues[i] != null)
+                {
+                    String state = contentValues[i][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_STATE);
+                    gridStates[i].setText(state);
+
+                    boolean sameAsCenter = stateAtCenter != null && stateAtCenter.equals(state);
+                    gridStates[i].setVisibility((i == TopoIndexDatabaseAdapter.GRID_CENTER || !sameAsCenter) ? View.VISIBLE : View.GONE);
+
+                } else {
+                    gridStates[i].setVisibility(View.GONE);
                 }
             }
 
@@ -159,6 +178,9 @@ public class QuadViewFragment extends TopoIndexFragment
         } else {
             for (int i = 0; i < gridTitles.length; i++) {
                 gridTitles[i].setText("");
+            }
+            for (int i = 0; i < gridStates.length; i++) {
+                gridStates[i].setText("");
             }
             for (int i = 0; i < gridLines.length; i++) {
                 gridLines[i].setText("");
