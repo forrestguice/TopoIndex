@@ -385,15 +385,36 @@ public class TopoIndexDatabaseAdapter
         return -1;
     }
 
-    public ContentValues[] findMapsContaining(@NonNull AppSettings.Location location, double radius)
+    public ContentValues[] findMapsContaining(@NonNull AppSettings.Location location)
     {
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-        double northLat = latitude + radius;
-        double westLon = longitude - radius;
-        double southLat = latitude - radius;
-        double eastLon = longitude + radius;
-        return findMapsWithin(northLat, westLon, southLat, eastLon);
+        ContentValues[] contentValues = null;
+        String latitude = Double.toString(location.getLatitude());
+        String longitude = Double.toString(location.getLongitude());
+
+        String table = TABLE_MAPS_HTMC; // TODO: from ustopo too
+        String[] query = QUERY_MAPS_FULLENTRY;
+
+        String selection = KEY_MAP_LATITUDE_NORTH + " >= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " <= ?"
+                + " AND " + KEY_MAP_LONGITUDE_WEST + " <= ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " >= ?";
+        String[] selectionArgs = new String[] { latitude, latitude, longitude, longitude };
+
+        Cursor cursor = database.query(table, query, selection, selectionArgs, null, null, "_id DESC");
+        if (cursor != null)
+        {
+            contentValues = new ContentValues[cursor.getCount()];
+            cursor.moveToFirst();
+            for (int i=0; i<contentValues.length; i++)
+            {
+                if (cursor.isAfterLast()) {
+                    break;
+                }
+                contentValues[i] = new ContentValues();
+                DatabaseUtils.cursorRowToContentValues(cursor, contentValues[i]);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        return contentValues;
     }
 
     public ContentValues[] findMapsWithin(ContentValues values)
@@ -452,12 +473,12 @@ public class TopoIndexDatabaseAdapter
      *              6   7   8
      *
      * @param values the map entry that defines the center
-     * @param mapScale the MapScale
+     * @param mapScale the MapScale (or null for any)
      * @return an array[9] of ContentValues[], a list of maps for each grid position
      */
-    public ContentValues[][] findNearbyMaps(ContentValues values, MapScale mapScale)
+    public ContentValues[][] findNearbyMaps(ContentValues[] values, @NonNull MapScale mapScale)
     {
-        double[] corners = TopoIndexDatabaseAdapter.getCorners(values);         // bounding box: n, w, e, s
+        double[] corners = TopoIndexDatabaseAdapter.getCorners(values[0]);         // bounding box: n, w, e, s
         double northLat = corners[0];
         double westLon = corners[1];
         double southLat = corners[2];
@@ -489,7 +510,11 @@ public class TopoIndexDatabaseAdapter
         Cursor cursor3 = database.query( table, query, selection3, selectionArgs3, null, null, "_id DESC" );
         assignGridValue(contentValues, GRID_WEST, cursor3);
 
-        contentValues[GRID_CENTER] = findMapsWithin(values);
+        ContentValues[] withinCenter = findMapsWithin(values[0]);
+        ContentValues[] centerValues = new ContentValues[values.length + withinCenter.length];
+        System.arraycopy(values, 0, centerValues, 0, values.length);
+        System.arraycopy(withinCenter, 0, centerValues, values.length, withinCenter.length);
+        contentValues[GRID_CENTER] = centerValues;
 
         String selection5 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs5 = new String[] { Double.toString(northLat), Double.toString(eastLon) };
