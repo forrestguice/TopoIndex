@@ -213,6 +213,9 @@ public class MapItemDialog extends BottomSheetDialogFragment
         if (header != null && activity != null) {
             MapItemDialogHeaderAdapter adapter = new MapItemDialogHeaderAdapter(activity, R.layout.map_list_item1, values);
             header.setAdapter(adapter);
+            header.setSelection( (initialSelection < 0 || initialSelection >= adapter.getCount())
+                    ? TopoIndexDatabaseAdapter.findFirstCollectedMap(values)
+                    : initialSelection);
         }
     }
 
@@ -220,6 +223,11 @@ public class MapItemDialog extends BottomSheetDialogFragment
     public void setContentValues(ContentValues[] values)
     {
         contentValues = values;
+    }
+
+    private int initialSelection = 0;
+    public void setInitialPosition(int i) {
+        initialSelection = i;
     }
 
     private MapItemDialogListener dialogListener;

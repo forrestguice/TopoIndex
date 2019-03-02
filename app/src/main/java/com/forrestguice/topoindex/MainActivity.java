@@ -37,7 +37,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -543,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             new Handler().postDelayed(new Runnable() {
                 public void run() {
-                    showMapItemDialog(maps);
+                    showMapItemDialog(maps, -1);
                 }
             }, 250);
         }
@@ -635,18 +634,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             pager.setCurrentItem(1);
 
             new Handler().postDelayed(new Runnable() {
-                public void run() {
-                    showMapItemDialog(database.findMapsWithin(item));
+                public void run()
+                {
+                    ContentValues[] contentValues = database.findMapsWithin(item);
+                    int selectedPos = TopoIndexDatabaseAdapter.findMapInList(contentValues, item);
+                    showMapItemDialog(contentValues, selectedPos);
                 }
             }, 250);
         }
     }
 
-    private void showMapItemDialog(ContentValues[] contentValues)
+    private void showMapItemDialog(ContentValues[] contentValues, int selectedPos)
     {
         ContentValues[] collectedValues = database.findInCollection(contentValues);
         MapItemDialog itemDialog = new MapItemDialog();
-        itemDialog.setContentValues( collectedValues );
+        itemDialog.setContentValues(collectedValues);
+        itemDialog.setInitialPosition(selectedPos);
         itemDialog.setMapItemDialogListener(onMapItem);
         itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_MAPITEM);
     }
@@ -936,7 +939,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem(ContentValues item)
         {
-            showMapItemDialog(database.findMapsWithin(item));
+            showMapItemDialog(database.findMapsWithin(item), -1);
         }
 
         @Override
