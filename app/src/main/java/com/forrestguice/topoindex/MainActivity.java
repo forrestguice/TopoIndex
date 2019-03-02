@@ -719,7 +719,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     StatesDialog statesDialog = new StatesDialog();
                     statesDialog.setShowCancelButton(true);
-                    statesDialog.setSelection(null);  // TODO
+                    statesDialog.setShowSelectAll(true);
+                    statesDialog.setRequireAtLeastOne(true);
+                    statesDialog.setSelection(AppSettings.getLastUpdateSelection(MainActivity.this));
                     statesDialog.setDialogListener(new StatesDialog.StatesDialogListener() {
                         @Override
                         public void onDialogAccepted(String[] selection) {
