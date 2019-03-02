@@ -346,6 +346,45 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
+    public static int findFirstCollectedMap(ContentValues[] mapList)
+    {
+        for (int i=0; i<mapList.length; i++)
+        {
+            ContentValues map = mapList[i];
+            if (map != null)
+            {
+                Boolean isCollected = map.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+                if (isCollected != null && isCollected) {
+                    return i;
+                }
+            }
+        }
+        return 0;
+    }
+
+    public static int findMapInList(ContentValues[] mapList, ContentValues map)
+    {
+        for (int i=0; i<mapList.length; i++)
+        {
+            ContentValues otherMap = mapList[i];
+            if (otherMap != null)
+            {
+                Integer scanID = map.getAsInteger(KEY_MAP_SCANID);
+                Integer otherScanID = otherMap.getAsInteger(KEY_MAP_SCANID);
+                boolean matchesScanID = (scanID != null && otherScanID != null && scanID.equals(otherScanID));
+
+                Integer gdaItemID = map.getAsInteger(KEY_MAP_GDAITEMID);
+                Integer otherGDAItemID = otherMap.getAsInteger(KEY_MAP_GDAITEMID);
+                boolean matchesGDAItemID = (gdaItemID != null && otherGDAItemID != null && gdaItemID.equals(otherGDAItemID));
+
+                if (matchesScanID || matchesGDAItemID) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
     public ContentValues[] findMapsContaining(@NonNull AppSettings.Location location, double radius)
     {
         double latitude = location.getLatitude();
