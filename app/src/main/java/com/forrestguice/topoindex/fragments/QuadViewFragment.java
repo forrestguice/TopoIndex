@@ -20,7 +20,6 @@ package com.forrestguice.topoindex.fragments;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -40,6 +39,9 @@ public class QuadViewFragment extends TopoIndexFragment
     private TextView[] gridTitles = new TextView[9];
     private TextView[] gridStates = new TextView[9];
     private TextView[] gridLines = new TextView[4];
+
+    private int resID_background_collected = R.drawable.background_grid_collected;
+    private int resID_background_notCollected = R.drawable.background_grid_notcollected;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -165,13 +167,8 @@ public class QuadViewFragment extends TopoIndexFragment
             for (int i=0; i<contentValues.length; i++)
             {
                 View card = gridCards[i];
-                if (card != null)
-                {
-                    if (quadIsCollected(contentValues[i])) {
-                        card.setBackgroundColor(Color.WHITE);  // TODO
-                    } else {
-                        card.setBackgroundColor(Color.LTGRAY);  // TODO
-                    }
+                if (card != null) {
+                    card.setBackgroundResource( quadIsCollected(contentValues[i]) ? resID_background_collected : resID_background_notCollected );
                 }
             }
 

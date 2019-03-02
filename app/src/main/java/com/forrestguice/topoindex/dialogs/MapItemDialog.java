@@ -23,7 +23,6 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,8 +42,6 @@ import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
-import java.util.ArrayList;
-
 public class MapItemDialog extends BottomSheetDialogFragment
 {
     public static final String TAG = "TopoIndexItem";
@@ -52,9 +49,13 @@ public class MapItemDialog extends BottomSheetDialogFragment
     public static final String KEY_CONTENTVALUES = "contentvalues";
     public static final String KEY_CONTENTVALUES_COUNT = "contentvalues_count";
 
+    private View card;
     private Spinner header;
     private TextView text_nwcorner, text_secorner;
     private Button button_view, button_nearby;
+
+    private int resID_background_collected = R.drawable.background_card_collected;
+    private int resID_background_notCollected = R.drawable.background_card_notcollected;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -113,6 +114,8 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
     private void initViews(final Context context, final View dialogContent)
     {
+        card = dialogContent.findViewById(R.id.mapItem_card);
+
         header = (Spinner)dialogContent.findViewById(R.id.mapItem_header);
         header.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -122,7 +125,6 @@ public class MapItemDialog extends BottomSheetDialogFragment
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {}
         });
-
         initHeaderAdapter(contentValues);
 
         text_nwcorner = (TextView)dialogContent.findViewById(R.id.mapItem_nwcorner);
@@ -147,6 +149,7 @@ public class MapItemDialog extends BottomSheetDialogFragment
             text_secorner.setText(seCorner != null ? seCorner.toString() : "");
 
             Boolean hasMap = selectedValues.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+            card.setBackgroundResource( (hasMap != null && hasMap) ? resID_background_collected : resID_background_notCollected );
             button_view.setText(context.getString(hasMap != null && hasMap ? R.string.action_view : R.string.action_download));
         }
     }
@@ -250,19 +253,22 @@ public class MapItemDialog extends BottomSheetDialogFragment
      */
     public static class MapItemDialogHeaderAdapter extends ArrayAdapter<ContentValues>
     {
-        private int layoutResID = R.layout.map_list_item1;
+        private int resID_layout = R.layout.map_list_item1;
+        private int resID_background_collected = R.drawable.background_mapheader_collected;
+        private int resID_background_notCollected = R.drawable.background_mapheader_notcollected;
+
         private ContentValues[] contentValues;
 
         public MapItemDialogHeaderAdapter(@NonNull Context context, int resource)
         {
             super(context, resource);
-            layoutResID = resource;
+            resID_layout = resource;
         }
 
         public MapItemDialogHeaderAdapter(@NonNull Context context, int resource, ContentValues[] values)
         {
             super(context, resource, values);
-            layoutResID = resource;
+            resID_layout = resource;
             contentValues = values;
         }
 
@@ -276,13 +282,13 @@ public class MapItemDialog extends BottomSheetDialogFragment
         @NonNull
         public View getView(int position, View convertView, @NonNull ViewGroup parent)
         {
-            return getItemView(position, convertView, parent, false);
+            return getItemView(position, convertView, parent, true);
         }
 
         private View getItemView(int i, View convertView, @NonNull ViewGroup parent, boolean colorize)
         {
             LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-            View view = layoutInflater.inflate(layoutResID, parent, false);
+            View view = layoutInflater.inflate(resID_layout, parent, false);
 
             View card = view.findViewById(R.id.mapItem_card);
             TextView text_name = (TextView)view.findViewById(R.id.mapItem_name);
@@ -304,16 +310,13 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
                 String mapScaleValue = contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE);
                 TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(mapScaleValue);
-                text_scale.setText(mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? "" : mapScale.toString());
+                text_scale.setText(mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? mapScaleValue : mapScale.toString());
 
-                if (colorize)
-                {
+                if (colorize) {
                     Boolean isCollected = contentValues[i].getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
-                    if (isCollected != null && isCollected) {
-                        card.setBackgroundColor(Color.TRANSPARENT);  // TODO
-                    } else {
-                        card.setBackgroundColor(Color.LTGRAY);  // TODO
-                    }
+                    card.setBackgroundResource((isCollected != null && isCollected) ? resID_background_collected : resID_background_notCollected);
+                } else {
+                    card.setBackgroundResource(resID_background_collected);
                 }
 
             } else {
