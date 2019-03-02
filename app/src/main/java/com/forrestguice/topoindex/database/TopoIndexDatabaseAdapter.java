@@ -348,6 +348,11 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
+    /**
+     * Searches a list of ContentValues for the first entry having ISCOLLECTED flag.
+     * @param mapList a list of ContentValues (maps)
+     * @return the position of the first map in the list with ISCOLLECTED flag (or 0 if no entries have the flag).
+     */
     public static int findFirstCollectedMap(ContentValues[] mapList)
     {
         for (int i=0; i<mapList.length; i++)
@@ -364,6 +369,12 @@ public class TopoIndexDatabaseAdapter
         return 0;
     }
 
+    /**
+     * Searches a list of ContentValues for an entry with matching scanID or gdaItemID.
+     * @param mapList a list of ContentValues (maps)
+     * @param map ContentValues of map to search
+     * @return -1 not found or the index of map within mapList
+     */
     public static int findMapInList(ContentValues[] mapList, ContentValues map)
     {
         for (int i=0; i<mapList.length; i++)
@@ -387,20 +398,23 @@ public class TopoIndexDatabaseAdapter
         return -1;
     }
 
-    public ContentValues[] findMapsContaining(@NonNull AppSettings.Location location)
+    /**
+     * Find all maps that contain the given location.
+     * @param table the database table to search
+     * @param location Location obj (lat, lon)
+     * @return a list containing matching rows (ContentValues)
+     */
+    public ContentValues[] findMapsContaining(String table, @NonNull AppSettings.Location location)
     {
         ContentValues[] contentValues = null;
         String latitude = Double.toString(location.getLatitude());
         String longitude = Double.toString(location.getLongitude());
 
-        String table = TABLE_MAPS_HTMC; // TODO: from ustopo too
-        String[] query = QUERY_MAPS_FULLENTRY;
-
         String selection = KEY_MAP_LATITUDE_NORTH + " >= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " <= ?"
                 + " AND " + KEY_MAP_LONGITUDE_WEST + " <= ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " >= ?";
         String[] selectionArgs = new String[] { latitude, latitude, longitude, longitude };
 
-        Cursor cursor = database.query(table, query, selection, selectionArgs, null, null, "_id DESC");
+        Cursor cursor = database.query(table, QUERY_MAPS_FULLENTRY, selection, selectionArgs, null, null, "_id DESC");
         if (cursor != null)
         {
             contentValues = new ContentValues[cursor.getCount()];
@@ -419,14 +433,26 @@ public class TopoIndexDatabaseAdapter
         return contentValues;
     }
 
-    public ContentValues[] findMapsWithin(ContentValues values)
+    /**
+     * Find all maps within the boundaries of another map.
+     * @param table the database table to search
+     * @param values a map to search within
+     * @return a list containing matching rows (ContentValues)
+     */
+    public ContentValues[] findMapsWithin(String table, ContentValues values)
     {
         double[] corners = new double[] { values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST),
                                           values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST) };
-        return findMapsWithin(corners);
+        return findMapsWithin(table, corners);
     }
 
-    public ContentValues[] findMapsWithin(double... corners)
+    /**
+     * Find all maps within given boundaries.
+     * @param table the database table to search
+     * @param corners double[4] containing [north lat, west lon, south lat, east lon]
+     * @return a list containing matching rows (ContentValues)
+     */
+    public ContentValues[] findMapsWithin(String table, double... corners)
     {
         ContentValues[] contentValues = null;
         if (corners == null || corners.length != 4) {
@@ -439,15 +465,12 @@ public class TopoIndexDatabaseAdapter
         double southLat = corners[2];
         double eastLon = corners[3];
 
-        String table = TABLE_MAPS_HTMC; // TODO: from ustopo too
-        String[] query = QUERY_MAPS_FULLENTRY;
-
         String selection = KEY_MAP_LATITUDE_NORTH + " <= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " >= ?"
                 + " AND " + KEY_MAP_LONGITUDE_WEST + " >= ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " <= ?";
         String[] selectionArgs = new String[] { Double.toString(northLat), Double.toString(southLat),
                 Double.toString(westLon), Double.toString(eastLon) };
 
-        Cursor cursor = database.query(table, query, selection, selectionArgs, null, null, "_id DESC");
+        Cursor cursor = database.query(table, QUERY_MAPS_FULLENTRY, selection, selectionArgs, null, null, "_id DESC");
         if (cursor != null)
         {
             contentValues = new ContentValues[cursor.getCount()];
@@ -478,7 +501,7 @@ public class TopoIndexDatabaseAdapter
      * @param mapScale the MapScale (or null for any)
      * @return an array[9] of ContentValues[], a list of maps for each grid position
      */
-    public ContentValues[][] findNearbyMaps(ContentValues[] values, @NonNull MapScale mapScale)
+    public ContentValues[][] findNearbyMaps(String table, ContentValues[] values, MapScale mapScale)
     {
         double[] corners = TopoIndexDatabaseAdapter.getCorners(values[0]);         // bounding box: n, w, e, s
         double northLat = corners[0];
@@ -486,7 +509,6 @@ public class TopoIndexDatabaseAdapter
         double southLat = corners[2];
         double eastLon = corners[3];
 
-        String table = TABLE_MAPS_HTMC;
         String[] query = QUERY_MAPS_FULLENTRY;
         ContentValues[][] contentValues = new ContentValues[9][];
 
@@ -512,7 +534,7 @@ public class TopoIndexDatabaseAdapter
         Cursor cursor3 = database.query( table, query, selection3, selectionArgs3, null, null, "_id DESC" );
         assignGridValue(contentValues, GRID_WEST, cursor3);
 
-        ContentValues[] withinCenter = findMapsWithin(values[0]);
+        ContentValues[] withinCenter = findMapsWithin(table, values[0]);  // TODO
         ContentValues[] centerValues = new ContentValues[values.length + withinCenter.length];
         System.arraycopy(values, 0, centerValues, 0, values.length);
         System.arraycopy(withinCenter, 0, centerValues, values.length, withinCenter.length);

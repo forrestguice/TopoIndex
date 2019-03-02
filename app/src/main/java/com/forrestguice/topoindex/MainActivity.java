@@ -538,10 +538,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AppSettings.Location currentLocation = AppSettings.getLocation(this);
         Toast.makeText(this, currentLocation.toString(), Toast.LENGTH_SHORT).show();
 
-        final ContentValues[] maps = database.findMapsContaining(currentLocation);     // TODO: async task
+        final ContentValues[] maps = database.findMapsContaining(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, currentLocation);     // TODO: async task  // TODO: USTOPO
         if (maps != null && maps.length > 0)
         {
-            ContentValues[][] nearbyMaps = database.findNearbyMaps(maps, null);   // TODO: async task
+            ContentValues[][] nearbyMaps = database.findNearbyMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, maps, null);   // TODO: async task  // TODO: USTOPO
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
@@ -634,7 +634,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             final ContentValues item = new ContentValues();
             DatabaseUtils.cursorRowToContentValues(cursor, item);
 
-            ContentValues[][] nearbyMaps = database.findNearbyMaps(new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            ContentValues[][] nearbyMaps = database.findNearbyMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task  // TODO: USTOPO
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
@@ -642,7 +642,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             new Handler().postDelayed(new Runnable() {
                 public void run()
                 {
-                    ContentValues[] contentValues = database.findMapsWithin(item);
+                    ContentValues[] contentValues = database.findMapsWithin(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, item);  // TODO
                     int selectedPos = TopoIndexDatabaseAdapter.findMapInList(contentValues, item);
                     showMapItemDialog(contentValues, selectedPos);
                 }
@@ -947,13 +947,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem(ContentValues item)
         {
-            showMapItemDialog(database.findMapsWithin(item), -1);
+            showMapItemDialog(database.findMapsWithin(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, item), -1);   // TODO
         }
 
         @Override
         public void onBrowseItem(ContentValues item)
         {
-            ContentValues[][] nearbyMaps = database.findNearbyMaps(new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            ContentValues[][] nearbyMaps = database.findNearbyMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task  // TODO: USTOPO
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
@@ -989,7 +989,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onNearbyItem( ContentValues item )
         {
-            ContentValues[][] nearbyMaps = database.findNearbyMaps(new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task
+            ContentValues[][] nearbyMaps = database.findNearbyMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task  // TODO: USTOPO
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
