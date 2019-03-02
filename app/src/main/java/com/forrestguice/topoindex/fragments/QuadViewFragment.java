@@ -97,6 +97,17 @@ public class QuadViewFragment extends TopoIndexFragment
                     }
                 }
             });
+            grid.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view)
+                {
+                    if (fragmentListener != null && contentValues[j] != null && contentValues[j].length > 0) {
+                        fragmentListener.onBrowseAndViewItem(contentValues[j][0]);       // TODO: always show index 0?
+                        return true;
+                    }
+                    return false;
+                }
+            });
 
             gridCards[i] = grid.findViewById(R.id.mapItem_card);
             gridTitles[i] = (TextView)grid.findViewById(R.id.mapItem_name);
@@ -186,6 +197,7 @@ public class QuadViewFragment extends TopoIndexFragment
     {
         public void onViewItem(ContentValues values) {}
         public void onBrowseItem(ContentValues values) {}
+        public void onBrowseAndViewItem(ContentValues values) {}
     }
 
     protected QuadViewFragmentListener fragmentListener;

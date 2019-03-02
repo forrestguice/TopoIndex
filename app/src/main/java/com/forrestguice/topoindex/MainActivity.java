@@ -946,7 +946,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             pagerAdapter.quadFragment.setContentValues(nearbyMaps);
             pagerAdapter.quadFragment.updateViews(MainActivity.this);
             pager.setCurrentItem(1);
-            showMapItemDialog(database.findMapsWithin(item));
+        }
+
+        @Override
+        public void onBrowseAndViewItem(ContentValues item)
+        {
+            onBrowseItem(item);
+            onViewItem(item);
         }
 
         @Override
