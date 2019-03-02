@@ -23,12 +23,12 @@
         <a href="https://github.com/forrestguice/TopoIndex/wiki/Privacy">github.com/forrestguice/TopoIndex/wiki/Privacy</a>
     ]]></xliff:g></string>
     <string name="privacy_permission_location"><![CDATA[TopoIndex uses the <b>location</b> permission to determine your current longitude and latitude.]]></string>
-    <string name="privacy_permission_storage"><![CDATA[TopoIndex uses <b>external storage</b> permissions to scan your map collection.]]></string>  <!-- TODO -->
+    <string name="privacy_permission_storage"><![CDATA[TopoIndex uses <b>external storage</b> permissions to scan your map collection.]]></string>
     <string name="permissions_dialog_title">Permissions</string>
 
     <!-- Help -->
-    <string name="help_general">TODO .. general help</string>  <!-- TODO -->
-    <string name="help_location">TODO .. location from the Passive provider</string>  <!-- TODO -->
+    <string name="help_general">TODO</string>  <!-- TODO -->
+    <string name="help_location">TopoIndex uses the passive provider to obtain your location.\n\nUse a GPS app to request location updates (and TopoIndex will also receive those updates).</string>
 
     <!-- List -->
     <string name="list_empty_maps">No Maps</string>
