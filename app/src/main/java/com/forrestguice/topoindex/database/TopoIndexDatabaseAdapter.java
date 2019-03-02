@@ -20,6 +20,7 @@ package com.forrestguice.topoindex.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -28,6 +29,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 
 import com.forrestguice.topoindex.AppSettings;
+import com.forrestguice.topoindex.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -882,7 +884,7 @@ public class TopoIndexDatabaseAdapter
      */
     public enum MapScale
     {
-        SCALE_ANY("Any", ""),                   // TODO: i18n
+        SCALE_ANY("Any", ""),
         SCALE_250K("250K", "250000"),
         SCALE_100K("100K", "100000"),
         SCALE_63K("63K", "63000"),
@@ -910,9 +912,23 @@ public class TopoIndexDatabaseAdapter
             return SCALE_ANY;
         }
 
-        private String displayString;
+        protected String displayString;
         public String toString() {
             return displayString;
+        }
+
+        public static void initDisplayStrings(Context context)
+        {
+            Resources r = context.getResources();
+            String[] displayValues = r.getStringArray(R.array.mapscale_display);
+            MapScale[] values = MapScale.values();
+            for (int i=0; i<values.length; i++)
+            {
+                if (i >= displayValues.length) {
+                    break;
+                }
+                values[i].displayString = displayValues[i];
+            }
         }
     }
 

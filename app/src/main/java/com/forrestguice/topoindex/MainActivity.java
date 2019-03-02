@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         super.onCreate(savedState);
         setContentView(R.layout.activity_main);
+        initLocale(this);
         initViews(this);
         initLocation(this);
     }
@@ -127,6 +128,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onRestoreInstanceState( Bundle savedState )
     {
         super.onRestoreInstanceState(savedState);
+    }
+
+    private void initLocale(Context context)
+    {
+        TopoIndexDatabaseAdapter.MapScale.initDisplayStrings(context);
     }
 
     @SuppressLint("ClickableViewAccessibility")

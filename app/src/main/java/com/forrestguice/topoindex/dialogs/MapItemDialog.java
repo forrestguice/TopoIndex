@@ -299,9 +299,12 @@ public class MapItemDialog extends BottomSheetDialogFragment
                 text_series.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES));
                 text_state.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_STATE));
                 text_date.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_DATE));
-                text_scale.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE));
                 text_gdaid.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID));
                 text_scanid.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID));
+
+                String mapScaleValue = contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE);
+                TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(mapScaleValue);
+                text_scale.setText(mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? "" : mapScale.toString());
 
                 if (colorize)
                 {

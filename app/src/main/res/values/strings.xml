@@ -69,6 +69,15 @@
     <string name="filter_label_scale">Map Scale</string>
     <string name="filter_label_none">No Filter</string>
 
+    <string-array name="mapscale_display">
+        <item>Any</item>
+        <item>250K</item>
+        <item>100K</item>
+        <item>63K</item>
+        <item>48K</item>
+        <item>24K</item>
+    </string-array>
+
     <!-- General settings -->
     <string name="title_activity_settings">@string/action_settings</string>
     <string name="pref_header_general">General</string>
