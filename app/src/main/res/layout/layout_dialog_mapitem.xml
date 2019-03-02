@@ -50,36 +50,6 @@
 
         <LinearLayout
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:paddingTop="8dp" android:paddingBottom="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mapItem_secorner"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/mapItem_cellid"
-                style="@style/TextAppearance.AppCompat.Small"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:padding="8dp"
-                tools:text="cellid" />
-
-            <TextView
-                android:id="@+id/mapItem_scanid"
-                style="@style/TextAppearance.AppCompat.Small"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:padding="8dp"
-                tools:text="scanid" />
-
-            <TextView
-                android:id="@+id/mapItem_gdaitemid"
-                style="@style/TextAppearance.AppCompat.Small"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:padding="8dp"
-                tools:text="gda item id" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mapItem_secorner"

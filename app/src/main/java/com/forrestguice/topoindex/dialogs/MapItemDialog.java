@@ -53,7 +53,7 @@ public class MapItemDialog extends BottomSheetDialogFragment
     public static final String KEY_CONTENTVALUES_COUNT = "contentvalues_count";
 
     private Spinner header;
-    private TextView text_nwcorner, text_secorner, text_gdaid, text_scanid, text_cellid;
+    private TextView text_nwcorner, text_secorner;
     private Button button_view, button_nearby;
 
     @Override
@@ -127,9 +127,6 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
         text_nwcorner = (TextView)dialogContent.findViewById(R.id.mapItem_nwcorner);
         text_secorner = (TextView)dialogContent.findViewById(R.id.mapItem_secorner);
-        text_gdaid = (TextView)dialogContent.findViewById(R.id.mapItem_gdaitemid);
-        text_scanid = (TextView)dialogContent.findViewById(R.id.mapItem_scanid);
-        text_cellid = (TextView)dialogContent.findViewById(R.id.mapItem_cellid);
 
         button_view = (Button)dialogContent.findViewById(R.id.view_button);
         button_view.setOnClickListener(onViewButtonClick);
@@ -148,10 +145,6 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
             AppSettings.Location seCorner = getSoutheastCorner(selectedValues);
             text_secorner.setText(seCorner != null ? seCorner.toString() : "");
-
-            text_gdaid.setText(selectedValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID));
-            text_scanid.setText(selectedValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID));
-            text_cellid.setText(selectedValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_CELLID));
 
             Boolean hasMap = selectedValues.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
             button_view.setText(context.getString(hasMap != null && hasMap ? R.string.action_view : R.string.action_download));
@@ -289,6 +282,8 @@ public class MapItemDialog extends BottomSheetDialogFragment
             TextView text_state = (TextView)view.findViewById(R.id.mapItem_state);
             TextView text_date = (TextView)view.findViewById(R.id.mapItem_date);
             TextView text_scale = (TextView)view.findViewById(R.id.mapItem_scale);
+            TextView text_gdaid = (TextView)view.findViewById(R.id.mapItem_gdaitemid);
+            TextView text_scanid = (TextView)view.findViewById(R.id.mapItem_scanid);
 
             if (contentValues != null && contentValues.length > i)
             {
@@ -297,6 +292,8 @@ public class MapItemDialog extends BottomSheetDialogFragment
                 text_state.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_STATE));
                 text_date.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_DATE));
                 text_scale.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE));
+                text_gdaid.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID));
+                text_scanid.setText(contentValues[i].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID));
 
                 if (colorize)
                 {
@@ -314,6 +311,8 @@ public class MapItemDialog extends BottomSheetDialogFragment
                 text_state.setText("");
                 text_date.setText("");
                 text_scale.setText("");
+                text_gdaid.setText("");
+                text_scanid.setText("");
             }
 
             return view;
