@@ -124,7 +124,7 @@
      inkscape:window-height="1137"
      id="namedview28"
      showgrid="false"
-     inkscape:zoom="32"
+     inkscape:zoom="16"
      inkscape:cx="13.205706"
      inkscape:cy="14.655413"
      inkscape:window-x="1272"
@@ -136,57 +136,57 @@
      transform="matrix(0.59635259,0,0,0.39756839,0,14.458359)">
     <path
        inkscape:connector-curvature="0"
-       style="fill:#ff9900;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#99cc33;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 22.631064,-18.509393 h -4.369007 v 8.8035158 h 4.369007 z"
        id="path5247" />
     <g
        id="g5352"
-       style="fill:#ff6600">
+       style="fill:#3366cc">
       <path
          id="path5227"
          d="m 22.631064,-8.4482319 h -4.369007 v 9.35373652 h 4.369007 z"
-         style="fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#3366cc;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          inkscape:connector-curvature="0" />
       <path
          id="path5249"
          d="m 23.469494,-9.7058772 h 4.454161 v -8.8035158 h -4.454161 z"
-         style="fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#3366cc;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          inkscape:connector-curvature="0" />
       <path
          id="path5242"
          d="m 17.423627,-18.509393 h -4.621192 v 8.8035158 h 4.621192 z"
-         style="fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#3366cc;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          inkscape:connector-curvature="0" />
       <path
          id="path5237"
          d="m 22.631064,-29.341845 h -4.369007 v 9.574807 h 4.369007 z"
-         style="fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#3366cc;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="g4872" />
     <g
        id="g5334"
-       style="fill:#ff6600">
+       style="fill:#6699ff">
       <path
          transform="matrix(1.6768603,0,0,2.5152905,0,-36.366973)"
          id="path5255"
          d="M 8.0742188 3.2929688 L 8.0742188 6.5996094 L 10.390625 6.5996094 L 10.390625 3.2929688 L 8.0742188 3.2929688 z "
-         style="fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:0.17743807;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill:#6699ff;fill-opacity:1;stroke:none;stroke-width:0.17743807;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <path
          id="path5255-1"
          d="m 23.469494,-28.0842 v 8.317161 h 3.88429 V -28.0842 Z"
-         style="fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#6699ff;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          inkscape:connector-curvature="0" />
       <path
          id="path5255-1-4"
          d="m 23.469494,-8.4482319 v 8.31716127 h 3.88429 V -8.4482319 Z"
-         style="fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#6699ff;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          inkscape:connector-curvature="0" />
       <path
          id="path5255-1-2"
          d="m 13.539337,-8.4482319 v 8.31716094 h 3.88429 V -8.4482319 Z"
-         style="fill:#ff6600;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:#6699ff;fill-opacity:1;stroke:none;stroke-width:0.36440918;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          inkscape:connector-curvature="0" />
     </g>
   </g>
