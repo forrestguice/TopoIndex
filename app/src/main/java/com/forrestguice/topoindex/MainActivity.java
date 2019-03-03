@@ -68,6 +68,10 @@ import com.forrestguice.topoindex.database.tasks.DatabaseTaskListener;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskResult;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
+import com.forrestguice.topoindex.database.tasks.MapItemContainingTask;
+import com.forrestguice.topoindex.database.tasks.MapItemNearbyTask;
+import com.forrestguice.topoindex.database.tasks.MapItemTaskListener;
+import com.forrestguice.topoindex.database.tasks.MapItemWithinTask;
 import com.forrestguice.topoindex.dialogs.AboutDialog;
 import com.forrestguice.topoindex.dialogs.FilterDialog;
 import com.forrestguice.topoindex.dialogs.LocationDialog;
@@ -538,20 +542,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AppSettings.Location currentLocation = AppSettings.getLocation(this);
         Toast.makeText(this, currentLocation.toString(), Toast.LENGTH_SHORT).show();
 
-        final ContentValues[] maps = database.findMapsContaining(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, currentLocation);     // TODO: async task  // TODO: USTOPO
-        if (maps != null && maps.length > 0)
+        MapItemContainingTask mapItemTask = new MapItemContainingTask(MainActivity.this, currentLocation);
+        mapItemTask.setTaskListener(new MapItemTaskListener()
         {
-            ContentValues[][] nearbyMaps = database.findNearbyMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, maps, null);   // TODO: async task  // TODO: USTOPO  // TODO: scale
-            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
-            pagerAdapter.quadFragment.updateViews(MainActivity.this);
-            pager.setCurrentItem(1);
+            @Override
+            public void onFinished(final ContentValues[] mapList, int selectedPos)
+            {
+                MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, mapList, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);
+                nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
+                {
+                    @Override
+                    public void onFinished(ContentValues[][] nearbyList, int selectedPos)
+                    {
+                        pagerAdapter.quadFragment.setContentValues(nearbyList);
+                        pagerAdapter.quadFragment.updateViews(MainActivity.this);
+                        pager.setCurrentItem(1);
 
-            new Handler().postDelayed(new Runnable() {
-                public void run() {
-                    showMapItemDialog(maps, -1);
-                }
-            }, 250);
-        }
+                        new Handler().postDelayed(new Runnable() {
+                            public void run() {
+                                showMapItemDialog(mapList, -1);
+                            }
+                        }, 250);
+                    }
+                });
+                nearbyTask.execute(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC);    // TODO: USTOPO  // TODO: scale
+            }
+        });
+        mapItemTask.execute( TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC ); // TODO: USTOPO
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -626,7 +643,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Map Item
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void showMapItemDialog(Context context, AdapterView<?> adapterView, int position)
+    private void showMapItemDialog(final Context context, AdapterView<?> adapterView, int position)
     {
         Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
         if (cursor != null)
@@ -634,27 +651,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             final ContentValues item = new ContentValues();
             DatabaseUtils.cursorRowToContentValues(cursor, item);
 
-            ContentValues[][] nearbyMaps = database.findNearbyMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task  // TODO: USTOPO  // TODO: scale
-            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
-            pagerAdapter.quadFragment.updateViews(MainActivity.this);
-            pager.setCurrentItem(1);
-
-            new Handler().postDelayed(new Runnable() {
-                public void run()
+            MapItemNearbyTask nearbyTask = new MapItemNearbyTask(context, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K );    // TODO: USTOPO  // TODO: scale
+            nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
+            {
+                @Override
+                public void onFinished(ContentValues[][] nearbyList, int selectedPos)
                 {
-                    ContentValues[] contentValues = database.findMapsWithin(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, item);  // TODO
-                    int selectedPos = TopoIndexDatabaseAdapter.findMapInList(contentValues, item);
-                    showMapItemDialog(contentValues, selectedPos);
+                    pagerAdapter.quadFragment.setContentValues(nearbyList);
+                    pagerAdapter.quadFragment.updateViews(MainActivity.this);
+                    pager.setCurrentItem(1);
+
+                    MapItemWithinTask mapItemTask = new MapItemWithinTask(context, item);
+                    mapItemTask.setTaskListener(new MapItemTaskListener()
+                    {
+                        public void onFinished(final ContentValues[] mapList, final int selectedPos)
+                        {
+                            new Handler().postDelayed(new Runnable() {
+                                public void run() {
+                                    showMapItemDialog(mapList, selectedPos);
+                                }
+                            }, 250);
+                        }
+                    });
+                    mapItemTask.execute( TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC );  // TODO: USTOPO
                 }
-            }, 250);
+            });
+            nearbyTask.execute(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC);
         }
     }
 
     private void showMapItemDialog(ContentValues[] contentValues, int selectedPos)
     {
-        ContentValues[] collectedValues = database.findInCollection(contentValues);
         MapItemDialog itemDialog = new MapItemDialog();
-        itemDialog.setContentValues(collectedValues);
+        itemDialog.setContentValues(contentValues);
         itemDialog.setInitialPosition(selectedPos);
         itemDialog.setMapItemDialogListener(onMapItem);
         itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_MAPITEM);
@@ -947,16 +976,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem(ContentValues item)
         {
-            showMapItemDialog(database.findMapsWithin(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, item), -1);   // TODO
+            MapItemWithinTask mapItemTask = new MapItemWithinTask(MainActivity.this, item);
+            mapItemTask.setTaskListener(new MapItemTaskListener()
+            {
+                @Override
+                public void onFinished(ContentValues[] mapList, int selectedPos) {
+                    showMapItemDialog(mapList, -1);
+                }
+            });
+            mapItemTask.execute( TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC );  // TODO: USTOPO
         }
 
         @Override
         public void onBrowseItem(ContentValues item)
         {
-            ContentValues[][] nearbyMaps = database.findNearbyMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task  // TODO: USTOPO  // TODO: scale
-            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
-            pagerAdapter.quadFragment.updateViews(MainActivity.this);
-            pager.setCurrentItem(1);
+            MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K );    // TODO: USTOPO  // TODO: scale
+            nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
+            {
+                @Override
+                public void onFinished(ContentValues[][] nearbyList, int selectedPos)
+                {
+                    pagerAdapter.quadFragment.setContentValues(nearbyList);
+                    pagerAdapter.quadFragment.updateViews(MainActivity.this);
+                    pager.setCurrentItem(1);
+                }
+            });
+            nearbyTask.execute(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC);
         }
 
         @Override
@@ -989,10 +1034,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onNearbyItem( ContentValues item )
         {
-            ContentValues[][] nearbyMaps = database.findNearbyMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K);   // TODO: async task  // TODO: USTOPO  // TODO: scale
-            pagerAdapter.quadFragment.setContentValues(nearbyMaps);
-            pagerAdapter.quadFragment.updateViews(MainActivity.this);
-            pager.setCurrentItem(1);
+            MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, new ContentValues[] { item }, TopoIndexDatabaseAdapter.MapScale.SCALE_24K );    // TODO: USTOPO  // TODO: scale
+            nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
+            {
+                @Override
+                public void onFinished(ContentValues[][] nearbyList, int selectedPos)
+                {
+                    pagerAdapter.quadFragment.setContentValues(nearbyList);
+                    pagerAdapter.quadFragment.updateViews(MainActivity.this);
+                    pager.setCurrentItem(1);
+                }
+            });
+            nearbyTask.execute(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC);
         }
 
         @Override
