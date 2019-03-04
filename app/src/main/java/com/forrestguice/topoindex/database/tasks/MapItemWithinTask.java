@@ -21,11 +21,18 @@ package com.forrestguice.topoindex.database.tasks;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class MapItemWithinTask extends AsyncTask<String, Void, ContentValues[]>
 {
+    public static final String TAG = "MapItemTask";
+
     private ContentValues item;
     private int selectedPos;
     private TopoIndexDatabaseAdapter database;
@@ -41,15 +48,28 @@ public class MapItemWithinTask extends AsyncTask<String, Void, ContentValues[]>
     @Override
     protected ContentValues[] doInBackground(String... tables)
     {
-        String table = (tables.length > 0) ? tables[0] : TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;  // TODO: support multiple tables
+        if (tables.length == 0 || tables[0] == null) {
+            tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };
+            Log.w(TAG, "Within: Missing parameter table(s), falling back to HTMC.");
+        }
 
+        List<ContentValues> mapList = new ArrayList<>();
         database.open();
-        ContentValues[] contentValues = database.findMapsWithin(table, mapScale, item);
-        ContentValues[] collectedValues =  database.findInCollection(contentValues);
+        for (int i=0; i<tables.length; i++)
+        {
+            if (tables[i] != null)
+            {
+                ContentValues[] contentValues = database.findMapsWithin(tables[i], mapScale, item);
+                ContentValues[] collectedValues =  database.findInCollection(contentValues);
+                mapList.addAll(Arrays.asList(collectedValues));
+            }
+        }
+
         database.close();
 
-        selectedPos = TopoIndexDatabaseAdapter.findMapInList(contentValues, item);
-        return collectedValues;
+        ContentValues[] mapArray = mapList.toArray(new ContentValues[0]);
+        selectedPos = TopoIndexDatabaseAdapter.findMapInList(mapArray, item);
+        return mapArray;
     }
 
     @Override

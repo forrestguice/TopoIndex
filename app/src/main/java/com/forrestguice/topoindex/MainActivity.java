@@ -83,7 +83,6 @@ import com.forrestguice.topoindex.fragments.TopoIndexFragment;
 
 import java.io.File;
 import java.util.Calendar;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -540,8 +539,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void showCurrentLocation()
     {
-        final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };   // TODO: USTOPO
-        final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.SCALE_24K;  // TODO: scale
+        final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: USTOPO
+        final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.SCALE_ANY;  // TODO: scale
         AppSettings.Location currentLocation = AppSettings.getLocation(this);
         Toast.makeText(this, currentLocation.toString(), Toast.LENGTH_SHORT).show();
 
@@ -654,8 +653,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             final ContentValues item = new ContentValues();
             DatabaseUtils.cursorRowToContentValues(cursor, item);
 
-            final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };   // TODO: USTOPO
-            final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.SCALE_24K;  // TODO: scale
+            final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: series selection
+            final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.SCALE_24K;  // TODO: scale selection
 
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(context, new ContentValues[] { item }, mapScale );
             nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
