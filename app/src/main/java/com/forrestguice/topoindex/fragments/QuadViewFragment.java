@@ -151,7 +151,7 @@ public class QuadViewFragment extends TopoIndexFragment
 
             for (int i=0; i<gridStates.length; i++)
             {
-                if (contentValues[i] != null)
+                if (contentValues[i] != null && contentValues[i].length > 0)
                 {
                     String state = contentValues[i][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_STATE);
                     gridStates[i].setText(state);
