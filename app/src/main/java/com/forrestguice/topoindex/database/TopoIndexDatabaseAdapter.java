@@ -462,9 +462,15 @@ public class TopoIndexDatabaseAdapter
      */
     public ContentValues[] findMapsWithin(String table, MapScale mapScale, ContentValues values)
     {
-        double[] corners = new double[] { values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST),
-                                          values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST) };
-        return findMapsWithin(table, mapScale, corners);
+        if (values != null)
+        {
+            double[] corners = new double[]{ values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST),
+                                             values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST) };
+            return findMapsWithin(table, mapScale, corners);
+
+        } else {
+            return new ContentValues[0];
+        }
     }
 
     /**
