@@ -935,6 +935,7 @@ public class TopoIndexDatabaseAdapter
     {
         SCALE_ANY("Any", ""),
         SCALE_250K("250K", "250000"),
+        SCALE_125K("125K", "125000"),
         SCALE_100K("100K", "100000"),
         SCALE_63K("63K", "63000"),
         SCALE_48K("48K", "48000"),

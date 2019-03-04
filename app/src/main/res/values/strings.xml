@@ -72,6 +72,7 @@
     <string-array name="mapscale_display">
         <item>Any</item>
         <item>250K</item>
+        <item>125K</item>
         <item>100K</item>
         <item>63K</item>
         <item>48K</item>
