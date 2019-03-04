@@ -233,7 +233,8 @@ public class ListViewFragment extends TopoIndexFragment
         if (filterDescScale != null)
         {
             String filterByScale = AppSettings.getFilter_byScale(context);
-            filterDescScale.setText(filterByScale);
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(filterByScale);
+            filterDescScale.setText(mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? filterByScale : mapScale.toString());
             filterDescScale.setVisibility( filterByScale.isEmpty() ? View.GONE : View.VISIBLE );
         }
 
@@ -443,9 +444,6 @@ public class ListViewFragment extends TopoIndexFragment
             TextView itemName = (TextView)view.findViewById(android.R.id.text1);
             itemName.setText(cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_NAME)));
 
-            TextView itemScale = (TextView)view.findViewById(R.id.mapItem_scale);
-            setText(itemScale, TopoIndexDatabaseAdapter.KEY_MAP_SCALE, cursor);
-
             TextView itemState = (TextView)view.findViewById(R.id.mapItem_state);
             setText(itemState, TopoIndexDatabaseAdapter.KEY_MAP_STATE, cursor);
 
@@ -454,6 +452,16 @@ public class ListViewFragment extends TopoIndexFragment
 
             TextView itemSeries = (TextView)view.findViewById(R.id.mapItem_series);
             setText(itemSeries, TopoIndexDatabaseAdapter.KEY_MAP_SERIES, cursor);
+
+            TextView itemScale = (TextView)view.findViewById(R.id.mapItem_scale);
+            int scaleIndex = cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_SCALE);
+            if (scaleIndex != -1)
+            {
+                String scaleValue = cursor.getString(scaleIndex);
+                TopoIndexDatabaseAdapter.MapScale scale = TopoIndexDatabaseAdapter.MapScale.findValue(scaleValue);
+                itemScale.setText((scale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY) ? scaleValue : scale.toString());
+            }
+
         }
 
         private void setText(TextView item, String columnName, Cursor cursor)

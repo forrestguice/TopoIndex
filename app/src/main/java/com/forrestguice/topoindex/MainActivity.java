@@ -540,7 +540,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void showCurrentLocation()
     {
         final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: USTOPO
-        final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.SCALE_ANY;  // TODO: scale
+        final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
         AppSettings.Location currentLocation = AppSettings.getLocation(this);
         Toast.makeText(this, currentLocation.toString(), Toast.LENGTH_SHORT).show();
 
@@ -654,7 +654,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             DatabaseUtils.cursorRowToContentValues(cursor, item);
 
             final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: series selection
-            final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.SCALE_24K;  // TODO: scale selection
+            final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
 
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(context, new ContentValues[] { item }, mapScale );
             nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
@@ -981,9 +981,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem(ContentValues item)
         {
-            TopoIndexDatabaseAdapter.MapScale mapScale =  TopoIndexDatabaseAdapter.MapScale.SCALE_24K;      // TODO: scale
-            String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };      // TODO: USTOPO
-
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
+            String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };      // TODO: series selection
 
             MapItemWithinTask mapItemTask = new MapItemWithinTask(MainActivity.this, item, mapScale);
             mapItemTask.setTaskListener(new MapItemTaskListener()
@@ -999,7 +998,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onBrowseItem(ContentValues item)
         {
-            TopoIndexDatabaseAdapter.MapScale mapScale =  TopoIndexDatabaseAdapter.MapScale.SCALE_24K;      // TODO: scale
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
             String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };      // TODO: USTOPO
 
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, new ContentValues[] { item }, mapScale );
@@ -1046,7 +1045,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onNearbyItem( ContentValues item )
         {
-            TopoIndexDatabaseAdapter.MapScale mapScale =  TopoIndexDatabaseAdapter.MapScale.SCALE_24K;      // TODO: scale
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
             String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };      // TODO: USTOPO
 
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, new ContentValues[] { item }, mapScale );
