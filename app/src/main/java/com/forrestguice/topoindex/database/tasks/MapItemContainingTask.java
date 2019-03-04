@@ -55,23 +55,14 @@ public class MapItemContainingTask extends AsyncTask<String, Void, ContentValues
             Log.w(TAG, "Containing: Missing parameter table(s), falling back to HTMC.");
         }
 
-        List<ContentValues> mapList = new ArrayList<>();
         database.open();
-        for (int i=0; i<tables.length; i++)
-        {
-            if (tables[i] != null)
-            {
-                ContentValues[] values = database.findMapsContaining(tables[i], location, mapScale);
-                ContentValues[] collectedValues = database.findInCollection(values);
-                mapList.addAll(Arrays.asList(collectedValues));
-            }
-        }
+        ContentValues[] values = database.findMapsContaining(tables, location, mapScale);
         database.close();
 
         long bench_end = System.nanoTime();
         Log.d(TAG, "containing (benchmark): " + ((double)(bench_end - bench_start) / 1E9) + " .. " + tables.length + " tables.");
 
-        return mapList.toArray(new ContentValues[0]);
+        return values;
     }
 
     @Override

@@ -32,7 +32,10 @@ import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TopoIndexDatabaseAdapter
 {
@@ -100,8 +103,8 @@ public class TopoIndexDatabaseAdapter
 
     public static final String KEY_MAP_ISCOLLECTED = "iscollected";
 
-    private static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
-    private static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
+    public static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
+    public static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
 
     /**
      * USGS HTMC (Historical Topo Collection)
@@ -324,9 +327,9 @@ public class TopoIndexDatabaseAdapter
         return getMaps(TABLE_MAPS_USTOPO, n, fullEntry);
     }
 
-    public Cursor getMap_HTMC(String table, @NonNull String scanID, boolean fullEntry)
+    public Cursor getMap_HTMC(String table, @NonNull String scanID, String[] columns)
     {
-        String[] query = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
+        String[] query = columns;
         String selection = KEY_MAP_SCANID + " = ?";
         String[] selectionArgs = new String[] { scanID };
         Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, "_id DESC" );
@@ -336,9 +339,9 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
-    public Cursor getMap_USTopo(String table, @NonNull String gdaItemID, boolean fullEntry)
+    public Cursor getMap_USTopo(String table, @NonNull String gdaItemID, String[] columns)
     {
-        String[] query = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
+        String[] query = columns;
         String selection = KEY_MAP_GDAITEMID + " = ?";
         String[] selectionArgs = new String[] { gdaItemID };
         Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, "_id DESC" );
@@ -435,6 +438,20 @@ public class TopoIndexDatabaseAdapter
             cursor.close();
         }
         return contentValues;
+    }
+    public ContentValues[] findMapsContaining(String[] tables, AppSettings.Location location, MapScale mapScale)
+    {
+        List<ContentValues> mapList = new ArrayList<>();
+        for (int i=0; i<tables.length; i++)
+        {
+            if (tables[i] != null)
+            {
+                ContentValues[] values = findMapsContaining(tables[i], location, mapScale);
+                ContentValues[] collectedValues = findInCollection(values);
+                mapList.addAll(Arrays.asList(collectedValues));
+            }
+        }
+        return mapList.toArray(new ContentValues[0]);
     }
 
     /**
@@ -635,27 +652,22 @@ public class TopoIndexDatabaseAdapter
         {
             //noinspection UnnecessaryLocalVariable
             String gdaItemID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
-            cursor = getMap_USTopo(TABLE_MAPS, gdaItemID, true);
+            cursor = getMap_USTopo(TABLE_MAPS, gdaItemID, new String[] { KEY_MAP_GDAITEMID });
 
         } else {
             //noinspection UnnecessaryLocalVariable
             String scanID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
-            cursor = getMap_HTMC(TABLE_MAPS, scanID, true);
+            cursor = getMap_HTMC(TABLE_MAPS, scanID, new String[] { KEY_MAP_SCANID });
         }
 
-        ContentValues retValue = null;
         if (cursor != null) {
-            if (cursor.getCount() >= 1) {
-                retValue = new ContentValues();
-                DatabaseUtils.cursorRowToContentValues(cursor, retValue);
-                retValue.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
+            if (cursor.getCount() > 0) {
+                contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
             }
             cursor.close();
-            if (retValue != null) {
-                return retValue;
-            }
+        } else {
+            contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, false);
         }
-        contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, false);
         return contentValues;
     }
 
