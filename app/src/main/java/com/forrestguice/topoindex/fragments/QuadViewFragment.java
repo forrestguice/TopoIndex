@@ -92,7 +92,7 @@ public class QuadViewFragment extends TopoIndexFragment
                 @Override
                 public void onClick(View view)
                 {
-                    if (fragmentListener != null && contentValues[j] != null && contentValues[j].length > 0)
+                    if (fragmentListener != null && contentValues != null && contentValues.length > 0 && contentValues[j] != null && contentValues[j].length > 0)
                     {
                         if (j == TopoIndexDatabaseAdapter.GRID_CENTER)
                             fragmentListener.onViewItem(contentValues[j][0]);       // TODO: always show index 0?
@@ -104,7 +104,7 @@ public class QuadViewFragment extends TopoIndexFragment
                 @Override
                 public boolean onLongClick(View view)
                 {
-                    if (fragmentListener != null && contentValues[j] != null && contentValues[j].length > 0) {
+                    if (fragmentListener != null && contentValues != null && contentValues.length > 0 && contentValues[j] != null && contentValues[j].length > 0) {
                         fragmentListener.onBrowseAndViewItem(contentValues[j][0]);       // TODO: always show index 0?
                         return true;
                     }
