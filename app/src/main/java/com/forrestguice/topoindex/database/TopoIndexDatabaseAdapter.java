@@ -404,14 +404,18 @@ public class TopoIndexDatabaseAdapter
      * @param location Location obj (lat, lon)
      * @return a list containing matching rows (ContentValues)
      */
-    public ContentValues[] findMapsContaining(String table, @NonNull AppSettings.Location location)
+    public ContentValues[] findMapsContaining(String table, @NonNull AppSettings.Location location, MapScale mapScale)
     {
         ContentValues[] contentValues = null;
         String latitude = Double.toString(location.getLatitude());
         String longitude = Double.toString(location.getLongitude());
 
-        String selection = KEY_MAP_LATITUDE_NORTH + " >= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " <= ?"
+        String selection = (mapScale == null || mapScale == MapScale.SCALE_ANY) ? ""
+                : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
+
+        selection += KEY_MAP_LATITUDE_NORTH + " >= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " <= ?"
                 + " AND " + KEY_MAP_LONGITUDE_WEST + " <= ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " >= ?";
+
         String[] selectionArgs = new String[] { latitude, latitude, longitude, longitude };
 
         Cursor cursor = database.query(table, QUERY_MAPS_FULLENTRY, selection, selectionArgs, null, null, "_id DESC");
@@ -439,11 +443,11 @@ public class TopoIndexDatabaseAdapter
      * @param values a map to search within
      * @return a list containing matching rows (ContentValues)
      */
-    public ContentValues[] findMapsWithin(String table, ContentValues values)
+    public ContentValues[] findMapsWithin(String table, MapScale mapScale, ContentValues values)
     {
         double[] corners = new double[] { values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST),
                                           values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH), values.getAsDouble(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST) };
-        return findMapsWithin(table, corners);
+        return findMapsWithin(table, mapScale, corners);
     }
 
     /**
@@ -452,7 +456,7 @@ public class TopoIndexDatabaseAdapter
      * @param corners double[4] containing [north lat, west lon, south lat, east lon]
      * @return a list containing matching rows (ContentValues)
      */
-    public ContentValues[] findMapsWithin(String table, double... corners)
+    public ContentValues[] findMapsWithin(String table, MapScale mapScale, double... corners)
     {
         ContentValues[] contentValues = null;
         if (corners == null || corners.length != 4) {
@@ -465,8 +469,12 @@ public class TopoIndexDatabaseAdapter
         double southLat = corners[2];
         double eastLon = corners[3];
 
-        String selection = KEY_MAP_LATITUDE_NORTH + " <= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " >= ?"
+        String selection = (mapScale == null || mapScale == MapScale.SCALE_ANY) ? ""
+                : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
+
+        selection += KEY_MAP_LATITUDE_NORTH + " <= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " >= ?"
                 + " AND " + KEY_MAP_LONGITUDE_WEST + " >= ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " <= ?";
+
         String[] selectionArgs = new String[] { Double.toString(northLat), Double.toString(southLat),
                 Double.toString(westLon), Double.toString(eastLon) };
 
@@ -512,7 +520,8 @@ public class TopoIndexDatabaseAdapter
         String[] query = QUERY_MAPS_FULLENTRY;
         ContentValues[][] contentValues = new ContentValues[9][];
 
-        String selection = mapScale == null ? "" : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
+        String selection = (mapScale == null || mapScale == MapScale.SCALE_ANY) ? ""
+                : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
 
         String selection0 = selection + KEY_MAP_LATITUDE_SOUTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " = ?";
         String[] selectionArgs0 = new String[] { Double.toString(northLat), Double.toString(westLon) };
@@ -534,7 +543,7 @@ public class TopoIndexDatabaseAdapter
         Cursor cursor3 = database.query( table, query, selection3, selectionArgs3, null, null, "_id DESC" );
         assignGridValue(contentValues, GRID_WEST, cursor3);
 
-        ContentValues[] withinCenter = findMapsWithin(table, values[0]);  // TODO
+        ContentValues[] withinCenter = findMapsWithin(table, mapScale, values[0]);  // TODO
         ContentValues[] centerValues = new ContentValues[values.length + withinCenter.length];
         System.arraycopy(values, 0, centerValues, 0, values.length);
         System.arraycopy(withinCenter, 0, centerValues, values.length, withinCenter.length);

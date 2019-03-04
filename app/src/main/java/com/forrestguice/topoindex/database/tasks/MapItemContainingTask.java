@@ -29,11 +29,13 @@ public class MapItemContainingTask extends AsyncTask<String, Void, ContentValues
 {
     private TopoIndexDatabaseAdapter database;
     private AppSettings.Location location;
+    private TopoIndexDatabaseAdapter.MapScale mapScale;
 
-    public MapItemContainingTask(Context context, AppSettings.Location location)
+    public MapItemContainingTask(Context context, AppSettings.Location location, TopoIndexDatabaseAdapter.MapScale mapScale)
     {
         database = new TopoIndexDatabaseAdapter(context);
         this.location = location;
+        this.mapScale = mapScale;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class MapItemContainingTask extends AsyncTask<String, Void, ContentValues
         String table = (tables.length > 0) ? tables[0] : TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;  // TODO: support multiple tables
 
         database.open();
-        ContentValues[] values = database.findMapsContaining(table, location);
+        ContentValues[] values = database.findMapsContaining(table, location, mapScale);
         ContentValues[] collectedValues = database.findInCollection(values);
         database.close();
 
