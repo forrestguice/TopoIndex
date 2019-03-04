@@ -48,6 +48,8 @@ public class MapItemWithinTask extends AsyncTask<String, Void, ContentValues[]>
     @Override
     protected ContentValues[] doInBackground(String... tables)
     {
+        long bench_start = System.nanoTime();
+
         if (tables.length == 0 || tables[0] == null) {
             tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };
             Log.w(TAG, "Within: Missing parameter table(s), falling back to HTMC.");
@@ -69,6 +71,10 @@ public class MapItemWithinTask extends AsyncTask<String, Void, ContentValues[]>
 
         ContentValues[] mapArray = mapList.toArray(new ContentValues[0]);
         selectedPos = TopoIndexDatabaseAdapter.findMapInList(mapArray, item);
+
+        long bench_end = System.nanoTime();
+        Log.d(TAG, "within (benchmark): " + ((double)(bench_end - bench_start) / 1E9) + " .. " + tables.length + " tables.");
+
         return mapArray;
     }
 

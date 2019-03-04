@@ -21,11 +21,14 @@ package com.forrestguice.topoindex.database.tasks;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
 public class MapItemNearbyTask extends AsyncTask<String, Void, ContentValues[][]>
 {
+    public static final String TAG = "MapItemTask";
+
     private TopoIndexDatabaseAdapter database;
     private ContentValues[] centerItems;
     private TopoIndexDatabaseAdapter.MapScale mapScale;
@@ -40,11 +43,16 @@ public class MapItemNearbyTask extends AsyncTask<String, Void, ContentValues[][]
     @Override
     protected ContentValues[][] doInBackground(String... tables)
     {
+        long bench_start = System.nanoTime();
+
         String table = (tables.length > 0) ? tables[0] : TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;  // TODO: support multiple tables
 
         database.open();
         ContentValues[][] nearbyMaps = database.findNearbyMaps(table, centerItems, mapScale);
         database.close();
+
+        long bench_end = System.nanoTime();
+        Log.d(TAG, "nearby (benchmark): " + ((double)(bench_end - bench_start) / 1E9) + " .. " + tables.length + " tables.");
 
         return nearbyMaps;
     }
