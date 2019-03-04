@@ -69,7 +69,7 @@ public class TopoIndexDatabaseAdapter
     public static final String DEF_MAP_STATE = KEY_MAP_STATE + " text not null";
 
     public static final String KEY_MAP_DATE = "mapdate";
-    public static final String DEF_MAP_DATE = KEY_MAP_DATE + " text not null";
+    public static final String DEF_MAP_DATE = KEY_MAP_DATE + " integer not null";
 
     public static final String KEY_MAP_LATITUDE_NORTH = "nlat";
     public static final String DEF_MAP_LATITUDE_NORTH = KEY_MAP_LATITUDE_NORTH + " numeric";
