@@ -544,6 +544,11 @@ public class TopoIndexDatabaseAdapter
      */
     public ContentValues[][] findNearbyMaps(String table, ContentValues[] values, MapScale mapScale)
     {
+        ContentValues[][] contentValues = new ContentValues[9][];
+        if (values == null || values.length == 0) {
+            return contentValues;
+        }
+
         double[] corners = TopoIndexDatabaseAdapter.getCorners(values[0]);         // bounding box: n, w, e, s
         double northLat = corners[0];
         double westLon = corners[1];
@@ -551,8 +556,6 @@ public class TopoIndexDatabaseAdapter
         double eastLon = corners[3];
 
         String[] query = QUERY_MAPS_FULLENTRY;
-        ContentValues[][] contentValues = new ContentValues[9][];
-
         String selection = (mapScale == null || mapScale == MapScale.SCALE_ANY) ? ""
                 : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
 
