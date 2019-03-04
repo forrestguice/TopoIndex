@@ -447,8 +447,7 @@ public class TopoIndexDatabaseAdapter
             if (tables[i] != null)
             {
                 ContentValues[] values = findMapsContaining(tables[i], location, mapScale);
-                ContentValues[] collectedValues = findInCollection(values);
-                mapList.addAll(Arrays.asList(collectedValues));
+                mapList.addAll(Arrays.asList(values));
             }
         }
         return mapList.toArray(new ContentValues[0]);
@@ -595,7 +594,7 @@ public class TopoIndexDatabaseAdapter
         for (int i=0; i<contentValues.length; i++)
         {
             if (contentValues[i] != null) {
-                contentValues[i] = findInCollection(contentValues[i]);
+                findInCollection(contentValues[i]);
             }
         }
         return contentValues;
@@ -630,23 +629,28 @@ public class TopoIndexDatabaseAdapter
         return retValue;
     }
 
-    public ContentValues[] findInCollection(ContentValues[] contentValues)
+    public void findInCollection(ContentValues[] contentValues)
     {
-        for (int i=0; i<contentValues.length; i++)
-        {
-            if (contentValues[i] != null) {
-                contentValues[i] = findInCollection(contentValues[i]);
+        database.beginTransactionNonExclusive();
+        try {
+            for (int i=0; i<contentValues.length; i++)
+            {
+                if (contentValues[i] != null) {
+                    findInCollection(contentValues[i]);
+                }
             }
+            database.setTransactionSuccessful();
+
+        } finally {
+            database.endTransaction();
         }
-        return contentValues;
     }
 
     /**
      * findInCollection
      * @param contentValues a database item (unspecified table)
-     * @return a matching entry from the local collection (or `contentValues` if not found)
      */
-    public ContentValues findInCollection(ContentValues contentValues)
+    public void findInCollection(ContentValues contentValues)
     {
         String mapSeries = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);
         if (mapSeries == null) {
@@ -666,15 +670,16 @@ public class TopoIndexDatabaseAdapter
             cursor = getMap_HTMC(TABLE_MAPS, scanID, new String[] { KEY_MAP_SCANID });
         }
 
-        if (cursor != null) {
+        if (cursor != null)
+        {
             if (cursor.getCount() > 0) {
                 contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
             }
             cursor.close();
+
         } else {
             contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, false);
         }
-        return contentValues;
     }
 
     public boolean hasMap_HTMC(@NonNull String table, String scanID)

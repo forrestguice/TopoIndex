@@ -62,8 +62,8 @@ public class MapItemWithinTask extends AsyncTask<String, Void, ContentValues[]>
             if (tables[i] != null)
             {
                 ContentValues[] contentValues = database.findMapsWithin(tables[i], mapScale, item);
-                ContentValues[] collectedValues =  database.findInCollection(contentValues);
-                mapList.addAll(Arrays.asList(collectedValues));
+                database.findInCollection(contentValues);
+                mapList.addAll(Arrays.asList(contentValues));
             }
         }
 

@@ -57,6 +57,7 @@ public class MapItemContainingTask extends AsyncTask<String, Void, ContentValues
 
         database.open();
         ContentValues[] values = database.findMapsContaining(tables, location, mapScale);
+        database.findInCollection(values);
         database.close();
 
         long bench_end = System.nanoTime();
