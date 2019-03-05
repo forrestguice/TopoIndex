@@ -190,9 +190,14 @@ public class QuadViewFragment extends TopoIndexFragment
             for (int i = 0; i < gridLines.length; i++) {
                 gridLines[i].setText("");
             }
+            filterDesc.setText("");
         }
+
         TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(getActivity()));   // TODO: map scale
         filterDescScale.setText( mapScale == null || mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? "" : mapScale.toString() );
+
+        String seriesFilter = AppSettings.getFilter_bySeries(getActivity());
+        filterDesc.setText(seriesFilter.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO) ? TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO : TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
     }
 
     private boolean quadIsCollected(ContentValues[] entries)

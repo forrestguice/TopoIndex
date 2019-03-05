@@ -539,10 +539,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void showCurrentLocation()
     {
-        final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: USTOPO
+        final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: series selection
         final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
         AppSettings.Location currentLocation = AppSettings.getLocation(this);
         Toast.makeText(this, currentLocation.toString(), Toast.LENGTH_SHORT).show();
+
+        String filter_bySeries = AppSettings.getFilter_bySeries(MainActivity.this);
+        if (filter_bySeries == null || filter_bySeries.isEmpty()) {
+            filter_bySeries = TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;
+        }
 
         MapItemContainingTask mapItemTask = new MapItemContainingTask(MainActivity.this, currentLocation, mapScale);
         mapItemTask.setTaskListener(new MapItemTaskListener()
@@ -570,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 nearbyTask.execute(tables);
             }
         });
-        mapItemTask.execute(tables);
+        mapItemTask.execute(filter_bySeries);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -656,6 +661,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: series selection
             final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
 
+            String mapSeries = item.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);
+            if (mapSeries == null) {
+                mapSeries = TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC;
+            }
+            String mapTable = (mapSeries.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO) ? TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO : TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC );
+            AppSettings.setFilter_bySeries(MainActivity.this, mapTable);
+
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(context, new ContentValues[] { item }, mapScale );
             nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
             {
@@ -681,7 +693,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     mapItemTask.execute(tables);
                 }
             });
-            nearbyTask.execute(tables);
+            nearbyTask.execute(mapTable);
         }
     }
 
@@ -982,6 +994,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /**
+     * quadFragmentListener
+     */
     private QuadViewFragment.QuadViewFragmentListener quadFragmentListener = new QuadViewFragment.QuadViewFragmentListener()
     {
         @Override
@@ -1004,9 +1019,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onBrowseItem(ContentValues item)
         {
-            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
-            String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };      // TODO: USTOPO
+            if (item == null) {
+                return;
+            }
 
+            String mapSeries = item.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);
+            if (mapSeries == null) {
+                mapSeries = TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC;
+            }
+            String mapTable = (mapSeries.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO) ? TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO : TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC );
+            AppSettings.setFilter_bySeries(MainActivity.this, mapTable);
+
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, new ContentValues[] { item }, mapScale );
             nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
             {
@@ -1018,7 +1042,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     pager.setCurrentItem(1);
                 }
             });
-            nearbyTask.execute(tables);
+            nearbyTask.execute(mapTable);
         }
 
         @Override
@@ -1039,6 +1063,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
+    /**
+     * listFragmentListener
+     */
     private ListViewFragment.ListViewFragmentListener listFragmentListener = new ListViewFragment.ListViewFragmentListener()
     {
         @Override
@@ -1051,9 +1078,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onNearbyItem( ContentValues item )
         {
-            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
-            String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC };      // TODO: USTOPO
+            if (item == null) {
+                return;
+            }
 
+            String mapSeries = item.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);
+            if (mapSeries == null) {
+                mapSeries = TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC;
+            }
+            String mapTable = (mapSeries.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO) ? TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO : TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC );
+            AppSettings.setFilter_bySeries(MainActivity.this, mapTable);
+
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, new ContentValues[] { item }, mapScale );
             nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
             {
@@ -1065,7 +1101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     pager.setCurrentItem(1);
                 }
             });
-            nearbyTask.execute(tables);
+            nearbyTask.execute(mapTable);
         }
 
         @Override
