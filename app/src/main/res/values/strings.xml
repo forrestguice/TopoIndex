@@ -2,7 +2,7 @@
     <!-- About -->
     <string name="app_name">TopoIndex</string>
     <string name="app_version"><![CDATA[<b>Version:</b>]]> <xliff:g id="versionString">%s</xliff:g></string>
-    <string name="app_shortdesc">An index of USGS maps.</string>
+    <string name="app_shortdesc">Map collection manager.</string>
     <string name="app_url"><xliff:g id="url"><![CDATA[
         <a href="https://forrestguice.github.io/TopoIndex/">forrestguice.github.io/TopoIndex</a>
     ]]></xliff:g></string>
@@ -47,6 +47,7 @@
 
     <string name="nav_item_nearest9">@string/action_nearby</string>
     <string name="nav_item_locallist">My Collection</string>
+    <string name="nav_group_local">Local Maps</string>
     <string name="nav_group_usgs">USGS Index</string>
     <string name="nav_item_usgs_htmc">Historical Topo</string>
     <string name="nav_item_usgs_ustopo">US Topo</string>
