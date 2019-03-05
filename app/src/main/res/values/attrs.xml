@@ -7,5 +7,25 @@
     <attr name="icHelp" format="reference" />
 
     <attr name="hrColor" format="reference" />
-    <attr name="listTitleTextColor" format="reference" />
+    <attr name="pressColor" format="reference" />
+    <attr name="accentColor" format="reference" />
+
+    <attr name="gridAxisColor" format="reference" />
+    <attr name="gridLabelColor" format="reference" />
+
+    <attr name="primaryColor" format="reference" />
+    <attr name="primaryTextColor" format="reference" />
+    <attr name="primaryDarkColor" format="reference" />
+    <attr name="primaryDarkTextColor" format="reference" />
+    <attr name="primaryLightColor" format="reference" />
+    <attr name="primaryLightTextColor" format="reference" />
+
+    <attr name="secondaryColor" format="reference" />
+    <attr name="secondaryTextColor" format="reference" />
+    <attr name="secondaryDarkColor" format="reference" />
+    <attr name="secondaryDarkTextColor" format="reference" />
+    <attr name="secondaryLightColor" format="reference" />
+    <attr name="secondaryLightTextColor" format="reference" />
+
+
 </resources>

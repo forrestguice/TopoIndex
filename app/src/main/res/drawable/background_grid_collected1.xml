@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:exitFadeDuration="@android:integer/config_shortAnimTime">
+    <item android:drawable="@drawable/background_grid_collected_focused" android:state_focused="true" android:state_pressed="false"/>
+    <item android:drawable="@drawable/background_grid_pressed1" android:state_pressed="true"/>
+    <item android:drawable="@drawable/background_grid_collected_normal1" />
+</selector>

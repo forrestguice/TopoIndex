@@ -49,30 +49,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.666" />
 
-    <View
-        android:layout_width="match_parent" android:layout_height="2dp"
-        app:layout_constraintTop_toTopOf="@+id/guide3"
-        app:layout_constraintBottom_toBottomOf="@+id/guide3"
-        android:background="@color/colorPrimary"  />
-
-    <View
-        android:layout_width="match_parent" android:layout_height="2dp"
-        app:layout_constraintTop_toTopOf="@+id/guide4"
-        app:layout_constraintBottom_toBottomOf="@+id/guide4"
-        android:background="@color/colorPrimary" />
-
-    <View
-        android:layout_width="2dp" android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="@+id/guide1"
-        app:layout_constraintEnd_toEndOf="@+id/guide1"
-        android:background="@color/colorPrimary"  />
-
-    <View
-        android:layout_width="2dp" android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="@+id/guide2"
-        app:layout_constraintEnd_toEndOf="@+id/guide2"
-        android:background="@color/colorPrimary"  />
-
     <!-- One -->
     <FrameLayout
         android:id="@+id/grid1"
@@ -206,12 +182,35 @@
 
     </FrameLayout>
 
+    <View
+        android:layout_width="match_parent" android:layout_height="2dp"
+        app:layout_constraintTop_toTopOf="@+id/guide3"
+        app:layout_constraintBottom_toBottomOf="@+id/guide3"
+        android:background="?attr/gridAxisColor"  />
+
+    <View
+        android:layout_width="match_parent" android:layout_height="2dp"
+        app:layout_constraintTop_toTopOf="@+id/guide4"
+        app:layout_constraintBottom_toBottomOf="@+id/guide4"
+        android:background="?attr/gridAxisColor" />
+
+    <View
+        android:layout_width="2dp" android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="@+id/guide1"
+        app:layout_constraintEnd_toEndOf="@+id/guide1"
+        android:background="?attr/gridAxisColor"  />
+
+    <View
+        android:layout_width="2dp" android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="@+id/guide2"
+        app:layout_constraintEnd_toEndOf="@+id/guide2"
+        android:background="?attr/gridAxisColor"  />
 
     <TextView
         android:id="@+id/guide1_label"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         style="@style/TextAppearance.AppCompat.Small"
-        android:textColor="@color/colorPrimary"
+        android:textColor="?attr/gridLabelColor"
         android:paddingTop="12dp" android:paddingStart="6dp" android:paddingEnd="6dp"
         android:textSize="12sp"
         app:layout_constraintTop_toTopOf="parent"
@@ -222,7 +221,7 @@
         android:id="@+id/guide2_label"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         style="@style/TextAppearance.AppCompat.Small"
-        android:textColor="@color/colorPrimary"
+        android:textColor="?attr/gridLabelColor"
         android:textSize="12sp"
         android:paddingTop="12dp" android:paddingStart="6dp" android:paddingEnd="6dp"
         app:layout_constraintTop_toTopOf="parent"
@@ -233,7 +232,7 @@
         android:id="@+id/guide3_label"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         style="@style/TextAppearance.AppCompat.Small"
-        android:textColor="@color/colorPrimary"
+        android:textColor="?attr/gridLabelColor"
         android:layout_margin="2dp" android:paddingStart="8dp" android:paddingEnd="8dp"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -244,7 +243,7 @@
         android:id="@+id/guide4_label"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         style="@style/TextAppearance.AppCompat.Small"
-        android:textColor="@color/colorPrimary"
+        android:textColor="?attr/gridLabelColor"
         android:layout_margin="2dp" android:paddingStart="8dp" android:paddingEnd="8dp"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/guide4"
@@ -259,7 +258,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/colorPrimaryDark">
+        android:background="?attr/primaryDarkColor">
 
         <ImageView
             android:layout_width="24dp" android:layout_height="24dp"
@@ -269,7 +268,7 @@
         <TextView
             android:id="@+id/filterdesc_misc"
             android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:textColor="?attr/listTitleTextColor"
+            android:textColor="?attr/secondaryDarkTextColor"
             android:paddingTop="6dp" android:paddingBottom="6dp" android:paddingStart="8dp" android:paddingEnd="8dp"
             android:layout_gravity="center" android:elevation="5dp"
             tools:text="Filter by ..." />
@@ -277,7 +276,7 @@
         <TextView
             android:id="@+id/filterdesc_scale"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="?attr/listTitleTextColor"
+            android:textColor="?attr/secondaryDarkTextColor"
             android:paddingTop="6dp" android:paddingBottom="6dp" android:paddingStart="8dp" android:paddingEnd="8dp"
             android:layout_gravity="center_vertical|end" android:elevation="5dp"
             tools:text="24K" />

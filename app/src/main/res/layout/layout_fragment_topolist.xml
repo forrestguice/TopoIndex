@@ -10,12 +10,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/colorPrimaryDark">
+        android:background="?attr/primaryDarkColor">
 
         <TextView
             android:id="@+id/title_maps"
             android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:textStyle="bold" android:textColor="?attr/listTitleTextColor"
+            android:textStyle="bold" android:textColor="?attr/primaryDarkTextColor"
             android:paddingTop="6dp" android:paddingBottom="6dp" android:paddingStart="8dp" android:paddingEnd="8dp"
             android:layout_gravity="center" android:elevation="5dp"
             tools:text="List Title" />
@@ -23,7 +23,7 @@
         <TextView
             android:id="@+id/text_resultcount"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textStyle="bold" android:textColor="?attr/listTitleTextColor"
+            android:textStyle="bold" android:textColor="?attr/primaryDarkTextColor"
             android:paddingTop="4dp" android:paddingBottom="4dp" android:paddingStart="8dp" android:paddingEnd="8dp"
             tools:text="0" />
 
@@ -45,7 +45,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/colorPrimaryDark">
+        android:background="?attr/primaryDarkColor">
 
         <ImageView
             android:layout_width="24dp" android:layout_height="24dp"
@@ -55,7 +55,7 @@
         <TextView
             android:id="@+id/filterdesc_name"
             android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:textColor="?attr/listTitleTextColor"
+            android:textColor="?attr/primaryDarkTextColor"
             android:paddingTop="6dp" android:paddingBottom="6dp" android:paddingStart="8dp" android:paddingEnd="8dp"
             android:layout_gravity="center" android:elevation="5dp"
             tools:text="Filter by ..." />
@@ -63,7 +63,7 @@
         <TextView
             android:id="@+id/filterdesc_states"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="?attr/listTitleTextColor"
+            android:textColor="?attr/primaryDarkTextColor"
             android:paddingTop="6dp" android:paddingBottom="6dp" android:paddingStart="8dp" android:paddingEnd="8dp"
             android:layout_gravity="center" android:elevation="5dp"
             tools:text="AZ" />
@@ -71,7 +71,7 @@
         <TextView
             android:id="@+id/filterdesc_scale"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="?attr/listTitleTextColor"
+            android:textColor="?attr/primaryDarkTextColor"
             android:paddingTop="6dp" android:paddingBottom="6dp" android:paddingStart="8dp" android:paddingEnd="8dp"
             android:layout_gravity="center_vertical|end" android:elevation="5dp"
             tools:text="24K" />
@@ -97,7 +97,7 @@
 
     <LinearLayout
         android:id="@+id/list_maps_empty"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:visibility="gone"
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -114,7 +114,10 @@
         app:srcCompat="@drawable/ic_search_white_24dp"
         android:contentDescription="@string/action_filters"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginBottom="22dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:useCompatPadding="true" />

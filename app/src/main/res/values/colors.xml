@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#303F9F</color>
-    <color name="colorPrimaryDark">#3F51B5</color>
-    <color name="colorAccent">#FF4081</color>
 
-    <color name="btn_text_dark">@color/colorAccent</color>
-    <color name="btn_tint_dark">@color/colorAccent</color>
-    <color name="btn_tint_pressed_dark">@color/colorPrimary</color>
     <color name="hr_dark">#33ffffff</color>
+
+    <color name="gridcolor_center_pressed">#81c784</color>
+    <color name="gridcolor_center_collected">#e8f5e9</color>
+    <color name="gridcolor_center_notcollected">#bdbdbd</color>
+
+    <color name="gridcolor_nearby_pressed">@color/a_secondary</color>
+    <color name="gridcolor_nearby_collected">#e8f5e9</color>
+    <color name="gridcolor_nearby_notcollected">#bdbdbd</color>
+
+    <!-- theme: a -->
+    <color name="a_primary">#2e7d32</color>
+    <color name="a_primaryText">#000000</color>
+    <color name="a_primaryLight">#60ad5e</color>
+    <color name="a_primaryLightText">#000000</color>
+    <color name="a_primaryDark">#005005</color>
+    <color name="a_primaryDarkText">#ffffff</color>
+
+    <color name="a_secondary">#0288d1</color>
+    <color name="a_secondaryText">#000000</color>
+    <color name="a_secondaryLight">#5eb8ff</color>
+    <color name="a_secondaryLightText">#000000</color>
+    <color name="a_secondaryDark">#005b9f</color>
+    <color name="a_secondaryDarkText">#ffffff</color>
+
 
 </resources>

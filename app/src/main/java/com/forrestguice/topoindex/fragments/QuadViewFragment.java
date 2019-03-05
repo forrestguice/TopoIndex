@@ -44,8 +44,11 @@ public class QuadViewFragment extends TopoIndexFragment
     protected View filterDescLayout;
     protected TextView filterDesc, filterDescScale;
 
-    private int resID_background_collected = R.drawable.background_grid_collected;
-    private int resID_background_notCollected = R.drawable.background_grid_notcollected;
+    private int resID_background_collected0 = R.drawable.background_grid_collected0;
+    private int resID_background_notCollected0 = R.drawable.background_grid_notcollected0;
+
+    private int resID_background_collected1 = R.drawable.background_grid_collected1;
+    private int resID_background_notCollected1 = R.drawable.background_grid_notcollected1;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -181,9 +184,10 @@ public class QuadViewFragment extends TopoIndexFragment
             {
                 View card = gridCards[i];
                 if (card != null) {
-                    card.setBackgroundResource( quadIsCollected(contentValues[i]) ? resID_background_collected : resID_background_notCollected );
+                    card.setBackgroundResource( quadIsCollected(contentValues[i]) ? resID_background_collected0 : resID_background_notCollected0 );
                 }
             }
+            gridCards[TopoIndexDatabaseAdapter.GRID_CENTER].setBackgroundResource( quadIsCollected(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER]) ? resID_background_collected1 : resID_background_notCollected1 );
 
         } else {
             for (int i = 0; i < gridTitles.length; i++) {
@@ -198,7 +202,7 @@ public class QuadViewFragment extends TopoIndexFragment
             filterDescScale.setText("");
         }
 
-        String seriesFilter = AppSettings.getFilter_bySeries(getActivity());
+        String seriesFilter = AppSettings.getFilter_bySeries(context);
         filterDesc.setText(seriesFilter.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO) ? TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO : TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
     }
 

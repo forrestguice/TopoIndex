@@ -50,6 +50,7 @@
                 android:layout_width="24dp" android:layout_height="24dp"
                 android:contentDescription="@string/action_help"
                 app:tint="@drawable/btn_image_dark"
+                android:background="@android:color/transparent"
                 app:srcCompat="@drawable/ic_menu_help_light" />
 
         </LinearLayout>

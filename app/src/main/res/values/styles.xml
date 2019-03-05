@@ -7,10 +7,31 @@
         <item name="icMaps">@drawable/ic_menu_maps</item>
         <item name="icHelp">@drawable/ic_menu_help</item>
         <item name="hrColor">@color/hr_dark</item>
-        <item name="listTitleTextColor">@android:color/white</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="colorPrimary">@color/a_primary</item>
+        <item name="colorPrimaryDark">@color/a_primaryDark</item>
+        <item name="colorAccent">@color/a_secondary</item>
+
+        <item name="accentColor">@color/a_secondary</item>
+        <item name="pressColor">@color/a_primaryLight</item>
+
+        <item name="gridAxisColor">@color/a_primaryDark</item>
+        <item name="gridLabelColor">@color/a_secondaryDark</item>
+
+        <item name="primaryColor">@color/a_primary</item>
+        <item name="primaryTextColor">@color/a_primaryText</item>
+        <item name="primaryDarkColor">@color/a_primaryDark</item>
+        <item name="primaryDarkTextColor">@color/a_primaryDarkText</item>
+        <item name="primaryLightColor">@color/a_primaryLight</item>
+        <item name="primaryLightTextColor">@color/a_primaryLightText</item>
+
+        <item name="secondaryColor">@color/a_secondary</item>
+        <item name="secondaryTextColor">@color/a_secondaryText</item>
+        <item name="secondaryDarkColor">@color/a_secondaryDark</item>
+        <item name="secondaryDarkTextColor">@color/a_secondaryDarkText</item>
+        <item name="secondaryLightColor">@color/a_secondaryLight</item>
+        <item name="secondaryLightTextColor">@color/a_secondaryLightText</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
