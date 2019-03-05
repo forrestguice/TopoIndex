@@ -728,6 +728,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 listFragmentListener.onViewItem(item);
             }
         }
+
+        @Override
+        public void onViewPoint(AppSettings.Location point)
+        {
+            Toast.makeText(MainActivity.this, "TODO", Toast.LENGTH_SHORT).show();
+        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

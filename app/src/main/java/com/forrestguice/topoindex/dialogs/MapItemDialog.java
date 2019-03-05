@@ -42,6 +42,8 @@ import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
+import java.text.NumberFormat;
+
 public class MapItemDialog extends BottomSheetDialogFragment
 {
     public static final String TAG = "TopoIndexItem";
@@ -128,7 +130,10 @@ public class MapItemDialog extends BottomSheetDialogFragment
         initHeaderAdapter(contentValues);
 
         text_nwcorner = (TextView)dialogContent.findViewById(R.id.mapItem_nwcorner);
+        text_nwcorner.setOnClickListener(onNWCornerClick);
+
         text_secorner = (TextView)dialogContent.findViewById(R.id.mapItem_secorner);
+        text_secorner.setOnClickListener(onSECornerClick);
 
         button_view = (Button)dialogContent.findViewById(R.id.view_button);
         button_view.setOnClickListener(onViewButtonClick);
@@ -142,11 +147,15 @@ public class MapItemDialog extends BottomSheetDialogFragment
         ContentValues selectedValues = (ContentValues)header.getSelectedItem();
         if (selectedValues != null)
         {
+            NumberFormat formatter = AppSettings.Location.getFormatter();
+            formatter.setMinimumFractionDigits(3);
+            formatter.setMaximumFractionDigits(3);
+
             AppSettings.Location nwCorner = getNorthwestCorner(selectedValues);
-            text_nwcorner.setText(nwCorner != null ? nwCorner.toString() : "");
+            text_nwcorner.setText(nwCorner != null ? formatter.format(nwCorner.getLatitude()) + "\n" + formatter.format(nwCorner.getLongitude()) + "" : "");  // TODO
 
             AppSettings.Location seCorner = getSoutheastCorner(selectedValues);
-            text_secorner.setText(seCorner != null ? seCorner.toString() : "");
+            text_secorner.setText(seCorner != null ? formatter.format(seCorner.getLatitude()) + "\n" + formatter.format(seCorner.getLongitude()) + "" : "");  // TODO
 
             Boolean hasMap = selectedValues.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
             card.setBackgroundResource( (hasMap != null && hasMap) ? resID_background_collected : resID_background_notCollected );
@@ -210,6 +219,36 @@ public class MapItemDialog extends BottomSheetDialogFragment
         }
     };
 
+    private View.OnClickListener onNWCornerClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view)
+        {
+            ContentValues selectedValues = (ContentValues)header.getSelectedItem();
+            if (selectedValues != null)
+            {
+                AppSettings.Location nwCorner = getSoutheastCorner(selectedValues);
+                if (nwCorner != null && dialogListener != null) {
+                    dialogListener.onViewPoint(nwCorner);
+                }
+            }
+        }
+    };
+
+    private View.OnClickListener onSECornerClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view)
+        {
+            ContentValues selectedValues = (ContentValues)header.getSelectedItem();
+            if (selectedValues != null)
+            {
+                AppSettings.Location seCorner = getSoutheastCorner(selectedValues);
+                if (seCorner != null && dialogListener != null) {
+                    dialogListener.onViewPoint(seCorner);
+                }
+            }
+        }
+    };
+
     private void initHeaderAdapter(ContentValues[] values)
     {
         Activity activity = getActivity();
@@ -246,6 +285,7 @@ public class MapItemDialog extends BottomSheetDialogFragment
     {
         public void onViewItem(ContentValues values) {}
         public void onNearbyItem(ContentValues values) {}
+        public void onViewPoint( AppSettings.Location point ) {}
     }
 
     /**
