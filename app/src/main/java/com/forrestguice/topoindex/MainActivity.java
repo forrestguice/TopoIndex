@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Snackbar progressSnackbar;
     private ProgressBar progressSnackbarProgress;
 
+    private boolean activityIsActive = false;
+
     @Override
     protected void onCreate(Bundle savedState)
     {
@@ -114,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume()
     {
         super.onResume();
+        activityIsActive = true;
         updateViews();
 
         FragmentManager fragments = getSupportFragmentManager();
@@ -123,8 +126,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    protected void onPause()
+    {
+        activityIsActive = false;
+        super.onPause();
+    }
+
+    @Override
     protected void onSaveInstanceState( Bundle outState)
     {
+        activityIsActive = false;
         super.onSaveInstanceState(outState);
     }
 
@@ -684,10 +695,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         public void onFinished(final ContentValues[] mapList, final int selectedPos)
                         {
                             new Handler().postDelayed(new Runnable() {
-                                public void run() {
+                                public void run()
+                                {
                                     showMapItemDialog(mapList, selectedPos);
                                 }
-                            }, 250);
+                            }, 0);
                         }
                     });
                     mapItemTask.execute(tables);
@@ -703,7 +715,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         itemDialog.setContentValues(contentValues);
         itemDialog.setInitialPosition(selectedPos);
         itemDialog.setMapItemDialogListener(onMapItem);
-        itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_MAPITEM);
+
+        if (activityIsActive) {
+            itemDialog.show(getSupportFragmentManager(), TAG_DIALOG_MAPITEM);
+        }
     }
 
     private void dismissMapItemDialog()
@@ -730,7 +745,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (listFragmentListener != null) {
                 listFragmentListener.onNearbyItem(item);
             }
-            dismissMapItemDialog();
         }
 
         @Override
