@@ -151,10 +151,15 @@ public class QuadViewFragment extends TopoIndexFragment
                 gridLines[3].setText(contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH));
                 stateAtCenter = contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_STATE);
 
+                String mapScaleValue = contentValues[TopoIndexDatabaseAdapter.GRID_CENTER][0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE);
+                TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(mapScaleValue);
+                filterDescScale.setText( mapScale == null || mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? mapScaleValue : mapScale.toString() );
+
             } else {
                 for (int i = 0; i < gridLines.length; i++) {
                     gridLines[i].setText("");
                 }
+                filterDescScale.setText("");
             }
 
             for (int i=0; i<gridStates.length; i++)
@@ -190,11 +195,8 @@ public class QuadViewFragment extends TopoIndexFragment
             for (int i = 0; i < gridLines.length; i++) {
                 gridLines[i].setText("");
             }
-            filterDesc.setText("");
+            filterDescScale.setText("");
         }
-
-        TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(getActivity()));   // TODO: map scale
-        filterDescScale.setText( mapScale == null || mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? "" : mapScale.toString() );
 
         String seriesFilter = AppSettings.getFilter_bySeries(getActivity());
         filterDesc.setText(seriesFilter.equals(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO) ? TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO : TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
