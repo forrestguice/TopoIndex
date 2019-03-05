@@ -70,7 +70,12 @@ public class MapItemWithinTask extends AsyncTask<String, Void, ContentValues[]>
         database.close();
 
         ContentValues[] mapArray = mapList.toArray(new ContentValues[0]);
-        selectedPos = TopoIndexDatabaseAdapter.findMapInList(mapArray, item);
+        if (mapArray.length == 0) {
+            mapArray = new ContentValues[] { item };
+            selectedPos = 0;
+        } else {
+            selectedPos = TopoIndexDatabaseAdapter.findMapInList(mapArray, item);
+        }
 
         long bench_end = System.nanoTime();
         Log.d(TAG, "within (benchmark): " + ((double)(bench_end - bench_start) / 1E9) + " .. " + tables.length + " tables.");
