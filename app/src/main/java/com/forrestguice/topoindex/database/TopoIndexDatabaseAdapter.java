@@ -662,7 +662,10 @@ public class TopoIndexDatabaseAdapter
 
     /**
      * findInCollection
-     * @param contentValues a database item (unspecified table)
+     * Tries to find a map (contentValues) within the map collection. If found KEY_MAP_ISCOLLECTED
+     * is set true and the KEY_MAP_URL* values updated to those supplied by the collection. If not
+     * found KEY_MAP_ISCOLLECTED is set false.
+     * @param contentValues a database item
      */
     public void findInCollection(ContentValues contentValues)
     {
@@ -676,18 +679,21 @@ public class TopoIndexDatabaseAdapter
         {
             //noinspection UnnecessaryLocalVariable
             String gdaItemID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
-            cursor = getMap_USTopo(TABLE_MAPS, gdaItemID, new String[] { KEY_MAP_GDAITEMID });
+            cursor = getMap_USTopo(TABLE_MAPS, gdaItemID, new String[] { KEY_MAP_GDAITEMID, TopoIndexDatabaseAdapter.KEY_MAP_URL, TopoIndexDatabaseAdapter.KEY_MAP_URL1, TopoIndexDatabaseAdapter.KEY_MAP_URL2 });
 
         } else {
             //noinspection UnnecessaryLocalVariable
             String scanID = contentValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
-            cursor = getMap_HTMC(TABLE_MAPS, scanID, new String[] { KEY_MAP_SCANID });
+            cursor = getMap_HTMC(TABLE_MAPS, scanID, new String[] { KEY_MAP_SCANID, TopoIndexDatabaseAdapter.KEY_MAP_URL, TopoIndexDatabaseAdapter.KEY_MAP_URL1, TopoIndexDatabaseAdapter.KEY_MAP_URL2 });
         }
 
         if (cursor != null)
         {
             if (cursor.getCount() > 0) {
                 contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
+                contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, cursor.getString(1));
+                contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL1, cursor.getString(2));
+                contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL2, cursor.getString(3));
             }
             cursor.close();
 
