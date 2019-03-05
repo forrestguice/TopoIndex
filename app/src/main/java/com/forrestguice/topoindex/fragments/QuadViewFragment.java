@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.R;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
@@ -39,6 +40,9 @@ public class QuadViewFragment extends TopoIndexFragment
     private TextView[] gridTitles = new TextView[9];
     private TextView[] gridStates = new TextView[9];
     private TextView[] gridLines = new TextView[4];
+
+    protected View filterDescLayout;
+    protected TextView filterDesc, filterDescScale;
 
     private int resID_background_collected = R.drawable.background_grid_collected;
     private int resID_background_notCollected = R.drawable.background_grid_notcollected;
@@ -95,7 +99,7 @@ public class QuadViewFragment extends TopoIndexFragment
                     if (fragmentListener != null && contentValues != null && contentValues.length > 0 && contentValues[j] != null && contentValues[j].length > 0)
                     {
                         if (j == TopoIndexDatabaseAdapter.GRID_CENTER)
-                            fragmentListener.onViewItem(contentValues[j][0]);       // TODO: always show index 0?
+                            fragmentListener.onViewItem(contentValues[j][0]);
                         else fragmentListener.onBrowseItem(contentValues[j][0]);
                     }
                 }
@@ -105,7 +109,7 @@ public class QuadViewFragment extends TopoIndexFragment
                 public boolean onLongClick(View view)
                 {
                     if (fragmentListener != null && contentValues != null && contentValues.length > 0 && contentValues[j] != null && contentValues[j].length > 0) {
-                        fragmentListener.onBrowseAndViewItem(contentValues[j][0]);       // TODO: always show index 0?
+                        fragmentListener.onBrowseAndViewItem(contentValues[j][0]);
                         return true;
                     }
                     return false;
@@ -121,6 +125,10 @@ public class QuadViewFragment extends TopoIndexFragment
         for (int i=0; i<gridLineIDs.length; i++) {
             gridLines[i] = contentView.findViewById(gridLineIDs[i]);
         }
+
+        filterDesc = (TextView) contentView.findViewById(R.id.filterdesc_misc);
+        filterDescScale = (TextView) contentView.findViewById(R.id.filterdesc_scale);
+        filterDescLayout = contentView.findViewById(R.id.footer_maps_layout);
     }
 
     @Override
@@ -183,6 +191,8 @@ public class QuadViewFragment extends TopoIndexFragment
                 gridLines[i].setText("");
             }
         }
+        TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(getActivity()));   // TODO: map scale
+        filterDescScale.setText( mapScale == null || mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? "" : mapScale.toString() );
     }
 
     private boolean quadIsCollected(ContentValues[] entries)
