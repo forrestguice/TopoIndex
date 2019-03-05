@@ -50,10 +50,10 @@ public class AppSettings
     public static final boolean DEF_LOCATION_AUTO = true;
 
     public static final String KEY_LOCATION_LAT = "latitude";
-    public static final float DEF_LOCATION_LAT = 0;
+    public static final float DEF_LOCATION_LAT = 37.8651f;
 
     public static final String KEY_LOCATION_LON = "longitude";
-    public static final float DEF_LOCATION_LON = 0;
+    public static final float DEF_LOCATION_LON = -119.5383f;
 
     public static final String KEY_FILTER_NAME = "filterByName";
     public static final String DEF_FILTER_NAME = "";    // def no filter (empty)
