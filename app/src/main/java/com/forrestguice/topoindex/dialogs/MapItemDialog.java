@@ -119,14 +119,6 @@ public class MapItemDialog extends BottomSheetDialogFragment
         card = dialogContent.findViewById(R.id.mapItem_card);
 
         header = (Spinner)dialogContent.findViewById(R.id.mapItem_header);
-        header.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                updateViews(context);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {}
-        });
         initHeaderAdapter(contentValues);
 
         text_nwcorner = (TextView)dialogContent.findViewById(R.id.mapItem_nwcorner);
@@ -188,6 +180,19 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
         } else return null;
     }
+
+    private AdapterView.OnItemSelectedListener onMapItemSelected = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
+        {
+            updateViews(getActivity());
+            if (dialogListener != null) {
+                dialogListener.onNearbyItem((ContentValues)adapterView.getItemAtPosition(i));
+            }
+        }
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {}
+    };
 
     private View.OnClickListener onViewButtonClick = new View.OnClickListener()
     {
@@ -251,13 +256,24 @@ public class MapItemDialog extends BottomSheetDialogFragment
 
     private void initHeaderAdapter(ContentValues[] values)
     {
+        header.setOnItemSelectedListener(null);
+
         Activity activity = getActivity();
-        if (header != null && activity != null) {
+        if (header != null && activity != null)
+        {
             MapItemDialogHeaderAdapter adapter = new MapItemDialogHeaderAdapter(activity, R.layout.map_list_item1, values);
             header.setAdapter(adapter);
             header.setSelection( (initialSelection < 0 || initialSelection >= adapter.getCount())
                     ? TopoIndexDatabaseAdapter.findFirstCollectedMap(values)
                     : initialSelection);
+
+            header.post(new Runnable()
+            {
+                @Override
+                public void run() {
+                    header.setOnItemSelectedListener(onMapItemSelected);
+                }
+            });
         }
     }
 
