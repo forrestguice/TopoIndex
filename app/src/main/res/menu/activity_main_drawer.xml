@@ -8,13 +8,17 @@
         android:icon="@drawable/ic_menu_location_light"
         android:title="@string/nav_item_nearest9" />
 
-    <group android:checkableBehavior="single">
+    <item android:title="@string/nav_group_local" android:checkableBehavior="single">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_local_list"
+                    android:icon="@drawable/ic_menu_maps_light"
+                    android:title="@string/nav_item_locallist" />
+            </group>
 
-        <item
-            android:id="@+id/nav_local_list"
-            android:icon="@drawable/ic_menu_maps_light"
-            android:title="@string/nav_item_locallist" />
-    </group>
+        </menu>
+    </item>
 
     <item android:title="@string/nav_group_usgs" android:checkableBehavior="single">
         <menu>
