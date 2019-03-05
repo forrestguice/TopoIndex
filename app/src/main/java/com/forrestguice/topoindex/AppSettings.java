@@ -64,6 +64,9 @@ public class AppSettings
     public static final String KEY_FILTER_SCALE = "filterByScale";
     public static final String DEF_FILTER_SCALE = TopoIndexDatabaseAdapter.MapScale.SCALE_ANY.getValue();
 
+    public static final String KEY_FILTER_SERIES = "filterBySeries";
+    public static final String DEF_FILTER_SERIES = "";    // def no filter (empty)
+
     public static final String KEY_FILTER_MINYEAR = "filterByMinYear";
     public static final int DEF_FILTER_MINYEAR = -1;           // def no min
 
@@ -172,6 +175,18 @@ public class AppSettings
     {
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
         prefs.putString(KEY_FILTER_SCALE, value);
+        prefs.apply();
+    }
+
+    public static String getFilter_bySeries(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(KEY_FILTER_SERIES, DEF_FILTER_SERIES);
+    }
+    public static void setFilter_bySeries(Context context, String value)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putString(KEY_FILTER_SERIES, value);
         prefs.apply();
     }
 
