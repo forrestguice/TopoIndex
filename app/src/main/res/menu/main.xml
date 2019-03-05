@@ -26,6 +26,7 @@
         android:id="@+id/action_filters"
         android:orderInCategory="75"
         android:title="@string/action_filters"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item
