@@ -687,7 +687,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     pagerAdapter.quadFragment.setContentValues(nearbyList);
                     pagerAdapter.quadFragment.updateViews(MainActivity.this);
-                    pager.setCurrentItem(1);
+                    pager.setCurrentItem(1, true);
 
                     MapItemWithinTask mapItemTask = new MapItemWithinTask(context, item, mapScale);
                     mapItemTask.setTaskListener(new MapItemTaskListener()
