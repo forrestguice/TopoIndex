@@ -15,7 +15,7 @@
         <item name="accentColor">@color/a_secondary</item>
         <item name="pressColor">@color/a_primaryLight</item>
 
-        <item name="gridAxisColor">@color/a_primaryDark</item>
+        <item name="gridAxisColor">@color/a_secondaryDark</item>
         <item name="gridLabelColor">@color/a_secondaryDark</item>
 
         <item name="primaryColor">@color/a_primary</item>
