@@ -45,6 +45,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 
 import android.support.v7.app.AlertDialog;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 
 import android.view.View;
@@ -60,6 +62,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
 
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
@@ -254,9 +257,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
 
             case R.id.action_help:
-                AlertDialog.Builder helpDialog = new AlertDialog.Builder(MainActivity.this);
-                helpDialog.setMessage(getString(R.string.help_general));
-                helpDialog.show();
+                showHelp();
                 return true;
 
             case R.id.action_location:
@@ -278,6 +279,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showHelp()
+    {
+        AlertDialog.Builder helpDialog = new AlertDialog.Builder(MainActivity.this);
+        helpDialog.setMessage(Html.fromHtml(getString(R.string.help_general)));
+        AlertDialog dialog = helpDialog.create();
+        dialog.show();
+
+        TextView messageView = (TextView)dialog.findViewById(android.R.id.message);
+        if (messageView != null) {
+            messageView.setMovementMethod(LinkMovementMethod.getInstance());
+        }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
