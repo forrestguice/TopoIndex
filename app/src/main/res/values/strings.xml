@@ -27,7 +27,18 @@
     <string name="permissions_dialog_title">Permissions</string>
 
     <!-- Help -->
-    <string name="help_general">TODO</string>  <!-- TODO -->
+    <string name="help_general"><![CDATA[
+
+      <b>US Topo</b><br />
+      <a href="http://nationalmap.gov/ustopo">http://nationalmap.gov/ustopo</a><br />
+      Current topographic quadrangle maps. These are maps produced in 2010 or later. They are created and published as digital products. The format is layered PDF with geospatial extensions.
+      <br /><br />
+
+      <b>Historical Topographic Map Collection (HTMC)</b><br />
+      <a href="http://nationalmap.gov/historical">http://nationalmap.gov/historical</a><br />
+      Scanned images of legacy topographic quadrangle maps. These maps were originally published on paper in the period 1884-2006. The HTMC images are in PDF format with geospatial extensions.
+
+    ]]></string>
     <string name="help_location">TopoIndex uses the passive provider to obtain your location.\n\nUse a GPS app to request location updates (and TopoIndex will also receive those updates).</string>
 
     <!-- List -->
