@@ -408,12 +408,11 @@ public class ListViewFragment extends TopoIndexFragment
             if (tables.length > 0 && tables[0] != null)
             {
                 table = tables[0];
-                String[] columns = {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED};
-                return database.getMaps(table, 0, columns, AppSettings.getFilters(getActivity()));
+                return database.getMaps(table, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_MINENTRY, AppSettings.getFilters(getActivity()));
 
             } else {
                 table = TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;
-                return database.getMaps_HTMC(0, false);
+                return database.getMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_MINENTRY, AppSettings.getFilters(getActivity()));
             }
         }
 

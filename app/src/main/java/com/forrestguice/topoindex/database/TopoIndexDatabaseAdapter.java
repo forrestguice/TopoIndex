@@ -27,6 +27,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.R;
@@ -249,18 +250,10 @@ public class TopoIndexDatabaseAdapter
      * Get Maps
      */
 
-    public Cursor getMaps(int n, String[] columns)
-    {
-        return getMaps(TABLE_MAPS, n, columns);
-    }
-
-    public Cursor getMaps(@NonNull String table, int n, String[] columns)
-    {
-        return getMaps(table, n, columns, null);
-    }
-
     public Cursor getMaps(@NonNull String table, int n, String[] columns, FilterValues filter)
     {
+        boolean useRawQuery = (!table.equals(TABLE_MAPS));
+
         String[] query = columns;
         StringBuilder selection = new StringBuilder();
         ArrayList<String> selectionArgs = new ArrayList<>();
@@ -270,6 +263,9 @@ public class TopoIndexDatabaseAdapter
         String nameFilter = filter.getNameFilter();
         if (nameFilter != null && !nameFilter.isEmpty())
         {
+            if (useRawQuery) {
+                selection.append("t0.");
+            }
             selection.append(KEY_MAP_NAME + " LIKE ?");
             selectionArgs.add("%" + nameFilter + "%");
             firstFilter = false;
@@ -284,6 +280,9 @@ public class TopoIndexDatabaseAdapter
 
             for (int i=0; i<stateFilters.length; i++)
             {
+                if (useRawQuery) {
+                    selection.append("t0.");
+                }
                 selection.append(KEY_MAP_STATE + " = ?");
                 selectionArgs.add(stateFilters[i]);
 
@@ -301,6 +300,9 @@ public class TopoIndexDatabaseAdapter
                 selection.append(" AND ");
             }
 
+            if (useRawQuery) {
+                selection.append("t0.");
+            }
             selection.append(KEY_MAP_SCALE + " = ?");
             selectionArgs.add(scaleFilter);
             firstFilter = false;
@@ -313,22 +315,55 @@ public class TopoIndexDatabaseAdapter
         }
         Log.d("DEBUG", "selection: " + selection.toString() + " :: args: " + selectionArgsDebug);*/
 
-        Cursor cursor =  (n > 0) ? database.query( table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC", n+"" )
-                                 : database.query( table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC" );
+        Cursor cursor = null;
+        if (!useRawQuery)
+        {
+            cursor = (n > 0) ? database.query(table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC", n + "")
+                             : database.query(table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC");
+
+        } else {
+            StringBuilder columnString = new StringBuilder();
+            for (int i=0; i<columns.length; i++)
+            {
+                if (columns[i].equals(KEY_MAP_ISCOLLECTED))
+                {
+                    columnString.append("COALESCE(t0." + KEY_MAP_ISCOLLECTED + ", t1." + KEY_MAP_ISCOLLECTED + ") AS " + KEY_MAP_ISCOLLECTED);
+
+                } else {
+                    columnString.append("t0.");
+                    columnString.append(columns[i]);
+                }
+
+                if (i != columns.length - 1)
+                {
+                    columnString.append(", ");
+                }
+            }
+
+            String rawQuery = "SELECT " + columnString.toString()
+                    + " FROM " + table + " t0 LEFT JOIN " + TABLE_MAPS + " t1";
+
+            if (table.equals(TABLE_MAPS_HTMC)) {
+                rawQuery += " ON t0." + KEY_MAP_SCANID + " = t1." + KEY_MAP_SCANID;
+            } else {
+                rawQuery += " ON t0." + KEY_MAP_GDAITEMID + " = t1." + KEY_MAP_GDAITEMID;
+            }
+
+            String selectionString = selection.toString();
+            if (!selectionString.isEmpty()) {
+                rawQuery += " WHERE " + selection.toString();
+            }
+
+            rawQuery += " ORDER BY t0." + KEY_MAP_DATE;
+
+            Log.d("DEBUG", "getMaps: " + rawQuery);
+            cursor = database.rawQuery(rawQuery, selectionArgs.toArray(new String[0]));
+        }
+
         if (cursor != null) {
             cursor.moveToFirst();
         }
         return cursor;
-    }
-
-    public Cursor getMaps_HTMC(int n, boolean fullEntry)
-    {
-        return getMaps(TABLE_MAPS_HTMC, n, (fullEntry ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY));
-    }
-
-    public Cursor getMaps_USTopo(int n, boolean fullEntry)
-    {
-        return getMaps(TABLE_MAPS_USTOPO, n, (fullEntry ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY));
     }
 
     public Cursor getMap_HTMC(String table, @NonNull String scanID, String[] columns)
