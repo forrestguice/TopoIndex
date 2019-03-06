@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,6 +47,25 @@ import com.forrestguice.topoindex.dialogs.StatesDialog;
 
 import java.text.DecimalFormat;
 
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_CELLID;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_DATE;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_NAME;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_SCALE;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_SCANID;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_SERIES;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_STATE;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_URL2;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_VERSION;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_ROWID;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_URL;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_URL1;
+import static com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED;
+
 /**
  * ListViewFragment
  */
@@ -63,6 +83,9 @@ public class ListViewFragment extends TopoIndexFragment
     protected TextView emptyListTitle, emptyListMessage0, emptyListMessage1;
     protected TextView filterDesc, filterDescState, filterDescScale;
     protected View filterDescLayout;
+
+    private int resID_background_collected0 = R.drawable.background_grid_collected0;
+    private int resID_background_notCollected0 = R.drawable.background_grid_notcollected0;
 
     private FloatingActionButton fabFilters;
     private FloatingActionButton[] fabs = new FloatingActionButton[0];
@@ -385,7 +408,8 @@ public class ListViewFragment extends TopoIndexFragment
             if (tables.length > 0 && tables[0] != null)
             {
                 table = tables[0];
-                return database.getMaps(table, 0, false, AppSettings.getFilters(getActivity()));
+                String[] columns = {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED};
+                return database.getMaps(table, 0, columns, AppSettings.getFilters(getActivity()));
 
             } else {
                 table = TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;
@@ -442,19 +466,19 @@ public class ListViewFragment extends TopoIndexFragment
         public void bindView(View view, Context context, Cursor cursor)
         {
             TextView itemName = (TextView)view.findViewById(android.R.id.text1);
-            itemName.setText(cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_NAME)));
+            itemName.setText(cursor.getString(cursor.getColumnIndex(KEY_MAP_NAME)));
 
             TextView itemState = (TextView)view.findViewById(R.id.mapItem_state);
-            setText(itemState, TopoIndexDatabaseAdapter.KEY_MAP_STATE, cursor);
+            setText(itemState, KEY_MAP_STATE, cursor);
 
             TextView itemDate = (TextView)view.findViewById(R.id.mapItem_date);
-            setText(itemDate, TopoIndexDatabaseAdapter.KEY_MAP_DATE, cursor);
+            setText(itemDate, KEY_MAP_DATE, cursor);
 
             TextView itemSeries = (TextView)view.findViewById(R.id.mapItem_series);
-            setText(itemSeries, TopoIndexDatabaseAdapter.KEY_MAP_SERIES, cursor);
+            setText(itemSeries, KEY_MAP_SERIES, cursor);
 
             TextView itemScale = (TextView)view.findViewById(R.id.mapItem_scale);
-            int scaleIndex = cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_SCALE);
+            int scaleIndex = cursor.getColumnIndex(KEY_MAP_SCALE);
             if (scaleIndex != -1)
             {
                 String scaleValue = cursor.getString(scaleIndex);
@@ -462,6 +486,20 @@ public class ListViewFragment extends TopoIndexFragment
                 itemScale.setText((scale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY) ? scaleValue : scale.toString());
             }
 
+            View card = view.findViewById(R.id.mapItem_card);
+            if (card != null)
+            {
+                boolean inCollection = false;
+                int inCollectionIndex = cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+                if (inCollectionIndex != -1)
+                {
+                    String boolValue = cursor.getString(inCollectionIndex);
+                    if (boolValue != null)
+                        inCollection = (boolValue.toLowerCase().equals("true"));
+                    else inCollection = false;
+                }
+                card.setBackgroundResource( inCollection ? resID_background_collected0 : resID_background_notCollected0 );
+            }
         }
 
         private void setText(TextView item, String columnName, Cursor cursor)

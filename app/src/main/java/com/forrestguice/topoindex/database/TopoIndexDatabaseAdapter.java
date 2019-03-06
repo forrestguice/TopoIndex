@@ -102,8 +102,9 @@ public class TopoIndexDatabaseAdapter
     public static final String DEF_MAP_URL2 = KEY_MAP_URL2 + " text";
 
     public static final String KEY_MAP_ISCOLLECTED = "iscollected";
+    public static final String DEF_MAP_ISCOLLECTED = KEY_MAP_ISCOLLECTED + " text";
 
-    public static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
+    public static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED};
     public static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
 
     /**
@@ -128,7 +129,8 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LONGITUDE_EAST + ", "
             + DEF_MAP_URL + ", "
             + DEF_MAP_URL1 + ", "
-            + DEF_MAP_URL2;
+            + DEF_MAP_URL2 + ", "
+            + DEF_MAP_ISCOLLECTED;
     private static final String TABLE_MAPS_HTMC_CREATE = "create table " + TABLE_MAPS_HTMC + " (" + TABLE_MAPS_HTMC_CREATE_COLS + ");";
 
     public static final String INDEX_MAPS_HTMC = "usgs_htmc_index";
@@ -163,7 +165,8 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LONGITUDE_EAST + ", "
             + DEF_MAP_URL + ", "
             + DEF_MAP_URL1 + ", "
-            + DEF_MAP_URL2;
+            + DEF_MAP_URL2 + ", "
+            + DEF_MAP_ISCOLLECTED;
     private static final String TABLE_MAPS_USTOPO_CREATE = "create table " + TABLE_MAPS_USTOPO + " (" + TABLE_MAPS_USTOPO_CREATE_COLS + ");";
 
     public static final String INDEX_MAPS_USTOPO = "usgs_ustopo_index";
@@ -198,7 +201,8 @@ public class TopoIndexDatabaseAdapter
             + DEF_MAP_LONGITUDE_EAST + ", "
             + DEF_MAP_URL + ", "
             + DEF_MAP_URL1 + ", "
-            + DEF_MAP_URL2;
+            + DEF_MAP_URL2 + ", "
+            + DEF_MAP_ISCOLLECTED;
     private static final String TABLE_MAPS_CREATE = "create table " + TABLE_MAPS + " (" + TABLE_MAPS_CREATE_COLS + ");";
 
     public static final String INDEX_MAPS = "maps_index";
@@ -245,19 +249,19 @@ public class TopoIndexDatabaseAdapter
      * Get Maps
      */
 
-    public Cursor getMaps(int n, boolean fullEntry)
+    public Cursor getMaps(int n, String[] columns)
     {
-        return getMaps(TABLE_MAPS, n, fullEntry);
+        return getMaps(TABLE_MAPS, n, columns);
     }
 
-    public Cursor getMaps(@NonNull String table, int n, boolean fullEntry)
+    public Cursor getMaps(@NonNull String table, int n, String[] columns)
     {
-        return getMaps(table, n, fullEntry, null);
+        return getMaps(table, n, columns, null);
     }
 
-    public Cursor getMaps(@NonNull String table, int n, boolean fullEntry, FilterValues filter)
+    public Cursor getMaps(@NonNull String table, int n, String[] columns, FilterValues filter)
     {
-        String[] query = (fullEntry) ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY;
+        String[] query = columns;
         StringBuilder selection = new StringBuilder();
         ArrayList<String> selectionArgs = new ArrayList<>();
         String groupBy = null;
@@ -319,12 +323,12 @@ public class TopoIndexDatabaseAdapter
 
     public Cursor getMaps_HTMC(int n, boolean fullEntry)
     {
-        return getMaps(TABLE_MAPS_HTMC, n, fullEntry);
+        return getMaps(TABLE_MAPS_HTMC, n, (fullEntry ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY));
     }
 
     public Cursor getMaps_USTopo(int n, boolean fullEntry)
     {
-        return getMaps(TABLE_MAPS_USTOPO, n, fullEntry);
+        return getMaps(TABLE_MAPS_USTOPO, n, (fullEntry ? QUERY_MAPS_FULLENTRY : QUERY_MAPS_MINENTRY));
     }
 
     public Cursor getMap_HTMC(String table, @NonNull String scanID, String[] columns)
@@ -363,8 +367,7 @@ public class TopoIndexDatabaseAdapter
             ContentValues map = mapList[i];
             if (map != null)
             {
-                Boolean isCollected = map.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
-                if (isCollected != null && isCollected) {
+                if (TopoIndexDatabaseAdapter.getBoolean(map, KEY_MAP_ISCOLLECTED)) {
                     return i;
                 }
             }
@@ -690,7 +693,7 @@ public class TopoIndexDatabaseAdapter
         if (cursor != null)
         {
             if (cursor.getCount() > 0) {
-                contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
+                setBoolean(contentValues, KEY_MAP_ISCOLLECTED, true);
                 contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, cursor.getString(1));
                 contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL1, cursor.getString(2));
                 contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL2, cursor.getString(3));
@@ -698,7 +701,7 @@ public class TopoIndexDatabaseAdapter
             cursor.close();
 
         } else {
-            contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, false);
+            setBoolean(contentValues, KEY_MAP_ISCOLLECTED, false);
         }
     }
 
@@ -867,6 +870,20 @@ public class TopoIndexDatabaseAdapter
             return true;
         } else return false;
     }
+
+    public static boolean getBoolean(ContentValues values, String key)
+    {
+        String stringValue = values.getAsString(key);
+        if (stringValue != null)
+            return stringValue.toLowerCase().equals("true");
+        else return false;
+    }
+
+    public static void setBoolean(ContentValues values, String key, boolean value)
+    {
+        values.put(key, (value ? "true" : "false"));
+    }
+
 
     /**
      * DatabaseHelper

@@ -149,9 +149,9 @@ public class MapItemDialog extends BottomSheetDialogFragment
             AppSettings.Location seCorner = getSoutheastCorner(selectedValues);
             text_secorner.setText(seCorner != null ? formatter.format(seCorner.getLatitude()) + "\n" + formatter.format(seCorner.getLongitude()) + "" : "");  // TODO
 
-            Boolean hasMap = selectedValues.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
-            card.setBackgroundResource( (hasMap != null && hasMap) ? resID_background_collected : resID_background_notCollected );
-            button_view.setText(context.getString(hasMap != null && hasMap ? R.string.action_view : R.string.action_download));
+            boolean hasMap = TopoIndexDatabaseAdapter.getBoolean(selectedValues, TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+            card.setBackgroundResource( hasMap ? resID_background_collected : resID_background_notCollected );
+            button_view.setText(context.getString(hasMap ? R.string.action_view : R.string.action_download));
         }
     }
 
@@ -369,8 +369,8 @@ public class MapItemDialog extends BottomSheetDialogFragment
                 text_scale.setText(mapScale == TopoIndexDatabaseAdapter.MapScale.SCALE_ANY ? mapScaleValue : mapScale.toString());
 
                 if (colorize) {
-                    Boolean isCollected = contentValues[i].getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
-                    card.setBackgroundResource((isCollected != null && isCollected) ? resID_background_collected : resID_background_notCollected);
+                    boolean isCollected = TopoIndexDatabaseAdapter.getBoolean(contentValues[i], TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
+                    card.setBackgroundResource(isCollected ? resID_background_collected : resID_background_notCollected);
                 } else {
                     card.setBackgroundResource(resID_background_collected);
                 }

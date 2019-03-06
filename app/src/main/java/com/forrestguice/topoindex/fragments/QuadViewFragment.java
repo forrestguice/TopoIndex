@@ -214,8 +214,7 @@ public class QuadViewFragment extends TopoIndexFragment
 
         for (ContentValues entry : entries)
         {
-            Boolean inCollection = entry.getAsBoolean(TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED);
-            if (inCollection != null && inCollection) {
+            if (TopoIndexDatabaseAdapter.getBoolean(entry, TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED)) {
                 return true;
             }
         }

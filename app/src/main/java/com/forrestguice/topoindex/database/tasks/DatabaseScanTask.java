@@ -111,6 +111,8 @@ public class DatabaseScanTask extends DatabaseTask
                     Log.d(TAG, "scanFile: " + file.getAbsolutePath());
                     fileValues = updateValuesFromDB_HTMC(fileValues);      // TODO: support US Topo
 
+                    TopoIndexDatabaseAdapter.setBoolean(fileValues, TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
+
                     String scanID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
                     if (database.hasMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS, scanID))
                     {
