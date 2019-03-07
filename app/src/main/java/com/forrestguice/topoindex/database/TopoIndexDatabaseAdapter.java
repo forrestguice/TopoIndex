@@ -141,7 +141,9 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_HTMC + "2" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
             "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ");",
             "create index " + INDEX_MAPS_HTMC + "4" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCANID + ");",
-            "create index " + INDEX_MAPS_HTMC + "5" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_CELLID + ");"
+            "create index " + INDEX_MAPS_HTMC + "5" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_CELLID + ");",
+            "create index " + INDEX_MAPS_HTMC + "6" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_STATE + ");",
+            "create index " + INDEX_MAPS_HTMC + "7" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCALE + ");"
     };
 
     /**
@@ -177,7 +179,9 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
             "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ");",
             "create index " + INDEX_MAPS_USTOPO + "4" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS_USTOPO + "5" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_CELLID + ");"
+            "create index " + INDEX_MAPS_USTOPO + "5" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_CELLID + ");",
+            "create index " + INDEX_MAPS_USTOPO + "6" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_STATE + ");",
+            "create index " + INDEX_MAPS_USTOPO + "7" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_SCALE + ");"
     };
 
     /**
@@ -214,7 +218,8 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS + "3" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_NORTH + ");",
             "create index " + INDEX_MAPS + "4" + " on " + TABLE_MAPS + " (" + KEY_MAP_SCANID + ");",
             "create index " + INDEX_MAPS + "5" + " on " + TABLE_MAPS + " (" + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS + "6" + " on " + TABLE_MAPS + " (" + KEY_MAP_CELLID + ");"
+            "create index " + INDEX_MAPS + "6" + " on " + TABLE_MAPS + " (" + KEY_MAP_CELLID + ");",
+            "create index " + INDEX_MAPS + "7" + " on " + TABLE_MAPS + " (" + KEY_MAP_SCALE + ");"
     };
 
     /**
