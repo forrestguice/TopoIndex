@@ -575,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             filter_bySeries = TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;
         }
 
-        MapItemContainingTask mapItemTask = new MapItemContainingTask(MainActivity.this, currentLocation, mapScale);
+        final MapItemContainingTask mapItemTask = new MapItemContainingTask(MainActivity.this, currentLocation, mapScale);
         mapItemTask.setTaskListener(new MapItemTaskListener()
         {
             @Override
@@ -815,9 +815,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     statesDialog.setShowSelectAll(true);
                     statesDialog.setRequireAtLeastOne(true);
                     statesDialog.setSelection(AppSettings.getLastUpdateSelection(MainActivity.this));
-                    statesDialog.setDialogListener(new StatesDialog.StatesDialogListener() {
+                    statesDialog.setDialogListener(new StatesDialog.StatesDialogListener()
+                    {
                         @Override
-                        public void onDialogAccepted(String[] selection) {
+                        public void onDialogAccepted(String[] selection)
+                        {
+                            AppSettings.setLastUpdateSelection(MainActivity.this, selection);
+
                             Intent intent = new Intent();
                             intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
                             databaseService.runDatabaseInitTask(context, intent, uri, initTaskListener);
