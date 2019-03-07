@@ -567,7 +567,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: series selection
         final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
-        AppSettings.Location currentLocation = AppSettings.getLocation(this);
+        final AppSettings.Location currentLocation = AppSettings.getLocation(this);
         Toast.makeText(this, currentLocation.toString(), Toast.LENGTH_SHORT).show();
 
         String filter_bySeries = AppSettings.getFilter_bySeries(MainActivity.this);
@@ -593,7 +593,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         new Handler().postDelayed(new Runnable() {
                             public void run() {
-                                showMapItemDialog(mapList, -1);
+                                if (mapList == null || mapList.length == 0) {
+                                    if (activityIsActive) {
+                                        Snackbar.make(pager, getString(R.string.list_empty_maps_nearby, currentLocation.toString()), Snackbar.LENGTH_LONG).show();
+                                    }
+                                } else {
+                                    showMapItemDialog(mapList, -1);
+                                }
                             }
                         }, 250);
                     }

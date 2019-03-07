@@ -43,6 +43,7 @@
 
     <!-- List -->
     <string name="list_empty_maps">No Maps</string>
+    <string name="list_empty_maps_nearby">No maps found near %1$s.</string>
     <string name="list_empty_index">No Maps</string>
 
     <string name="list_empty_message_clear"><![CDATA[<a href="">Clear search filters</a>]]></string>
