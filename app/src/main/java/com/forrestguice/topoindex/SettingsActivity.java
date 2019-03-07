@@ -335,7 +335,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         private int selectedUpdateOption = 0;
         private void showUpdateChoiceDialog()
         {
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppTheme_AlertDialog);
             String[] updateChoices = new String[] { getString(R.string.action_update_from_assets), getString(R.string.action_update_from_file) };
             dialog.setSingleChoiceItems(updateChoices, selectedUpdateOption, new DialogInterface.OnClickListener() {
                 @Override
