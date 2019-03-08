@@ -19,6 +19,7 @@
 package com.forrestguice.topoindex.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -28,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -405,14 +407,22 @@ public class ListViewFragment extends TopoIndexFragment
         @Override
         protected Cursor doInBackground(String... tables)
         {
-            if (tables.length > 0 && tables[0] != null)
+            Activity activity = getActivity();
+            if (activity != null)
             {
-                table = tables[0];
-                return database.getMaps(table, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_LISTENTRY, AppSettings.getFilters(getActivity()));
+                if (tables.length > 0 && tables[0] != null)
+                {
+                    table = tables[0];
+                    return database.getMaps(table, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_LISTENTRY, AppSettings.getFilters(activity));
+
+                } else {
+                    table = TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;
+                    return database.getMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_LISTENTRY, AppSettings.getFilters(activity));
+                }
 
             } else {
-                table = TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;
-                return database.getMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_LISTENTRY, AppSettings.getFilters(getActivity()));
+                Log.w(TAG, "doInBackground: activity is null! returning null cursor");
+                return null;
             }
         }
 

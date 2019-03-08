@@ -46,6 +46,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.forrestguice.topoindex.database.tasks.DatabaseIndexTask;
 import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseSettings;
@@ -191,6 +192,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 if (action_sync != null) {
                     action_sync.setEnabled(status == TopoIndexDatabaseService.STATUS_READY);
                 }
+                if (action_index != null) {
+                    action_index.setEnabled(status == TopoIndexDatabaseService.STATUS_READY);
+                }
 
                 if (snackbar == null)                      // lazy init snackbar
                 {
@@ -294,6 +298,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         }
 
         private Preference action_sync, info_date, info_lastupdate;
+        private Preference action_index;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -314,6 +319,20 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                     public boolean onPreferenceClick(Preference preference)
                     {
                         showUpdateChoiceDialog();
+                        return false;
+                    }
+                });
+            }
+
+            action_index = findPreference(TopoIndexDatabaseSettings.KEY_DATABASE_INDEXNOW);
+            if (action_index != null)
+            {
+                action_index.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+                {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference)
+                    {
+                        showReIndexConfirmDialog();
                         return false;
                     }
                 });
@@ -365,6 +384,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 }
             });
             dialog.show();
+        }
+
+        private void showReIndexConfirmDialog()
+        {
+            Activity activity = getActivity();
+            if (activity != null) {
+                databaseService.runDatabaseIndexTask(activity, new Intent(), null);
+            }
         }
 
         private void updateDateFields()

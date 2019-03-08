@@ -29,6 +29,7 @@ public class TopoIndexDatabaseSettings
     public static final String KEY_DATABASE_DATE = "database_date";                     // these keys should match those in pref_database.xml
     public static final String KEY_DATABASE_LASTUPDATE = "database_lastupdate";
     public static final String KEY_DATABASE_UPDATENOW = "database_update";
+    public static final String KEY_DATABASE_INDEXNOW = "database_index";
     public static final String KEY_DATABASE_LASTSCAN = "database_lastscan";
 
     public static long getDatabaseDate(Context context)

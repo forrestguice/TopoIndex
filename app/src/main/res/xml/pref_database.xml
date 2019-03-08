@@ -12,4 +12,8 @@
         android:title="@string/pref_title_database_update" android:persistent="false">
     </Preference>
 
+    <Preference android:key="database_index"
+        android:title="@string/pref_title_database_index" android:persistent="false">
+    </Preference>
+
 </PreferenceScreen>

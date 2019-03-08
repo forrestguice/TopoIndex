@@ -932,6 +932,38 @@ public class TopoIndexDatabaseAdapter
         } else return false;
     }
 
+    public boolean clearIndices()
+    {
+        for (int i=0; i<INDEX_MAPS.length(); i++) {
+            database.execSQL("DROP INDEX IF EXISTS " + INDEX_MAPS + i);
+        }
+
+        for (int i=0; i<INDEX_MAPS_USTOPO.length(); i++) {
+            database.execSQL("DROP INDEX IF EXISTS " + INDEX_MAPS_USTOPO + i);
+        }
+
+        for (int i=0; i<INDEX_MAPS_HTMC.length(); i++) {
+            database.execSQL("DROP INDEX IF EXISTS " + INDEX_MAPS_HTMC + i);
+        }
+        return true;
+    }
+
+    public boolean createIndices()
+    {
+        for (String createIndexStatement : INDEX_MAPS_CREATE) {
+            database.execSQL(createIndexStatement);
+        }
+
+        for (String createIndexStatement : INDEX_MAPS_USTOPO_CREATE) {
+            database.execSQL(createIndexStatement);
+        }
+
+        for (String createIndexStatement : INDEX_MAPS_HTMC_CREATE) {
+            database.execSQL(createIndexStatement);
+        }
+        return true;
+    }
+
     public static boolean getBoolean(ContentValues values, String key)
     {
         String stringValue = values.getAsString(key);
