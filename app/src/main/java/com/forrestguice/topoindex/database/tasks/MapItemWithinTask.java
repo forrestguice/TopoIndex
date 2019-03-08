@@ -61,7 +61,7 @@ public class MapItemWithinTask extends AsyncTask<String, Void, ContentValues[]>
         {
             if (tables[i] != null)
             {
-                ContentValues[] contentValues = database.findMapsWithin(tables[i], mapScale, item);
+                ContentValues[] contentValues = database.findMapsWithBounds(tables[i], TopoIndexDatabaseAdapter.QUERY_MAPS_FULLENTRY, mapScale, (mapScale != TopoIndexDatabaseAdapter.MapScale.SCALE_ANY), item);
                 database.findInCollection(contentValues);
                 mapList.addAll(Arrays.asList(contentValues));
             }

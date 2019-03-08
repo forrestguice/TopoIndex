@@ -581,7 +581,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onFinished(final ContentValues[] mapList, int selectedPos)
             {
-                MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, mapList, mapScale);
+                TopoIndexDatabaseAdapter.MapScale nearbyScale = TopoIndexDatabaseAdapter.MapScale.findValue(mapList[0].getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE));
+                MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, mapList, nearbyScale);
                 nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
                 {
                     @Override
@@ -691,7 +692,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             DatabaseUtils.cursorRowToContentValues(cursor, item);
 
             final String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };   // TODO: series selection
-            final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
+
+            String mapScaleValue = item.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE);
+            final TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(mapScaleValue);
 
             String mapSeries = item.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SERIES);
             if (mapSeries == null) {
@@ -1041,7 +1044,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onViewItem(ContentValues item)
         {
-            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
+            //TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(item.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE));
             String[] tables = new String[] { TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO };      // TODO: series selection
 
             MapItemWithinTask mapItemTask = new MapItemWithinTask(MainActivity.this, item, mapScale);
@@ -1069,7 +1073,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String mapTable = (mapSeries.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO) ? TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO : TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC );
             AppSettings.setFilter_bySeries(MainActivity.this, mapTable);
 
-            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(item.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE));
+
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, new ContentValues[] { item }, mapScale );
             nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
             {
@@ -1128,7 +1133,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String mapTable = (mapSeries.equals(TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO) ? TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO : TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC );
             AppSettings.setFilter_bySeries(MainActivity.this, mapTable);
 
-            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
+            String mapScaleValue = item.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCALE);
+            TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(mapScaleValue);
+            //TopoIndexDatabaseAdapter.MapScale mapScale = TopoIndexDatabaseAdapter.MapScale.findValue(AppSettings.getFilter_byScale(MainActivity.this));
             MapItemNearbyTask nearbyTask = new MapItemNearbyTask(MainActivity.this, new ContentValues[] { item }, mapScale );
             nearbyTask.setTaskListener(new MapItemNearbyTask.MapItemNearbyTaskListener()
             {

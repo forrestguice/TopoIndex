@@ -408,11 +408,11 @@ public class ListViewFragment extends TopoIndexFragment
             if (tables.length > 0 && tables[0] != null)
             {
                 table = tables[0];
-                return database.getMaps(table, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_MINENTRY, AppSettings.getFilters(getActivity()));
+                return database.getMaps(table, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_LISTENTRY, AppSettings.getFilters(getActivity()));
 
             } else {
                 table = TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC;
-                return database.getMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_MINENTRY, AppSettings.getFilters(getActivity()));
+                return database.getMaps(TopoIndexDatabaseAdapter.TABLE_MAPS_HTMC, 0, TopoIndexDatabaseAdapter.QUERY_MAPS_LISTENTRY, AppSettings.getFilters(getActivity()));
             }
         }
 
