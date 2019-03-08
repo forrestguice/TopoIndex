@@ -135,10 +135,10 @@ public class TopoIndexDatabaseAdapter
 
     public static final String INDEX_MAPS_HTMC = "usgs_htmc_index";
     private static final String[] INDEX_MAPS_HTMC_CREATE = new String[] {
-            "create index " + INDEX_MAPS_HTMC + "0" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_EAST + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS_HTMC + "1" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_WEST + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS_HTMC + "2" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_SOUTH + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ", " + KEY_MAP_GDAITEMID + ");",
+            "create index " + INDEX_MAPS_HTMC + "0" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_EAST + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS_HTMC + "1" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LONGITUDE_WEST + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS_HTMC + "2" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_SOUTH + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ", " + KEY_MAP_DATE + ");",
             "create index " + INDEX_MAPS_HTMC + "4" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCANID + ");",
             "create index " + INDEX_MAPS_HTMC + "5" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_CELLID + ", " + KEY_MAP_SCANID + ");",
             "create index " + INDEX_MAPS_HTMC + "6" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_STATE + ", " + KEY_MAP_SCANID + ");",
@@ -173,10 +173,10 @@ public class TopoIndexDatabaseAdapter
 
     public static final String INDEX_MAPS_USTOPO = "usgs_ustopo_index";
     private static final String[] INDEX_MAPS_USTOPO_CREATE = new String[] {
-            "create index " + INDEX_MAPS_USTOPO + "0" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_EAST + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS_USTOPO + "1" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_WEST + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ", " + KEY_MAP_GDAITEMID + ");",
+            "create index " + INDEX_MAPS_USTOPO + "0" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_EAST + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS_USTOPO + "1" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LONGITUDE_WEST + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ", " + KEY_MAP_DATE + ");",
             "create index " + INDEX_MAPS_USTOPO + "4" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_GDAITEMID + ");",
             "create index " + INDEX_MAPS_USTOPO + "5" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_CELLID + ", " + KEY_MAP_GDAITEMID + ");",
             "create index " + INDEX_MAPS_USTOPO + "6" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_STATE + ", " + KEY_MAP_GDAITEMID + ");",
@@ -211,10 +211,10 @@ public class TopoIndexDatabaseAdapter
 
     public static final String INDEX_MAPS = "maps_index";
     private static final String[] INDEX_MAPS_CREATE = new String[] {
-            "create index " + INDEX_MAPS + "0" + " on " + TABLE_MAPS + " (" + KEY_MAP_LONGITUDE_EAST + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS + "1" + " on " + TABLE_MAPS + " (" + KEY_MAP_LONGITUDE_WEST + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS + "2" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_SOUTH + ", " + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS + "3" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_NORTH + ", " + KEY_MAP_GDAITEMID + ");",
+            "create index " + INDEX_MAPS + "0" + " on " + TABLE_MAPS + " (" + KEY_MAP_LONGITUDE_EAST + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS + "1" + " on " + TABLE_MAPS + " (" + KEY_MAP_LONGITUDE_WEST + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS + "2" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_SOUTH + ", " + KEY_MAP_DATE + ");",
+            "create index " + INDEX_MAPS + "3" + " on " + TABLE_MAPS + " (" + KEY_MAP_LATITUDE_NORTH + ", " + KEY_MAP_DATE + ");",
             "create index " + INDEX_MAPS + "4" + " on " + TABLE_MAPS + " (" + KEY_MAP_SCANID + ");",
             "create index " + INDEX_MAPS + "5" + " on " + TABLE_MAPS + " (" + KEY_MAP_GDAITEMID + ");",
             "create index " + INDEX_MAPS + "6" + " on " + TABLE_MAPS + " (" + KEY_MAP_CELLID + ");",
@@ -225,16 +225,16 @@ public class TopoIndexDatabaseAdapter
             KEY_ROWID,
             KEY_MAP_STATE, KEY_MAP_SCALE,
             KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST,
-            KEY_MAP_GDAITEMID, KEY_MAP_SCANID,
-            KEY_MAP_NAME, KEY_MAP_SERIES, KEY_MAP_DATE,  KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED,
+            KEY_MAP_DATE, KEY_MAP_GDAITEMID, KEY_MAP_SCANID,
+            KEY_MAP_NAME, KEY_MAP_SERIES, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED,
     };
 
     public static final String[] QUERY_MAPS_FULLENTRY_HTMC = new String[] {
             KEY_ROWID,
             KEY_MAP_STATE, KEY_MAP_SCALE,
             KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST,
-            KEY_MAP_GDAITEMID, KEY_MAP_SCANID,
-            KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED,
+            KEY_MAP_DATE, KEY_MAP_GDAITEMID, KEY_MAP_SCANID,
+            KEY_MAP_NAME, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED,
             KEY_MAP_CELLID, KEY_MAP_SERIES, KEY_MAP_VERSION,
             KEY_MAP_DATUM, KEY_MAP_PROJECTION,
     };
@@ -243,8 +243,8 @@ public class TopoIndexDatabaseAdapter
             KEY_ROWID,
             KEY_MAP_STATE, KEY_MAP_SCALE,
             KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST,
-            KEY_MAP_GDAITEMID,
-            KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED,
+            KEY_MAP_DATE, KEY_MAP_GDAITEMID,
+            KEY_MAP_NAME, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED,
             KEY_MAP_CELLID, KEY_MAP_SERIES, KEY_MAP_VERSION,
             KEY_MAP_DATUM, KEY_MAP_PROJECTION,
     };
@@ -351,7 +351,7 @@ public class TopoIndexDatabaseAdapter
         Cursor cursor = null;
         if (!useRawQuery)
         {
-            cursor = (n > 0) ? database.query(table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC", n + "")
+            cursor = (n > 0) ? database.query(table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC", n + "")  // TODO order
                              : database.query(table, query, selection.toString(), selectionArgs.toArray(new String[0]), groupBy, null, "_id ASC");
 
         } else {
@@ -407,7 +407,7 @@ public class TopoIndexDatabaseAdapter
         String[] query = columns;
         String selection = KEY_MAP_SCANID + " = ?";
         String[] selectionArgs = new String[] { scanID };
-        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, "_id DESC" );
+        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, KEY_MAP_DATE + " DESC" );
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -419,7 +419,7 @@ public class TopoIndexDatabaseAdapter
         String[] query = columns;
         String selection = KEY_MAP_GDAITEMID + " = ?";
         String[] selectionArgs = new String[] { gdaItemID };
-        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, "_id DESC" );
+        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, KEY_MAP_DATE + " DESC" );
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -496,7 +496,7 @@ public class TopoIndexDatabaseAdapter
         String[] selectionArgs = new String[] { latitude, latitude, longitude, longitude };
 
         String[] columns = (table.equals(TABLE_MAPS_USTOPO) ? QUERY_MAPS_FULLENTRY_USTOPO : QUERY_MAPS_FULLENTRY_HTMC);
-        Cursor cursor = database.query(table, columns, selection, selectionArgs, null, null, "_id DESC");
+        Cursor cursor = database.query(table, columns, selection, selectionArgs, null, null, KEY_MAP_DATE + " DESC");
         if (cursor != null)
         {
             contentValues = new ContentValues[cursor.getCount()];
@@ -588,7 +588,7 @@ public class TopoIndexDatabaseAdapter
         String[] selectionArgs = new String[] { Double.toString(northLat), Double.toString(southLat),
                 Double.toString(westLon), Double.toString(eastLon) };
 
-        Cursor cursor = database.query(table, columns, selection, selectionArgs, null, null, KEY_MAP_GDAITEMID + " DESC");
+        Cursor cursor = database.query(table, columns, selection, selectionArgs, null, null, KEY_MAP_DATE + " DESC");
         if (cursor != null)
         {
             contentValues = new ContentValues[cursor.getCount()];
@@ -638,22 +638,22 @@ public class TopoIndexDatabaseAdapter
 
         String selection0 = selection + KEY_MAP_LATITUDE_SOUTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " = ?";
         String[] selectionArgs0 = new String[] { Double.toString(northLat), Double.toString(westLon) };
-        Cursor cursor0 = database.query( table, query, selection0, selectionArgs0, null, null, KEY_MAP_GDAITEMID + " DESC");
+        Cursor cursor0 = database.query( table, query, selection0, selectionArgs0, null, null, KEY_MAP_DATE + " DESC");
         assignGridValue(contentValues, GRID_NORTHWEST, cursor0);
 
         String selection1 = selection + KEY_MAP_LATITUDE_SOUTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs1 = new String[] { Double.toString(northLat), Double.toString(westLon) };
-        Cursor cursor1 = database.query( table, query, selection1, selectionArgs1, null, null, KEY_MAP_GDAITEMID + " DESC" );
+        Cursor cursor1 = database.query( table, query, selection1, selectionArgs1, null, null, KEY_MAP_DATE + " DESC" );
         assignGridValue(contentValues, GRID_NORTH, cursor1);
 
         String selection2 = selection + KEY_MAP_LATITUDE_SOUTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs2 = new String[] { Double.toString(northLat), Double.toString(eastLon) };
-        Cursor cursor2 = database.query( table, query, selection2, selectionArgs2, null, null, KEY_MAP_GDAITEMID + " DESC" );
+        Cursor cursor2 = database.query( table, query, selection2, selectionArgs2, null, null, KEY_MAP_DATE + " DESC" );
         assignGridValue(contentValues, GRID_NORTHEAST, cursor2);
 
         String selection3 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " = ?";
         String[] selectionArgs3 = new String[] { Double.toString(northLat), Double.toString(westLon) };
-        Cursor cursor3 = database.query( table, query, selection3, selectionArgs3, null, null, KEY_MAP_GDAITEMID + " DESC" );
+        Cursor cursor3 = database.query( table, query, selection3, selectionArgs3, null, null, KEY_MAP_DATE + " DESC" );
         assignGridValue(contentValues, GRID_WEST, cursor3);
 
         ContentValues[] withinCenter = findMapsWithBounds(table, QUERY_MAPS_LISTENTRY, mapScale, !anyScale, values[0]);  // TODO
@@ -661,22 +661,22 @@ public class TopoIndexDatabaseAdapter
 
         String selection5 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs5 = new String[] { Double.toString(northLat), Double.toString(eastLon) };
-        Cursor cursor5 = database.query( table, query, selection5, selectionArgs5, null, null, KEY_MAP_GDAITEMID + " DESC" );
+        Cursor cursor5 = database.query( table, query, selection5, selectionArgs5, null, null, KEY_MAP_DATE + " DESC" );
         assignGridValue(contentValues, GRID_EAST, cursor5);
 
         String selection6 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " = ?";
         String[] selectionArgs6 = new String[] { Double.toString(southLat), Double.toString(westLon) };
-        Cursor cursor6 = database.query( table, query, selection6, selectionArgs6, null, null, KEY_MAP_GDAITEMID + " DESC" );
+        Cursor cursor6 = database.query( table, query, selection6, selectionArgs6, null, null, KEY_MAP_DATE + " DESC" );
         assignGridValue(contentValues, GRID_SOUTHWEST, cursor6);
 
         String selection7 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs7 = new String[] { Double.toString(southLat), Double.toString(westLon) };
-        Cursor cursor7 = database.query( table, query, selection7, selectionArgs7, null, null, KEY_MAP_GDAITEMID + " DESC" );
+        Cursor cursor7 = database.query( table, query, selection7, selectionArgs7, null, null, KEY_MAP_DATE + " DESC" );
         assignGridValue(contentValues, GRID_SOUTH, cursor7);
 
         String selection8 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs8 = new String[] { Double.toString(southLat), Double.toString(eastLon) };
-        Cursor cursor8 = database.query( table, query, selection8, selectionArgs8, null, null, KEY_MAP_GDAITEMID + " DESC" );
+        Cursor cursor8 = database.query( table, query, selection8, selectionArgs8, null, null, KEY_MAP_DATE + " DESC" );
         assignGridValue(contentValues, GRID_SOUTHEAST, cursor8);
 
         for (int i=0; i<contentValues.length; i++)
