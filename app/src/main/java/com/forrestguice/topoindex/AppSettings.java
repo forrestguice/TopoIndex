@@ -133,7 +133,7 @@ public class AppSettings
                 && (scaleFilter == null || scaleFilter.isEmpty());
     }
 
-    public static TopoIndexDatabaseAdapter.FilterValues getFilters(Context context)
+    public static TopoIndexDatabaseAdapter.FilterValues getFilters(@NonNull Context context)
     {
         String nameFilter = getFilter_byName(context);
         String[] statesFilter = getFilter_byState(context);
