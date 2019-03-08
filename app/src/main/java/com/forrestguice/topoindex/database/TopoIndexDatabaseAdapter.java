@@ -40,6 +40,8 @@ import java.util.Map;
 
 public class TopoIndexDatabaseAdapter
 {
+    public static final String TAG = "TopoIndexDB";
+
     private static final String DATABASE_NAME = "topoindex";
     private static final int DATABASE_VERSION = 1;
 
@@ -105,7 +107,6 @@ public class TopoIndexDatabaseAdapter
     public static final String KEY_MAP_ISCOLLECTED = "iscollected";
     public static final String DEF_MAP_ISCOLLECTED = KEY_MAP_ISCOLLECTED + " text";
 
-    public static final String[] QUERY_MAPS_MINENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED};
     public static final String[] QUERY_MAPS_FULLENTRY = new String[] {KEY_ROWID, KEY_MAP_SERIES, KEY_MAP_VERSION, KEY_MAP_GDAITEMID, KEY_MAP_CELLID, KEY_MAP_SCANID, KEY_MAP_NAME, KEY_MAP_DATE, KEY_MAP_STATE, KEY_MAP_SCALE, KEY_MAP_DATUM, KEY_MAP_PROJECTION, KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST, KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2};
 
     /**
@@ -141,9 +142,9 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_HTMC + "2" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
             "create index " + INDEX_MAPS_HTMC + "3" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_LATITUDE_NORTH + ");",
             "create index " + INDEX_MAPS_HTMC + "4" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCANID + ");",
-            "create index " + INDEX_MAPS_HTMC + "5" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_CELLID + ");",
-            "create index " + INDEX_MAPS_HTMC + "6" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_STATE + ");",
-            "create index " + INDEX_MAPS_HTMC + "7" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCALE + ");"
+            "create index " + INDEX_MAPS_HTMC + "5" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_CELLID + ", " + KEY_MAP_SCANID + ");",
+            "create index " + INDEX_MAPS_HTMC + "6" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_STATE + ", " + KEY_MAP_SCANID + ");",
+            "create index " + INDEX_MAPS_HTMC + "7" + " on " + TABLE_MAPS_HTMC + " (" + KEY_MAP_SCALE + ", " + KEY_MAP_SCANID + ");"
     };
 
     /**
@@ -179,9 +180,9 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS_USTOPO + "2" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_SOUTH + ");",
             "create index " + INDEX_MAPS_USTOPO + "3" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_LATITUDE_NORTH + ");",
             "create index " + INDEX_MAPS_USTOPO + "4" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_GDAITEMID + ");",
-            "create index " + INDEX_MAPS_USTOPO + "5" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_CELLID + ");",
-            "create index " + INDEX_MAPS_USTOPO + "6" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_STATE + ");",
-            "create index " + INDEX_MAPS_USTOPO + "7" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_SCALE + ");"
+            "create index " + INDEX_MAPS_USTOPO + "5" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_CELLID + ", " + KEY_MAP_GDAITEMID + ");",
+            "create index " + INDEX_MAPS_USTOPO + "6" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_STATE + ", " + KEY_MAP_GDAITEMID + ");",
+            "create index " + INDEX_MAPS_USTOPO + "7" + " on " + TABLE_MAPS_USTOPO + " (" + KEY_MAP_SCALE + ", " + KEY_MAP_GDAITEMID + ");"
     };
 
     /**
@@ -222,6 +223,13 @@ public class TopoIndexDatabaseAdapter
             "create index " + INDEX_MAPS + "7" + " on " + TABLE_MAPS + " (" + KEY_MAP_SCALE + ");"
     };
 
+    public static final String[] QUERY_MAPS_LISTENTRY = new String[] {
+            KEY_ROWID, KEY_MAP_GDAITEMID, KEY_MAP_SCANID,
+            KEY_MAP_STATE, KEY_MAP_SCALE,
+            KEY_MAP_LATITUDE_NORTH, KEY_MAP_LONGITUDE_WEST, KEY_MAP_LATITUDE_SOUTH, KEY_MAP_LONGITUDE_EAST,
+            KEY_MAP_NAME, KEY_MAP_SERIES, KEY_MAP_DATE,  KEY_MAP_URL, KEY_MAP_URL1, KEY_MAP_URL2, KEY_MAP_ISCOLLECTED
+    };
+
     /**
      * TopoIndexDatabaseAdapter
      */
@@ -257,7 +265,8 @@ public class TopoIndexDatabaseAdapter
 
     public Cursor getMaps(@NonNull String table, int n, String[] columns, FilterValues filter)
     {
-        boolean useRawQuery = (!table.equals(TABLE_MAPS));
+        long bench_start = System.nanoTime();
+        boolean useRawQuery = false;  //(!table.equals(TABLE_MAPS));
 
         String[] query = columns;
         StringBuilder selection = new StringBuilder();
@@ -368,6 +377,9 @@ public class TopoIndexDatabaseAdapter
         if (cursor != null) {
             cursor.moveToFirst();
         }
+
+        long bench_end = System.nanoTime();
+        Log.d(TAG, "list query: (benchmark) " + ((bench_end - bench_start) / 1000000.0) + " ms; rawQuery?" + useRawQuery);
         return cursor;
     }
 
@@ -502,7 +514,7 @@ public class TopoIndexDatabaseAdapter
      * @param values a map to search within
      * @return a list containing matching rows (ContentValues)
      */
-    public ContentValues[] findMapsWithin(String table, MapScale mapScale, ContentValues values)
+    public ContentValues[] findMapsWithBounds(String table, String[] columns, MapScale mapScale, boolean strictBounds, ContentValues values)
     {
         if (values != null)
         {
@@ -518,7 +530,7 @@ public class TopoIndexDatabaseAdapter
             }
 
             if (hasCorners)
-                return findMapsWithin(table, mapScale, corners[0], corners[1], corners[2], corners[3]);
+                return findMapsWithBounds(table, columns, mapScale, strictBounds, corners[0], corners[1], corners[2], corners[3]);
             else return new ContentValues[0];
 
         } else {
@@ -532,7 +544,7 @@ public class TopoIndexDatabaseAdapter
      * @param corners double[4] containing [north lat, west lon, south lat, east lon]
      * @return a list containing matching rows (ContentValues)
      */
-    public ContentValues[] findMapsWithin(String table, MapScale mapScale, double... corners)
+    public ContentValues[] findMapsWithBounds(String table, String[] columns, MapScale mapScale, boolean strictBounds, double... corners)
     {
         ContentValues[] contentValues = null;
         if (corners == null || corners.length != 4) {
@@ -540,21 +552,25 @@ public class TopoIndexDatabaseAdapter
             return contentValues;
         }
 
+        boolean anyScale = (mapScale == null || mapScale == MapScale.SCALE_ANY);
+        String gte = (strictBounds ? " = " : " >= ");
+        String lte = (strictBounds ? " = ": " <= ");
+
         double northLat = corners[0];
         double westLon = corners[1];
         double southLat = corners[2];
         double eastLon = corners[3];
 
-        String selection = (mapScale == null || mapScale == MapScale.SCALE_ANY) ? ""
-                : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
 
-        selection += KEY_MAP_LATITUDE_NORTH + " <= ?" + " AND " + KEY_MAP_LATITUDE_SOUTH + " >= ?"
-                + " AND " + KEY_MAP_LONGITUDE_WEST + " >= ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " <= ?";
+
+        String selection = anyScale ? "" : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
+        selection += KEY_MAP_LATITUDE_NORTH + lte + "?" + " AND " + KEY_MAP_LATITUDE_SOUTH + gte + "?"
+                + " AND " + KEY_MAP_LONGITUDE_WEST + gte + "?" + " AND " + KEY_MAP_LONGITUDE_EAST + lte + "?";
 
         String[] selectionArgs = new String[] { Double.toString(northLat), Double.toString(southLat),
                 Double.toString(westLon), Double.toString(eastLon) };
 
-        Cursor cursor = database.query(table, QUERY_MAPS_FULLENTRY, selection, selectionArgs, null, null, "_id DESC");
+        Cursor cursor = database.query(table, columns, selection, selectionArgs, null, null, "_id DESC");
         if (cursor != null)
         {
             contentValues = new ContentValues[cursor.getCount()];
@@ -592,19 +608,19 @@ public class TopoIndexDatabaseAdapter
             return contentValues;
         }
 
+        boolean anyScale = (mapScale == null || mapScale == MapScale.SCALE_ANY);
         double[] corners = TopoIndexDatabaseAdapter.getCorners(values[0]);         // bounding box: n, w, e, s
         double northLat = corners[0];
         double westLon = corners[1];
         double southLat = corners[2];
         double eastLon = corners[3];
 
-        String[] query = QUERY_MAPS_FULLENTRY;
-        String selection = (mapScale == null || mapScale == MapScale.SCALE_ANY) ? ""
-                : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
+        String[] query = QUERY_MAPS_LISTENTRY;
+        String selection = anyScale ? "" : KEY_MAP_SCALE + " = " + mapScale.getValue() + " AND ";
 
         String selection0 = selection + KEY_MAP_LATITUDE_SOUTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_EAST + " = ?";
         String[] selectionArgs0 = new String[] { Double.toString(northLat), Double.toString(westLon) };
-        Cursor cursor0 = database.query( table, query, selection0, selectionArgs0, null, null, "_id DESC" );
+        Cursor cursor0 = database.query( table, query, selection0, selectionArgs0, null, null, "_id DESC");
         assignGridValue(contentValues, GRID_NORTHWEST, cursor0);
 
         String selection1 = selection + KEY_MAP_LATITUDE_SOUTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
@@ -622,11 +638,13 @@ public class TopoIndexDatabaseAdapter
         Cursor cursor3 = database.query( table, query, selection3, selectionArgs3, null, null, "_id DESC" );
         assignGridValue(contentValues, GRID_WEST, cursor3);
 
-        ContentValues[] withinCenter = findMapsWithin(table, mapScale, values[0]);  // TODO
-        ContentValues[] centerValues = new ContentValues[values.length + withinCenter.length];
-        System.arraycopy(values, 0, centerValues, 0, values.length);
-        System.arraycopy(withinCenter, 0, centerValues, values.length, withinCenter.length);
-        contentValues[GRID_CENTER] = centerValues;
+        ContentValues[] withinCenter = findMapsWithBounds(table, QUERY_MAPS_LISTENTRY, mapScale, !anyScale, values[0]);  // TODO
+        //ContentValues[] centerValues = new ContentValues[values.length + withinCenter.length];
+        //System.arraycopy(values, 0, centerValues, 0, values.length);
+        //System.arraycopy(withinCenter, 0, centerValues, values.length, withinCenter.length);
+        //contentValues[GRID_CENTER] = centerValues;
+        contentValues[GRID_CENTER] = withinCenter;
+        //contentValues[GRID_CENTER] = values;
 
         String selection5 = selection + KEY_MAP_LATITUDE_NORTH + " = ?" + " AND " + KEY_MAP_LONGITUDE_WEST + " = ?";
         String[] selectionArgs5 = new String[] { Double.toString(northLat), Double.toString(eastLon) };
@@ -732,11 +750,14 @@ public class TopoIndexDatabaseAdapter
 
         if (cursor != null)
         {
-            if (cursor.getCount() > 0) {
+            if (cursor.getCount() > 0)
+            {
                 setBoolean(contentValues, KEY_MAP_ISCOLLECTED, true);
                 contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, cursor.getString(1));
                 contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL1, cursor.getString(2));
                 contentValues.put(TopoIndexDatabaseAdapter.KEY_MAP_URL2, cursor.getString(3));
+            } else {
+                setBoolean(contentValues, KEY_MAP_ISCOLLECTED, false);
             }
             cursor.close();
 
