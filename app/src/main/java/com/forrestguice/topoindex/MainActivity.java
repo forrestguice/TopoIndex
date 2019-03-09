@@ -359,10 +359,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 openGeoPDF(uri);
 
             } else {
-                Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "url: " + urls[1], Toast.LENGTH_SHORT).show();
+                downloadGeoPDF(urls[1]);
             }
         } else {
-            Toast.makeText(MainActivity.this, "url: " + urls[0], Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "url: " + urls[1], Toast.LENGTH_SHORT).show();
+            downloadGeoPDF(urls[1]);
         }
     }
 
@@ -370,7 +372,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(uri, "application/pdf");
-        startActivity(intent);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void downloadGeoPDF(String url)
+    {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
