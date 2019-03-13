@@ -426,6 +426,18 @@ public class TopoIndexDatabaseAdapter
         return cursor;
     }
 
+    public Cursor getMap(String table, @NonNull String mapName, @NonNull String mapYear, String[] columns)
+    {
+        String[] query = columns;
+        String selection = KEY_MAP_NAME + " = ?" + " AND " + KEY_MAP_DATE + " = ?";
+        String[] selectionArgs = new String[] { mapName, mapYear };
+        Cursor cursor = database.query( table, query, selection, selectionArgs, null, null, KEY_MAP_DATE + " DESC" );
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+        return cursor;
+    }
+
     /**
      * Searches a list of ContentValues for the first entry having ISCOLLECTED flag.
      * @param mapList a list of ContentValues (maps)
