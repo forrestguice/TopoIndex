@@ -22,6 +22,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,13 +74,18 @@ public class QuadViewFragment extends TopoIndexFragment
     private void restoreFromState(Bundle state)
     {
         contentValues = new ContentValues[9][];
-        for (int i=0; i<contentValues.length; i++) {
-            contentValues[i] = (ContentValues[])state.getParcelableArray(KEY_CONTENTVALUES + i);
+        for (int i=0; i<contentValues.length; i++)
+        {
+            try {
+                contentValues[i] = (ContentValues[])state.getParcelableArray(KEY_CONTENTVALUES + i);
+            } catch (ClassCastException e) {
+                Log.w(TAG, "restoreState: " + e);
+            }
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View contentView = inflater.inflate(R.layout.layout_fragment_topoquad, container, false);
         initViews(getActivity(), contentView);
