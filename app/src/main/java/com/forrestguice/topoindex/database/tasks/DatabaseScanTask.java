@@ -23,19 +23,37 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.forrestguice.topoindex.AppSettings;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 public class DatabaseScanTask extends DatabaseTask
 {
     public static final String TAG = "TopoIndexTask";
 
     public static final String EXT_GEOPDF = "geo.pdf";
+    public static final String EXT_GEOPDF_TM = "tm_geo.pdf";
+
+    public static final String EXT_GEOJPG = "geo_jpg.zip";
+    public static final String EXT_GEOJPG_TM = "tm_geo_jpg.zip";
+
+    public static final String EXT_GEOTIFF = "geo_tiff.zip";
+    public static final String EXT_GEOTIFF_TM = "tm_geo_tiff.zip";
+
+    public static final String EXT_GEOKMZ = "geo_kmz.zip";
+    public static final String EXT_GEOKMZ_TM = "tm_geo_kmz.zip";
+
+    public static final String[] HTCM_EXTS = new String[] { EXT_GEOPDF, EXT_GEOTIFF, EXT_GEOJPG, EXT_GEOKMZ };
+    public static final String[] USTOPO_EXTS = new String[] { EXT_GEOPDF_TM, EXT_GEOTIFF_TM, EXT_GEOJPG_TM, EXT_GEOKMZ_TM };
 
     public DatabaseScanTask(Context context )
     {
@@ -102,35 +120,69 @@ public class DatabaseScanTask extends DatabaseTask
     {
         if (file.exists())
         {
-            String fileName = file.getName();
-            if (fileName.toLowerCase().endsWith(EXT_GEOPDF))
+            String fileName = file.getName().toLowerCase();
+            if (fileName.endsWith(EXT_GEOPDF))
             {
-                ContentValues fileValues = getValuesFromFileName_HTMC(file);  // TODO: support for US Topo
-                if (fileValues != null)
-                {
-                    Log.d(TAG, "scanFile: " + file.getAbsolutePath());
-                    fileValues = updateValuesFromDB_HTMC(fileValues);      // TODO: support US Topo
+                if (fileName.endsWith(EXT_GEOPDF_TM)) {
+                    scanFile_USTopo(file, result);
 
-                    TopoIndexDatabaseAdapter.setBoolean(fileValues, TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
-
-                    String scanID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
-                    if (database.hasMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS, scanID))
-                    {
-                        Log.d(TAG, "scanFile: updating " + file.getAbsolutePath() + " .. " + fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH));
-                        database.updateMaps_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
-
-                    } else {
-                        Log.d(TAG, "scanFile: adding " + file.getAbsolutePath());
-                        database.addMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
-                    }
-                    result.count++;
-
-                } else Log.w(TAG, "scanFile: missing values; skipping");
-
+                } else {
+                    scanFile_HTMC(file, result);
+                }
             } else {
                 Log.d(TAG, "scanFile: ignoring " + file.getAbsolutePath());
             }
         }
+    }
+
+    protected void scanFile_USTopo(File file, ScanResult result)
+    {
+        ContentValues fileValues = getValuesFromFileName_USTopo(file);
+        if (fileValues != null)
+        {
+            Log.d(TAG, "scanFile: USTopo: " + file.getAbsolutePath());
+            fileValues = updateValuesFromDB_USTopo(fileValues);
+
+            TopoIndexDatabaseAdapter.setBoolean(fileValues, TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
+
+            String itemID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
+            if (database.hasMap_USTopo(TopoIndexDatabaseAdapter.TABLE_MAPS, itemID))
+            {
+                Log.d(TAG, "scanFile: updating " + file.getAbsolutePath() + " .. " + fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH));
+                database.updateMaps_USTopo(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
+
+            } else {
+                Log.d(TAG, "scanFile: adding " + file.getAbsolutePath());
+                database.addMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
+            }
+            result.count++;
+
+        } else Log.w(TAG, "scanFile: missing values; skipping");
+    }
+
+    protected void scanFile_HTMC(File file, ScanResult result)
+    {
+        ContentValues fileValues = getValuesFromFileName_HTMC(file);
+        if (fileValues != null)
+        {
+            Log.d(TAG, "scanFile: HTMC: " + file.getAbsolutePath());
+            fileValues = updateValuesFromDB_HTMC(fileValues);
+
+            TopoIndexDatabaseAdapter.setBoolean(fileValues, TopoIndexDatabaseAdapter.KEY_MAP_ISCOLLECTED, true);
+
+            String scanID = fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_SCANID);
+            if (database.hasMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS, scanID))
+            {
+                Log.d(TAG, "scanFile: updating " + file.getAbsolutePath() + " .. " + fileValues.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH));
+                database.updateMaps_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
+
+            } else {
+                Log.d(TAG, "scanFile: adding " + file.getAbsolutePath());
+                database.addMaps(TopoIndexDatabaseAdapter.TABLE_MAPS, fileValues);
+            }
+            result.count++;
+
+        } else Log.w(TAG, "scanFile: missing values; skipping");
     }
 
     protected static class ScanResult
@@ -141,8 +193,37 @@ public class DatabaseScanTask extends DatabaseTask
     protected ContentValues getValuesFromFileName_USTopo( File file )
     {
         String fileName = file.getName();
-        // TODO
-        return null;
+        String[] parts = fileName.split("_");
+
+        if (parts.length >= 5)
+        {
+            ArrayList<String> nameParts = new ArrayList<>(Arrays.asList(parts));
+            nameParts.remove(nameParts.size() - 1);       // discard _[fileExt]
+            nameParts.remove(nameParts.size() - 1);       // discard _TM
+            nameParts.remove(nameParts.size() - 1);       // discard _[GDAItemID]
+            nameParts.remove(0);                          // discard _[STATE]
+            StringBuilder mapName = new StringBuilder();
+            for (int i=0; i<nameParts.size(); i++) {
+                mapName.append(nameParts.get(i));
+                mapName.append(" ");
+            }
+
+            List<String> reverseParts = Arrays.asList(parts);
+            Collections.reverse(reverseParts);
+
+            ContentValues values = new ContentValues();
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_STATE, reverseParts.get(reverseParts.size()-1));
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_NAME, mapName.toString().trim());
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATE, reverseParts.get(2).substring(0, 4));
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO);
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO);        // TODO: is this value more or less the same as series?
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, file.getAbsolutePath());
+            return values;
+
+        } else {
+            Log.w(TAG, "scanFile: unrecognized USTopo filename " + fileName);
+            return null;
+        }
     }
 
     protected ContentValues getValuesFromFileName_HTMC( File file )
@@ -158,12 +239,12 @@ public class DatabaseScanTask extends DatabaseTask
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATE, parts[3]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCALE, parts[4]);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_SERIES, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
-            values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);        // TODO: is this value more or less the same as series?
+            values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC);
             values.put(TopoIndexDatabaseAdapter.KEY_MAP_URL, file.getAbsolutePath());
             return values;
 
         } else {
-            Log.w(TAG, "scanFile: unrecognized filename " + fileName);
+            Log.w(TAG, "scanFile: unrecognized HTMC filename " + fileName);
             return null;
         }
     }
@@ -178,10 +259,20 @@ public class DatabaseScanTask extends DatabaseTask
                 String gdaItemID = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID);
                 if (gdaItemID != null && !gdaItemID.isEmpty())
                 {
-                    Cursor cursor = database.getMap_HTMC(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO, gdaItemID, TopoIndexDatabaseAdapter.QUERY_MAPS_FULLENTRY_USTOPO);
+                    Cursor cursor = database.getMap_USTopo(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO, gdaItemID, TopoIndexDatabaseAdapter.QUERY_MAPS_FULLENTRY_USTOPO);
                     updateValuesFromDB(values, cursor, gdaItemID);
 
-                } else Log.w(TAG, "updateValuesFromDB: missing GDA Item ID; skipping");
+                } else {
+                    Log.w(TAG, "updateValuesFromDB: missing GDA Item ID; trying name + date instead...");
+                    String mapName = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_NAME);
+                    String mapYear = values.getAsString(TopoIndexDatabaseAdapter.KEY_MAP_DATE);
+                    if (mapName != null && !mapName.isEmpty() && mapYear != null && !mapYear.isEmpty())
+                    {
+                        Cursor cursor = database.getMap(TopoIndexDatabaseAdapter.TABLE_MAPS_USTOPO, mapName, mapYear, TopoIndexDatabaseAdapter.QUERY_MAPS_FULLENTRY_USTOPO);
+                        updateValuesFromDB(values, cursor, mapName);
+
+                    } else Log.w(TAG, "updateValuesFromDB: missing name + date; skipping...");
+                }
             } else Log.w(TAG, "updateValuesFromDB: missing series; skipping ");
         }  else Log.w(TAG, "updateValuesFromDB: missing values; skipping");
 
@@ -208,7 +299,7 @@ public class DatabaseScanTask extends DatabaseTask
         return values;
     }
 
-    protected void updateValuesFromDB(ContentValues values, Cursor cursor, String itemID)
+    protected void updateValuesFromDB(ContentValues values, Cursor cursor, @Nullable String itemID)
     {
         if (cursor != null)
         {
@@ -216,22 +307,31 @@ public class DatabaseScanTask extends DatabaseTask
             {
                 Log.d(TAG, "updateValuesFromDB: " + itemID);
                 cursor.moveToFirst();
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_SCANID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_SCANID)));
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_CELLID)));
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID)));
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_SCANID, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, cursor, values);
 
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH)));
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH)));
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST)));
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST)));
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST, cursor, values);
 
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION)));
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_DATUM, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_DATUM)));
-                values.put(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, cursor.getString(cursor.getColumnIndex(TopoIndexDatabaseAdapter.KEY_MAP_VERSION)));
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_SCALE, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_DATUM, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, cursor, values);
 
             } else Log.w(TAG, "updateValuesFromDB: empty cursor; skipping " + itemID);
             cursor.close();
 
         } else Log.w(TAG, "updateValuesFromDB: null cursor; skipping " + itemID);
+    }
+
+    private static void putIntoValues(String key, Cursor cursor, ContentValues values)
+    {
+        int i = cursor.getColumnIndex(key);
+        if (i != -1) {
+            values.put(key, cursor.getString(i));
+        }
     }
 }
