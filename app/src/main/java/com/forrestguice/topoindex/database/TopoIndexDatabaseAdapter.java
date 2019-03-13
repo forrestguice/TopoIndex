@@ -27,6 +27,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.forrestguice.topoindex.AppSettings;
@@ -1002,6 +1003,41 @@ public class TopoIndexDatabaseAdapter
         values.put(key, (value ? "true" : "false"));
     }
 
+    public static void updateValuesFromDB(ContentValues values, Cursor cursor, @Nullable String itemID)
+    {
+        if (cursor != null)
+        {
+            if (cursor.getCount() > 0)
+            {
+                Log.d(TAG, "updateValuesFromDB: " + itemID);
+                cursor.moveToFirst();
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_SCANID, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_CELLID, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_GDAITEMID, cursor, values);
+
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_NORTH, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_LATITUDE_SOUTH, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_WEST, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_LONGITUDE_EAST, cursor, values);
+
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_SCALE, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_PROJECTION, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_DATUM, cursor, values);
+                putIntoValues(TopoIndexDatabaseAdapter.KEY_MAP_VERSION, cursor, values);
+
+            } else Log.w(TAG, "updateValuesFromDB: empty cursor; skipping " + itemID);
+            cursor.close();
+
+        } else Log.w(TAG, "updateValuesFromDB: null cursor; skipping " + itemID);
+    }
+
+    private static void putIntoValues(String key, Cursor cursor, ContentValues values)
+    {
+        int i = cursor.getColumnIndex(key);
+        if (i != -1) {
+            values.put(key, cursor.getString(i));
+        }
+    }
 
     /**
      * DatabaseHelper
