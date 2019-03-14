@@ -66,6 +66,7 @@ public class TopoIndexDatabaseService extends Service
 
     public static final String EXTRA_SERVICE_LISTENER = "service_listener";
     public static final String EXTRA_FILTER_STATES = "filter_states";
+    public static final String EXTRA_FILTER_SERIES = "filter_series";
 
     @Nullable
     @Override
@@ -351,6 +352,7 @@ public class TopoIndexDatabaseService extends Service
 
         if (intent != null) {
             task.setFilter_state(intent.getStringArrayExtra(EXTRA_FILTER_STATES));
+            task.setFilter_series(intent.getStringArrayExtra(EXTRA_FILTER_SERIES));
         }
 
         databaseTaskListener = new DatabaseTaskListener()

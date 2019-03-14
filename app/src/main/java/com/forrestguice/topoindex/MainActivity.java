@@ -839,6 +839,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                             Intent intent = new Intent();
                             intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
+                            //intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_SERIES, series);    // TODO
                             databaseService.runDatabaseInitTask(context, intent, uri, initTaskListener);
                         }
                     });

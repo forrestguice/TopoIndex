@@ -51,8 +51,6 @@ public class TopoIndexDatabaseAdapter
 
     public static final String KEY_MAP_SERIES = "series";
     public static final String DEF_MAP_SERIES = KEY_MAP_SERIES + " text not null";
-    public static final String VAL_MAP_SERIES_HTMC = "HTMC";
-    public static final String VAL_MAP_SERIES_USTOPO = "US Topo";
 
     public static final String KEY_MAP_VERSION = "version";
     public static final String DEF_MAP_VERSION = KEY_MAP_VERSION + " text";
@@ -1177,6 +1175,14 @@ public class TopoIndexDatabaseAdapter
             }
         }
     }
+
+    /**
+     * VAL_SERIES
+     */
+
+    public static final String VAL_MAP_SERIES_HTMC = "HTMC";
+    public static final String VAL_MAP_SERIES_USTOPO = "US Topo";
+    public static final String[] VAL_MAP_SERIES = new String[] { VAL_MAP_SERIES_HTMC, VAL_MAP_SERIES_USTOPO };
 
     /**
      * VAL_STATES

@@ -26,7 +26,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.forrestguice.topoindex.database.TopoIndexDatabaseAdapter;
-import com.forrestguice.topoindex.dialogs.StatesDialog;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -36,7 +35,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -58,6 +56,9 @@ public class DatabaseInitTask extends DatabaseTask
 
         if (filterStates == null) {
             setFilter_state(null);
+        }
+        if (filterSeries == null) {
+            setFilter_series(null);
         }
 
         if (uris.length > 0)
@@ -115,7 +116,7 @@ public class DatabaseInitTask extends DatabaseTask
 
                         int i = 1;         // count lines
                         int c = 0;             // count items
-                        int n = 10000 * filterStates.size();  // rough estimate total items
+                        int n = 10000 * filterStates.size();  // rough estimate total items       // TODO
                         int batchValuesNum = n / 350;
 
                         String line;
@@ -126,18 +127,21 @@ public class DatabaseInitTask extends DatabaseTask
                         ContentValues[] arrayType_contentValues = new ContentValues[0];
                         DatabaseTaskProgress progressObj = new DatabaseTaskProgress("", 0, n);
 
-                        String val_htmc = "\"" + TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC + "\"";
-                        String val_ustopo = "\"" + TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO + "\"";
-
                         while ((line = reader.readLine()) != null)
                         {
                             entry = line.split(",");
                             if (entry.length == columns.length)
                             {
                                 state = entry[4];
-                                if (filterStates.contains(state))
+                                series = entry[0];
+                                if (filterStates.contains(state) && filterSeries.contains(series))
                                 {
-                                    series = entry[0];
+
+
+
+                                    String val_htmc = "\"" + TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC + "\"";
+                                    String val_ustopo = "\"" + TopoIndexDatabaseAdapter.VAL_MAP_SERIES_USTOPO + "\"";
+
                                     if (series.equals(val_htmc))
                                     {
                                         values = new ContentValues();
@@ -165,9 +169,12 @@ public class DatabaseInitTask extends DatabaseTask
                                         }
                                         c++;
 
+
+
                                     } else {
                                         Log.w(TAG, "initDB: unrecognized series: " + entry[0] + " .. " + line + " .. ignoring this line...");
                                     }
+
                                 } /*else {
                                     Log.w(TAG, "initDB: skipping state " + entry[4] + " .. ignoring this line...");
                                 }*/
@@ -177,12 +184,12 @@ public class DatabaseInitTask extends DatabaseTask
                             i++;
                         }
 
-                        if (htmcValues.size() >= 0) {
+                        if (htmcValues.size() > 0) {
                             database.addMaps_HTMC(htmcValues.toArray(arrayType_contentValues));
                             htmcValues.clear();
                         }
 
-                        if (ustopoValues.size() >= 0) {
+                        if (ustopoValues.size() > 0) {
                             database.addMaps_USTopo( ustopoValues.toArray(arrayType_contentValues) );
                             ustopoValues.clear();
                         }
@@ -229,12 +236,28 @@ public class DatabaseInitTask extends DatabaseTask
         {
             for (String state : states) {
                 filterStates.add("\"" + state + "\"");
-                Log.d(TAG, "added to list " + state);
             }
 
         } else {
             for (String state : TopoIndexDatabaseAdapter.VAL_STATES.keySet()) {
                 filterStates.add("\"" + state + "\"");
+            }
+        }
+    }
+
+    private Set<String> filterSeries = null;
+    public void setFilter_series(String[] series)
+    {
+        filterSeries = new HashSet<>();
+        if (series != null)
+        {
+            for (String seriesID : series) {
+                filterSeries.add("\"" + seriesID + "\"");
+            }
+
+        } else {
+            for (String seriesID : TopoIndexDatabaseAdapter.VAL_MAP_SERIES) {
+                filterSeries.add("\"" + seriesID + "\"");
             }
         }
     }

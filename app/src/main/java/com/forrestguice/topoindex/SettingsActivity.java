@@ -449,6 +449,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                     {
                         Intent intent = new Intent();
                         intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
+                        //intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_SERIES, series);    // TODO
                         databaseService.runDatabaseInitTask(activity, intent, uri, null);
                     }
                 }
