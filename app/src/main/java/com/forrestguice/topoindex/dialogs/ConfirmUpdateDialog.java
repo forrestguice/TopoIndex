@@ -33,7 +33,7 @@ public class ConfirmUpdateDialog extends DialogFragment
     public static final String TAG = "TopoIndexConfirm";
 
     public static final String KEY_URI = "param_uri";
-    public static final String KEY_STATES = "param_states";
+    public static final String KEY_BUNDLE = "param_bundle";
 
     @NonNull
     @Override
@@ -41,13 +41,8 @@ public class ConfirmUpdateDialog extends DialogFragment
     {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null)
-        {
-            states = savedInstanceState.getStringArray(KEY_STATES);
-            String uriString = savedInstanceState.getString(KEY_URI);
-            if (uriString != null) {
-                uri = Uri.parse(uriString);
-            }
+        if (savedInstanceState != null) {
+            bundle = savedInstanceState.getBundle(KEY_BUNDLE);
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -68,31 +63,18 @@ public class ConfirmUpdateDialog extends DialogFragment
     @Override
     public void onSaveInstanceState( Bundle outState)
     {
-        if (uri != null) {
-            outState.putString(KEY_URI, uri.toString());
-        }
-        outState.putStringArray(KEY_STATES, states);
+        outState.putBundle(KEY_BUNDLE, bundle);
         super.onSaveInstanceState(outState);
     }
 
-    private String[] states;
-    public void setFilter_states(String[] values)
+    private Bundle bundle;
+    public void setBundle(Bundle bundle)
     {
-        states = values;
+        this.bundle = bundle;
     }
-    public String[] getFilter_states()
+    public Bundle getBundle()
     {
-        return states;
-    }
-
-    private Uri uri;
-    public void setUri(Uri value)
-    {
-        uri = value;
-    }
-    public Uri getUri()
-    {
-        return uri;
+        return bundle;
     }
 
     private ConfirmDialogListener dialogListener;

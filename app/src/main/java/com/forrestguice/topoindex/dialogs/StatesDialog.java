@@ -21,15 +21,12 @@ package com.forrestguice.topoindex.dialogs;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -45,7 +42,7 @@ public class StatesDialog extends DialogFragment
 {
     public static final String TAG = "TopoIndexStates";
 
-    public static final String KEY_URI = "param_uri";
+    public static final String KEY_BUNDLE = "param_bundle";
     public static final String KEY_SHOWALL = "showSelectAll";
     public static final String KEY_SHOWCLEAR = "showClear";
     public static final String KEY_SHOWCANCEL = "showCancel";
@@ -136,9 +133,7 @@ public class StatesDialog extends DialogFragment
     @Override
     public void onSaveInstanceState( @NonNull Bundle state )
     {
-        if (uri != null) {
-            state.putString(KEY_URI, uri.toString());
-        }
+        state.putBundle(KEY_BUNDLE, bundle);
         state.putBoolean(KEY_ATLEASTONE, requireAtLeastOne);
         state.putStringArray(FilterDialog.FILTER_STATE, getSelection());
         state.putBoolean(KEY_SHOWCANCEL, showCancelButton);
@@ -149,10 +144,7 @@ public class StatesDialog extends DialogFragment
 
     private void restoreDialogState( @NonNull Bundle state )
     {
-        String uriString = state.getString(KEY_URI);
-        if (uriString != null) {
-            uri = Uri.parse(uriString);
-        }
+        bundle = state.getBundle(KEY_BUNDLE);
         requireAtLeastOne = state.getBoolean(KEY_ATLEASTONE, requireAtLeastOne);
         showSelectAll = state.getBoolean(KEY_SHOWALL, showSelectAll);
         showClear = state.getBoolean(KEY_SHOWCLEAR, showClear);
@@ -244,14 +236,14 @@ public class StatesDialog extends DialogFragment
         getDialog().dismiss();
     }
 
-    private Uri uri;
-    public void setUri(Uri value)
+    private Bundle bundle;
+    public void setBundle(Bundle bundle)
     {
-        uri = value;
+        this.bundle = bundle;
     }
-    public Uri getUri()
+    public Bundle getBundle()
     {
-        return uri;
+        return bundle;
     }
 
     public boolean requireAtLeastOne = false;

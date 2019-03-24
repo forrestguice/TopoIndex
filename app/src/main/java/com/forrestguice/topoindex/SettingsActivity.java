@@ -35,6 +35,7 @@ import android.os.IBinder;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
@@ -253,8 +254,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             switch (requestCode)
             {
                 case REQUEST_UPDATEURI:
-                    if (data != null) {
-                        showUpdateConfirmDialog(data.getData());
+                    if (data != null)
+                    {
+                        Bundle bundle;
+                        Uri uri = data.getData();
+                        if (uri != null)
+                        {
+                            bundle = new Bundle();
+                            bundle.putString(ConfirmUpdateDialog.KEY_URI, uri.toString());
+                        } else bundle = null;
+                        showUpdateConfirmDialog(bundle);
                     }
                     break;
             }
@@ -288,12 +297,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             android.app.FragmentManager fragments = getFragmentManager();
             StatesDialog statesDialog = (StatesDialog) fragments.findFragmentByTag(TAG_DIALOG_STATES);
             if (statesDialog != null) {
-                statesDialog.setDialogListener(statesDialogListener(statesDialog.getUri()));
+                statesDialog.setDialogListener(statesDialogListener(statesDialog.getBundle()));
             }
 
             ConfirmUpdateDialog confirmDialog = (ConfirmUpdateDialog) fragments.findFragmentByTag(TAG_DIALOG_CONFIRM);
             if (confirmDialog != null) {
-                confirmDialog.setDialogListener(confirmationDialogListener(getActivity(), confirmDialog.getUri(), confirmDialog.getFilter_states()));
+                confirmDialog.setDialogListener(confirmationDialogListener(getActivity(), confirmDialog.getBundle()));
             }
         }
 
@@ -339,15 +348,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             }
         }
 
-        private void showUpdateConfirmDialog(final Uri uri)
+        private void showUpdateConfirmDialog(Bundle bundle)
         {
             StatesDialog statesDialog = new StatesDialog();
             statesDialog.setShowCancelButton(true);
             statesDialog.setShowSelectAll(true);
             statesDialog.setRequireAtLeastOne(true);
             statesDialog.setSelection(AppSettings.getLastUpdateSelection(getActivity()));
-            statesDialog.setUri(uri);
-            statesDialog.setDialogListener(statesDialogListener(uri));
+            statesDialog.setBundle(bundle);
+            statesDialog.setDialogListener(statesDialogListener(bundle));
             statesDialog.show(getFragmentManager(), TAG_DIALOG_STATES);
         }
 
@@ -421,35 +430,42 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             return super.onOptionsItemSelected(item);
         }
 
-        protected StatesDialog.StatesDialogListener statesDialogListener(final Uri uri)
+        protected StatesDialog.StatesDialogListener statesDialogListener(final Bundle bundle)
         {
             return new StatesDialog.StatesDialogListener()
             {
                 @Override
                 public void onDialogAccepted(final String[] selection)
                 {
+                    Bundle updateBundle = (bundle != null) ? bundle : new Bundle();
+                    updateBundle.putStringArray(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
+
                     ConfirmUpdateDialog confirmation = new ConfirmUpdateDialog();
-                    confirmation.setUri(uri);
-                    confirmation.setFilter_states(selection);
-                    confirmation.setDialogListener(confirmationDialogListener(getActivity(), uri, selection));
+                    confirmation.setBundle(bundle);
+                    confirmation.setDialogListener(confirmationDialogListener(getActivity(), updateBundle));
                     confirmation.show(getFragmentManager(), TAG_DIALOG_CONFIRM);
                 }
             };
         }
 
-        protected ConfirmUpdateDialog.ConfirmDialogListener confirmationDialogListener(final Activity activity, final Uri uri, final String[] selection)
+        protected ConfirmUpdateDialog.ConfirmDialogListener confirmationDialogListener(final Activity activity, @NonNull final Bundle bundle)
         {
             return new ConfirmUpdateDialog.ConfirmDialogListener()
             {
                 @Override
                 public void onConfirmed()
                 {
-                    AppSettings.setLastUpdateSelection(getActivity(), selection);
+                    AppSettings.setLastUpdateSelection(getActivity(), bundle.getStringArray(TopoIndexDatabaseService.EXTRA_FILTER_STATES));
                     if (databaseService != null)
                     {
+                        Uri uri = null;
+                        String uriString = bundle.getString(ConfirmUpdateDialog.KEY_URI);
+                        if (uriString != null) {
+                            uri = Uri.parse(uriString);
+                        }
+
                         Intent intent = new Intent();
-                        intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);
-                        //intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_SERIES, series);    // TODO
+                        intent.putExtras(bundle);
                         databaseService.runDatabaseInitTask(activity, intent, uri, null);
                     }
                 }
