@@ -52,6 +52,7 @@ import com.forrestguice.topoindex.database.tasks.DatabaseTaskProgress;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseService;
 import com.forrestguice.topoindex.database.TopoIndexDatabaseSettings;
 import com.forrestguice.topoindex.dialogs.ConfirmUpdateDialog;
+import com.forrestguice.topoindex.dialogs.SeriesDialog;
 import com.forrestguice.topoindex.dialogs.StatesDialog;
 
 import java.text.DateFormat;
@@ -61,6 +62,7 @@ import java.util.List;
 public class SettingsActivity extends AppCompatPreferenceActivity
 {
     public static final String TAG = "TopoIndexSettings";
+    public static final String TAG_DIALOG_SERIES = "seriesDialog";
     public static final String TAG_DIALOG_STATES = "statesDialog";
     public static final String TAG_DIALOG_CONFIRM = "confirmDialog";
 
@@ -256,14 +258,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 case REQUEST_UPDATEURI:
                     if (data != null)
                     {
-                        Bundle bundle;
                         Uri uri = data.getData();
-                        if (uri != null)
-                        {
-                            bundle = new Bundle();
+                        if (uri != null) {
+                            Bundle bundle = new Bundle();
                             bundle.putString(ConfirmUpdateDialog.KEY_URI, uri.toString());
-                        } else bundle = null;
-                        showUpdateConfirmDialog(bundle);
+                            showUpdateConfirmDialog(bundle);
+                        } else showUpdateConfirmDialog(null);
                     }
                     break;
             }
@@ -295,6 +295,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             super.onResume();
 
             android.app.FragmentManager fragments = getFragmentManager();
+            SeriesDialog seriesDialog = (SeriesDialog) fragments.findFragmentByTag(TAG_DIALOG_SERIES);
+            if (seriesDialog != null) {
+                seriesDialog.setDialogListener(seriesDialogListener(seriesDialog.getBundle()));
+            }
+
             StatesDialog statesDialog = (StatesDialog) fragments.findFragmentByTag(TAG_DIALOG_STATES);
             if (statesDialog != null) {
                 statesDialog.setDialogListener(statesDialogListener(statesDialog.getBundle()));
@@ -350,14 +355,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity
 
         private void showUpdateConfirmDialog(Bundle bundle)
         {
-            StatesDialog statesDialog = new StatesDialog();
-            statesDialog.setShowCancelButton(true);
-            statesDialog.setShowSelectAll(true);
-            statesDialog.setRequireAtLeastOne(true);
-            statesDialog.setSelection(AppSettings.getLastUpdateSelection(getActivity()));
-            statesDialog.setBundle(bundle);
-            statesDialog.setDialogListener(statesDialogListener(bundle));
-            statesDialog.show(getFragmentManager(), TAG_DIALOG_STATES);
+            SeriesDialog seriesDialog = new SeriesDialog();
+            seriesDialog.setShowCancelButton(true);
+            seriesDialog.setShowSelectAll(true);
+            seriesDialog.setRequireAtLeastOne(true);
+            seriesDialog.setSelection(AppSettings.getLastUpdateSeriesSelection(getActivity()));
+            seriesDialog.setBundle(bundle);
+            seriesDialog.setDialogListener(seriesDialogListener(bundle));
+            seriesDialog.show(getFragmentManager(), TAG_DIALOG_SERIES);
         }
 
         private int selectedUpdateOption = 0;
@@ -430,6 +435,28 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             return super.onOptionsItemSelected(item);
         }
 
+        protected SeriesDialog.SeriesDialogListener seriesDialogListener(final Bundle bundle)
+        {
+            return new SeriesDialog.SeriesDialogListener()
+            {
+                @Override
+                public void onDialogAccepted(final String[] selection)
+                {
+                    Bundle updateBundle = (bundle != null) ? bundle : new Bundle();
+                    updateBundle.putStringArray(TopoIndexDatabaseService.EXTRA_FILTER_SERIES, selection);
+
+                    StatesDialog statesDialog = new StatesDialog();
+                    statesDialog.setShowCancelButton(true);
+                    statesDialog.setShowSelectAll(true);
+                    statesDialog.setRequireAtLeastOne(true);
+                    statesDialog.setSelection(AppSettings.getLastUpdateStateSelection(getActivity()));
+                    statesDialog.setBundle(updateBundle);
+                    statesDialog.setDialogListener(statesDialogListener(updateBundle));
+                    statesDialog.show(getFragmentManager(), TAG_DIALOG_STATES);
+                }
+            };
+        }
+
         protected StatesDialog.StatesDialogListener statesDialogListener(final Bundle bundle)
         {
             return new StatesDialog.StatesDialogListener()
@@ -455,7 +482,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity
                 @Override
                 public void onConfirmed()
                 {
-                    AppSettings.setLastUpdateSelection(getActivity(), bundle.getStringArray(TopoIndexDatabaseService.EXTRA_FILTER_STATES));
+                    AppSettings.setLastUpdateStateSelection(getActivity(), bundle.getStringArray(TopoIndexDatabaseService.EXTRA_FILTER_STATES));
+                    AppSettings.setLastUpdateSeriesSelection(getActivity(), bundle.getStringArray(TopoIndexDatabaseService.EXTRA_FILTER_SERIES));
+
                     if (databaseService != null)
                     {
                         Uri uri = null;

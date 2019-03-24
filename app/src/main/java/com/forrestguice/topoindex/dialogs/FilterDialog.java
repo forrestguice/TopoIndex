@@ -53,6 +53,7 @@ public class FilterDialog extends BottomSheetDialogFragment
     public static final String FILTER_NAME = "nameFilter";
     public static final String FILTER_STATE = "stateFilter";
     public static final String FILTER_SCALE = "scaleFilter";
+    public static final String FILTER_SERIES = "seriesFilter";  // TODO
 
     private EditText edit_filterName;
     private TextView label_filterState;

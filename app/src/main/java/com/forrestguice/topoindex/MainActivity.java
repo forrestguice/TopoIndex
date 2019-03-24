@@ -829,13 +829,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     statesDialog.setShowCancelButton(true);
                     statesDialog.setShowSelectAll(true);
                     statesDialog.setRequireAtLeastOne(true);
-                    statesDialog.setSelection(AppSettings.getLastUpdateSelection(MainActivity.this));
+                    statesDialog.setSelection(AppSettings.getLastUpdateStateSelection(MainActivity.this));
                     statesDialog.setDialogListener(new StatesDialog.StatesDialogListener()
                     {
                         @Override
                         public void onDialogAccepted(String[] selection)
                         {
-                            AppSettings.setLastUpdateSelection(MainActivity.this, selection);
+                            AppSettings.setLastUpdateStateSelection(MainActivity.this, selection);
 
                             Intent intent = new Intent();
                             intent.putExtra(TopoIndexDatabaseService.EXTRA_FILTER_STATES, selection);

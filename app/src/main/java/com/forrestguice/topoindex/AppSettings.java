@@ -76,8 +76,11 @@ public class AppSettings
     public static final String KEY_FILTER_PROXIMITY = "filterByProximity";
     public static final float DEF_FILTER_PROXIMITY = 0.0f;      // def no min
 
-    public static final String KEY_LASTUPDATE_SELECTION = "lastUpdateSelection";
-    public static final String[] DEF_LASTUPDATE_SELECTION = new String[0];   // empty  // TopoIndexDatabaseAdapter.VAL_STATES.keySet().toArray(new String[0]);  // all states
+    public static final String KEY_LASTUPDATE_STATE_SELECTION = "lastUpdateStateSelection";
+    public static final String[] DEF_LASTUPDATE_STATE_SELECTION = new String[0];   // empty  // TopoIndexDatabaseAdapter.VAL_STATES.keySet().toArray(new String[0]);  // all states
+
+    public static final String KEY_LASTUPDATE_SERIES_SELECTION = "lastUpdateSeriesSelection";
+    public static final String[] DEF_LASTUPDATE_SERIES_SELECTION = new String[] { TopoIndexDatabaseAdapter.VAL_MAP_SERIES_HTMC };
 
     public static String[] getCollectionPath(Context context)
     {
@@ -106,16 +109,29 @@ public class AppSettings
         prefsEdit.apply();
     }
 
-    public static String[] getLastUpdateSelection(Context context)
+    public static String[] getLastUpdateStateSelection(Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> filterSet = prefs.getStringSet(KEY_LASTUPDATE_SELECTION, new HashSet<String>(Arrays.asList(DEF_LASTUPDATE_SELECTION)));
+        Set<String> filterSet = prefs.getStringSet(KEY_LASTUPDATE_STATE_SELECTION, new HashSet<String>(Arrays.asList(DEF_LASTUPDATE_STATE_SELECTION)));
         return new ArrayList<String>(filterSet).toArray(new String[0]);
     }
-    public static void setLastUpdateSelection(Context context, String[] filterSet)
+    public static void setLastUpdateStateSelection(Context context, String[] filterSet)
     {
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        prefs.putStringSet(KEY_LASTUPDATE_SELECTION, new HashSet<String>(Arrays.asList(filterSet)));
+        prefs.putStringSet(KEY_LASTUPDATE_STATE_SELECTION, new HashSet<String>(Arrays.asList(filterSet)));
+        prefs.apply();
+    }
+
+    public static String[] getLastUpdateSeriesSelection(Context context)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> filterSet = prefs.getStringSet(KEY_LASTUPDATE_SERIES_SELECTION, new HashSet<String>(Arrays.asList(DEF_LASTUPDATE_SERIES_SELECTION)));
+        return new ArrayList<String>(filterSet).toArray(new String[0]);
+    }
+    public static void setLastUpdateSeriesSelection(Context context, String[] filterSet)
+    {
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        prefs.putStringSet(KEY_LASTUPDATE_SERIES_SELECTION, new HashSet<String>(Arrays.asList(filterSet)));
         prefs.apply();
     }
 
