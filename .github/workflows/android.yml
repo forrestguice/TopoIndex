@@ -24,7 +24,7 @@ jobs:
       uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9  #v4.8.0
       with:
         distribution: 'temurin'
-        java-version: '1.8'
+        java-version: '8'
 
     - name: Gradle Wrapper Validation
       uses: gradle/actions/wrapper-validation@748248ddd2a24f49513d8f472f81c3a07d4d50e1  #v4.4.4
